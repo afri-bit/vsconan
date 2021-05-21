@@ -1,0 +1,14 @@
+{
+    "python-bin": "",
+    "profile": "",
+    "name": "",
+    "channel": "",
+    "command": {
+        "create": [],
+        "install": [],
+        "build": [],
+        "source": [],
+        "package": [],
+        "package_export": []
+    }
+}

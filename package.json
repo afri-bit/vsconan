@@ -1,0 +1,82 @@
+{
+	"name": "conan-blade-vscode",
+	"displayName": "Conan Blade VSCode",
+	"description": "Conan package manager extension",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.56.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"workspaceContains:conanfile.py",
+		"workspaceContains:conanfile.txt",
+		"onCommand:conanblade.conan",
+		"onCommand:conanblade.conan.new",
+		"onCommand:conanblade.conan.create",
+		"onCommand:conanblade.conan.install",
+		"onCommand:conanblade.conan.build",
+		"onCommand:conanblade.conan.source",
+		"onCommand:conanblade.conan.package",
+		"onCommand:conanblade.conan.package.export"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "conanblade.conan",
+				"title": "Conan"
+			},
+			{
+				"command": "conanblade.conan.new",
+				"title": "Conan: New"
+			},
+			{
+				"command": "conanblade.conan.create",
+				"title": "Conan: Create"
+			},
+			{
+				"command": "conanblade.conan.install",
+				"title": "Conan: Install"
+			},
+			{
+				"command": "conanblade.conan.build",
+				"title": "Conan: Build"
+			},
+			{
+				"command": "conanblade.conan.source",
+				"title": "Conan: Source"
+			},
+			{
+				"command": "conanblade.conan.package",
+				"title": "Conan: Package"
+			},
+			{
+				"command": "conanblade.conan.package.export",
+				"title": "Conan: Export Package"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.56.0",
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.0.4",
+		"@types/node": "^12.11.7",
+		"eslint": "^7.19.0",
+		"@typescript-eslint/eslint-plugin": "^4.14.1",
+		"@typescript-eslint/parser": "^4.14.1",
+		"glob": "^7.1.6",
+		"mocha": "^8.2.1",
+		"typescript": "^4.1.3",
+		"vscode-test": "^1.5.0"
+	}
+}
