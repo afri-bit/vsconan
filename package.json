@@ -19,7 +19,8 @@
 		"onCommand:conanblade.conan.build",
 		"onCommand:conanblade.conan.source",
 		"onCommand:conanblade.conan.package",
-		"onCommand:conanblade.conan.package.export"
+		"onCommand:conanblade.conan.package.export",
+		"onCommand:workbench.action.tasks.runTask"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
