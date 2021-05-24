@@ -20,7 +20,7 @@
 		"onCommand:conanblade.conan.source",
 		"onCommand:conanblade.conan.package",
 		"onCommand:conanblade.conan.package.export",
-		"onCommand:workbench.action.tasks.runTask"
+		"onCommand:conanblade.config.create"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -56,6 +56,10 @@
 			{
 				"command": "conanblade.conan.package.export",
 				"title": "Conan: Export Package"
+			},
+			{
+				"command": "conanblade.config.create",
+				"title": "Conan: Create Configuration (JSON)"
 			}
 		]
 	},

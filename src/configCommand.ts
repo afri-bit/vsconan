@@ -70,13 +70,13 @@ export class ConfigCommandBuild extends Config {
         description: string = "Build command",
         detail: string = "Build command detail",
         installFolder: string = "install",
-        buildfolder: string = "build",
+        buildFolder: string = "build",
         packageFolder: string = "package",
         sourceFolder: string = "source",
         args: Array<string> = []) {
         super(name, description, detail);
         this.installFolder = installFolder;
-        this.buildFolder = buildfolder;
+        this.buildFolder = buildFolder;
         this.packageFolder = packageFolder;
         this.sourceFolder = sourceFolder;
         this.args = args;

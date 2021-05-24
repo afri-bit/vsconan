@@ -25,6 +25,10 @@ export class ConfigController {
         this.config = config;
     }
 
+    public getPython(): string {
+        return this.config.python;
+    }
+
     public getConfig(): ConanConfig {
         return this.config;
     }
