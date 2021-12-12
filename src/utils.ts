@@ -26,7 +26,7 @@ export function getWorkspaceConfigPath(): string | undefined {
     let configPath = undefined;
 
     if (getVSCodePath() != undefined) {
-        configPath = path.join(getVSCodePath()!, "conan-blade.json");
+        configPath = path.join(getVSCodePath()!, "vsconan.json");
     }
 
     return configPath;

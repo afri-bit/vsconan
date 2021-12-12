@@ -1,8 +1,8 @@
 {
-	"name": "conan-blade-vscode",
-	"displayName": "Conan Blade VSCode",
+	"name": "vsconan",
+	"displayName": "VSConan",
 	"description": "Conan package manager extension",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"engines": {
 		"vscode": "^1.56.0"
 	},
@@ -12,54 +12,54 @@
 	"activationEvents": [
 		"workspaceContains:conanfile.py",
 		"workspaceContains:conanfile.txt",
-		"onCommand:conanblade.conan",
-		"onCommand:conanblade.conan.new",
-		"onCommand:conanblade.conan.create",
-		"onCommand:conanblade.conan.install",
-		"onCommand:conanblade.conan.build",
-		"onCommand:conanblade.conan.source",
-		"onCommand:conanblade.conan.package",
-		"onCommand:conanblade.conan.package.export",
-		"onCommand:conanblade.config.create"
+		"onCommand:vsconan.conan",
+		"onCommand:vsconan.conan.new",
+		"onCommand:vsconan.conan.create",
+		"onCommand:vsconan.conan.install",
+		"onCommand:vsconan.conan.build",
+		"onCommand:vsconan.conan.source",
+		"onCommand:vsconan.conan.package",
+		"onCommand:vsconan.conan.package.export",
+		"onCommand:vsconan.config.create"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "conanblade.conan",
-				"title": "Conan"
+				"command": "vsconan.conan",
+				"title": "VSConan: Conan"
 			},
 			{
-				"command": "conanblade.conan.new",
-				"title": "Conan: New"
+				"command": "vsconan.conan.new",
+				"title": "VSConan: New"
 			},
 			{
-				"command": "conanblade.conan.create",
-				"title": "Conan: Create"
+				"command": "vsconan.conan.create",
+				"title": "VSConan: Create"
 			},
 			{
-				"command": "conanblade.conan.install",
-				"title": "Conan: Install"
+				"command": "vsconan.conan.install",
+				"title": "VSConan: Install"
 			},
 			{
-				"command": "conanblade.conan.build",
-				"title": "Conan: Build"
+				"command": "vsconan.conan.build",
+				"title": "VSConan: Build"
 			},
 			{
-				"command": "conanblade.conan.source",
-				"title": "Conan: Source"
+				"command": "vsconan.conan.source",
+				"title": "VSConan: Source"
 			},
 			{
-				"command": "conanblade.conan.package",
-				"title": "Conan: Package"
+				"command": "vsconan.conan.package",
+				"title": "VSConan: Package"
 			},
 			{
-				"command": "conanblade.conan.package.export",
-				"title": "Conan: Export Package"
+				"command": "vsconan.conan.package.export",
+				"title": "VSConan: Export Package"
 			},
 			{
-				"command": "conanblade.config.create",
-				"title": "Conan: Create Configuration (JSON)"
+				"command": "vsconan.config.create",
+				"title": "VSConan: Create Configuration (JSON)"
 			}
 		]
 	},

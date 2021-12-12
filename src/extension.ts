@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
     var configConan = new ConanConfig();
     var configController = new ConfigController(configConan);
 
-    var channelConanBlade = vscode.window.createOutputChannel("Conan Blade");
+    var channelVSConan = vscode.window.createOutputChannel("VSConan");
 
     if (wsPath != undefined) {
         if (!fs.existsSync(configPath!)) {
@@ -31,41 +31,41 @@ export function activate(context: vscode.ExtensionContext) {
             });
         }
     }
-    let commandConan = vscode.commands.registerCommand("conanblade.conan", () => {
-        CommandExecutor.executeCommandConan(configController, channelConanBlade);
+    let commandConan = vscode.commands.registerCommand("vsconan.conan", () => {
+        CommandExecutor.executeCommandConan(configController, channelVSConan);
     });
 
-    let commandConanNew = vscode.commands.registerCommand("conanblade.conan.new", () => {
-        CommandExecutor.executeCommandConanNew(configController, channelConanBlade);
+    let commandConanNew = vscode.commands.registerCommand("vsconan.conan.new", () => {
+        CommandExecutor.executeCommandConanNew(configController, channelVSConan);
     });
 
-    let commandConanCreate = vscode.commands.registerCommand("conanblade.conan.create", () => {
-        CommandExecutor.executeCommandConanCreate(configController, channelConanBlade);
+    let commandConanCreate = vscode.commands.registerCommand("vsconan.conan.create", () => {
+        CommandExecutor.executeCommandConanCreate(configController, channelVSConan);
     });
 
-    let commandConanInstall = vscode.commands.registerCommand("conanblade.conan.install", () => {
-        CommandExecutor.executeCommandConanInstall(configController, channelConanBlade);
+    let commandConanInstall = vscode.commands.registerCommand("vsconan.conan.install", () => {
+        CommandExecutor.executeCommandConanInstall(configController, channelVSConan);
     });
 
-    let commandConanBuild = vscode.commands.registerCommand("conanblade.conan.build", () => {
-        CommandExecutor.executeCommandConanBuild(configController, channelConanBlade);
+    let commandConanBuild = vscode.commands.registerCommand("vsconan.conan.build", () => {
+        CommandExecutor.executeCommandConanBuild(configController, channelVSConan);
     });
 
-    let commandConanSource = vscode.commands.registerCommand("conanblade.conan.source", () => {
-        CommandExecutor.executeCommandConanSource(configController, channelConanBlade);
+    let commandConanSource = vscode.commands.registerCommand("vsconan.conan.source", () => {
+        CommandExecutor.executeCommandConanSource(configController, channelVSConan);
 
     });
 
-    let commandConanPackage = vscode.commands.registerCommand("conanblade.conan.package", () => {
-        CommandExecutor.executeCommandConanPackage(configController, channelConanBlade);
+    let commandConanPackage = vscode.commands.registerCommand("vsconan.conan.package", () => {
+        CommandExecutor.executeCommandConanPackage(configController, channelVSConan);
     });
 
-    let commandConanExportPackage = vscode.commands.registerCommand("conanblade.conan.package.export", () => {
-        CommandExecutor.executeCommandConanPackageExport(configController, channelConanBlade);
+    let commandConanExportPackage = vscode.commands.registerCommand("vsconan.conan.package.export", () => {
+        CommandExecutor.executeCommandConanPackageExport(configController, channelVSConan);
     });
 
-    let commandConfigCreate = vscode.commands.registerCommand("conanblade.config.create", () => {
-        CommandExecutor.executeCommandConfigCreate(configController, channelConanBlade);
+    let commandConfigCreate = vscode.commands.registerCommand("vsconan.config.create", () => {
+        CommandExecutor.executeCommandConfigCreate(configController, channelVSConan);
     });
 
     context.subscriptions.push(commandConan);
