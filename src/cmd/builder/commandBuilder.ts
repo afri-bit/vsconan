@@ -1,8 +1,8 @@
 import { UriHandler } from "vscode";
-import * as utils from "./utils";
+import * as utils from "../../utils/utils";
 import * as fs from "fs";
 import * as path from "path";
-import { ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from "./configCommand"
+import { ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from "../config/commandConfig"
 
 function getWorkspaceAbsolutePath(pathName: string): string {
     if (path.isAbsolute(pathName))

@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import * as vscode from "vscode";
-import { CommandExecutor } from "./commandExecutor";
-import { ConanConfig, ConfigController } from "./conanConfig";
-import * as utils from "./utils";
+import { CommandExecutor } from "./cmd/exec/commandExecutor";
+import { ConanConfig, ConfigController } from "./config/conanConfig";
+import * as utils from "./utils/utils";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {

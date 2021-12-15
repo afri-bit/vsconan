@@ -4,8 +4,8 @@ import {
     ConfigCommand, ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall,
     ConfigCommandPackage,
     ConfigCommandPackageExport, ConfigCommandSource
-} from "./configCommand";
-import * as utils from "./utils";
+} from "../cmd/config/commandConfig";
+import * as utils from "../utils/utils";
 
 
 export class ConanConfig {

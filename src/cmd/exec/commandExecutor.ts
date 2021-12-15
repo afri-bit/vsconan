@@ -1,9 +1,9 @@
 import { spawn } from "child_process";
 import * as fs from "fs";
 import * as vscode from "vscode";
-import { CommandBuilder } from "./commandBuilder";
-import { ConfigController } from "./conanConfig";
-import * as utils from "./utils";
+import { CommandBuilder } from "../builder/commandBuilder";
+import { ConfigController } from "../../config/conanConfig";
+import * as utils from "../../utils/utils";
 
 interface ConfigCommandQuickPickItem extends vscode.QuickPickItem {
     index: number;
