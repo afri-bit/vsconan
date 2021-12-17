@@ -1,15 +1,34 @@
 import * as fs from "fs";
+import * as path from "path";
 import * as vscode from "vscode";
+import * as os from "os";
 import { CommandExecutor } from "./cmd/exec/commandExecutor";
 import { ConanConfig, ConfigController } from "./config/conanConfig";
 import * as utils from "./utils/utils";
+import { ConanAPI } from "./api/conan/conanAPI";
+import { ConanRecipeNodeProvider } from "./ui/treeview/conanRecipeProvider";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
+    // To work for the API a extension folder will created in the home directory
+    if (!fs.existsSync(utils.getVSConanHomeDir()))
+    {
+        fs.mkdirSync(utils.getVSConanHomeDir());
+
+        // TODO: Check if global config file is available, otherwise create a new one with default parameters
+    }
+
+    // Additionally the temp folder will created to store temporary files
+    if (!fs.existsSync(utils.getVSConanHomeDirTemp()))
+    {
+        fs.mkdirSync(utils.getVSConanHomeDirTemp());
+    }
 
     // Check if it starts with workspace
+    // To check whether its workspace or not is to determine if the function "getWorkspaceFolder" returns undefined or a path
+    // If user only open anyfile without a folder (as editor) this the workspace path will return "undefined"
     var wsPath = utils.getWorkspaceFolder();
-    var vscodePath = utils.getVSCodePath();
+    var vsconanPath = utils.getVSConanPath();
     var configPath = utils.getWorkspaceConfigPath();
 
     var configConan = new ConanConfig();
@@ -17,20 +36,35 @@ export function activate(context: vscode.ExtensionContext) {
 
     var channelVSConan = vscode.window.createOutputChannel("VSConan");
 
+    var conanApi = new ConanAPI();
+
+    const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi);
+    vscode.window.registerTreeDataProvider('vsconan-view-recipe', conanRecipeNodeProvider);
+
+    // This condition will be entered if vs code used as a workspace
     if (wsPath != undefined) {
-        if (!fs.existsSync(configPath!)) {
-            // Create .vscode folder if it doesnt exist
-            if (!fs.existsSync(vscodePath!))
-                fs.mkdirSync(vscodePath!);
 
-            configController.generateDefaultConfig();
+        if (isFolderConanProject(wsPath) && !fs.existsSync(configPath!)) {
 
-            let jsonConfig = JSON.stringify(configController.getConfig(), null, 4);
-            fs.writeFile(configPath!, jsonConfig, "utf8", function (err) {
-                if (err) throw err;
-            });
+            vscode.window
+                .showInformationMessage("The workspace is detected as a conan project. Do you want to configure this workspace?", ...["Yes", "No"])
+                .then((answer) => {
+                    if (answer === "Yes") {
+                        // Create .vsconan folder if it doesnt exist
+                        if (!fs.existsSync(vsconanPath!))
+                            fs.mkdirSync(vsconanPath!);
+
+                        configController.generateDefaultConfig();
+
+                        let jsonConfig = JSON.stringify(configController.getConfig(), null, 4);
+                        fs.writeFile(configPath!, jsonConfig, "utf8", function (err) {
+                            if (err) throw err;
+                        });
+                    }
+                });
         }
     }
+
     let commandConan = vscode.commands.registerCommand("vsconan.conan", () => {
         CommandExecutor.executeCommandConan(configController, channelVSConan);
     });
@@ -53,7 +87,6 @@ export function activate(context: vscode.ExtensionContext) {
 
     let commandConanSource = vscode.commands.registerCommand("vsconan.conan.source", () => {
         CommandExecutor.executeCommandConanSource(configController, channelVSConan);
-
     });
 
     let commandConanPackage = vscode.commands.registerCommand("vsconan.conan.package", () => {
@@ -77,6 +110,20 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(commandConanPackage);
     context.subscriptions.push(commandConanExportPackage);
     context.subscriptions.push(commandConfigCreate);
+}
+
+export function isFolderConanProject(ws: string): boolean {
+    let ret: boolean = false;
+
+    let conanpy: string = path.join(ws, "conanfile.py");
+    let conantxt: string = path.join(ws, "conanfile.txt");
+
+    if (fs.existsSync(conanpy) || fs.existsSync(conantxt)){
+        ret = true;
+    }
+
+    return ret;
+
 }
 
 // this method is called when your extension is deactivated

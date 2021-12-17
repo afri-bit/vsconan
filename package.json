@@ -10,6 +10,11 @@
 		"Other"
 	],
 	"activationEvents": [
+		"onView:vsconan-view-recipe",
+		"onView:vsconan-view-package",
+		"onView:vsconan-view-profile",
+		"onView:vsconan-view-remote",
+		"onView:vsconan-view-dependencies",
 		"workspaceContains:conanfile.py",
 		"workspaceContains:conanfile.txt",
 		"onCommand:vsconan.conan",

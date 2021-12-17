@@ -258,6 +258,9 @@ export class CommandExecutor {
             if (!fs.existsSync(utils.getVSCodePath()!))
                 fs.mkdirSync(utils.getVSCodePath()!);
 
+            if (!fs.existsSync(utils.getVSConanPath()!))
+                fs.mkdirSync(utils.getVSConanPath()!);
+
             configController.generateDefaultConfig();
 
             let jsonConfig = JSON.stringify(configController.getConfig(), null, 4);
