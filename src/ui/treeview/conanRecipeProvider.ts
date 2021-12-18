@@ -1,28 +1,28 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import {ConanAPI} from "../../api/conan/conanAPI";
+import { ConanAPI } from "../../api/conan/conanAPI";
 
 export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRecipeItem> {
 
-	private _onDidChangeTreeData: vscode.EventEmitter<ConanRecipeItem | undefined | void> = new vscode.EventEmitter<ConanRecipeItem | undefined | void>();
-	readonly onDidChangeTreeData: vscode.Event<ConanRecipeItem | undefined | void> = this._onDidChangeTreeData.event;
+    private _onDidChangeTreeData: vscode.EventEmitter<ConanRecipeItem | undefined | void> = new vscode.EventEmitter<ConanRecipeItem | undefined | void>();
+    readonly onDidChangeTreeData: vscode.Event<ConanRecipeItem | undefined | void> = this._onDidChangeTreeData.event;
 
     private conanApi: ConanAPI;
 
-	constructor(conanApi: ConanAPI) {
+    constructor(conanApi: ConanAPI) {
         this.conanApi = conanApi;
-	}
+    }
 
-	refresh(): void {
-		this._onDidChangeTreeData.fire();
-	}
+    refresh(): void {
+        this._onDidChangeTreeData.fire();
+    }
 
-	getTreeItem(element: ConanRecipeItem): vscode.TreeItem {
-		return element;
-	}
+    getTreeItem(element: ConanRecipeItem): vscode.TreeItem {
+        return element;
+    }
 
-	getChildren(element?: ConanRecipeItem): Thenable<ConanRecipeItem[]> {
+    getChildren(element?: ConanRecipeItem): Thenable<ConanRecipeItem[]> {
         let recipeList: Array<string> = this.conanApi.getRecipes();
 
         let recipeItemList: Array<ConanRecipeItem> = [];
@@ -32,20 +32,7 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
         }
 
         return Promise.resolve(recipeItemList);
-
-		// if (element) {
-		// 	return Promise.resolve(this.getDepsInPackageJson(path.join(this.workspaceRoot, 'node_modules', element.label, 'package.json')));
-		// } else {
-		// 	const packageJsonPath = path.join(this.workspaceRoot, 'package.json');
-		// 	if (this.pathExists(packageJsonPath)) {
-		// 		return Promise.resolve(this.getDepsInPackageJson(packageJsonPath));
-		// 	} else {
-		// 		vscode.window.showInformationMessage('Workspace has no package.json');
-		// 		return Promise.resolve([]);
-		// 	}
-		// }
-
-	}
+    }
 }
 
 export class ConanRecipeItem extends vscode.TreeItem {
@@ -53,16 +40,20 @@ export class ConanRecipeItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState) {
-            
+
         super(label, collapsibleState);
 
         this.tooltip = `${this.label}`;
-        this.description = this.label;
+
+        this.command = {
+            "title": "Conan Recipe Selected",
+            "command": "vsconan.recipe.selected",
+        }
     }
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'dep.png'),
-        dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'dep.png')
+        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'dep.png'),
+        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'dep.png')
     };
 
     contextValue = 'dependency';

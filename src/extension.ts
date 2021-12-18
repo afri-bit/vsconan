@@ -6,7 +6,8 @@ import { CommandExecutor } from "./cmd/exec/commandExecutor";
 import { ConanConfig, ConfigController } from "./config/conanConfig";
 import * as utils from "./utils/utils";
 import { ConanAPI } from "./api/conan/conanAPI";
-import { ConanRecipeNodeProvider } from "./ui/treeview/conanRecipeProvider";
+import { ConanRecipeItem, ConanRecipeNodeProvider } from "./ui/treeview/conanRecipeProvider";
+import { ConanProfileNodeProvider } from "./ui/treeview/conanProfileProvider";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -39,7 +40,14 @@ export function activate(context: vscode.ExtensionContext) {
     var conanApi = new ConanAPI();
 
     const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi);
-    vscode.window.registerTreeDataProvider('vsconan-view-recipe', conanRecipeNodeProvider);
+    let treeViewConanRecipe = vscode.window.createTreeView('vsconan-view-recipe', {
+        treeDataProvider: conanRecipeNodeProvider
+    });
+
+    const conanProfileNodeProvider = new ConanProfileNodeProvider(conanApi);
+    let treeViewConanProfile = vscode.window.createTreeView('vsconan-view-profile', {
+        treeDataProvider: conanProfileNodeProvider
+    });
 
     // This condition will be entered if vs code used as a workspace
     if (wsPath != undefined) {
@@ -101,6 +109,11 @@ export function activate(context: vscode.ExtensionContext) {
         CommandExecutor.executeCommandConfigCreate(configController, channelVSConan);
     });
 
+    let commandRecipeSelected = vscode.commands.registerCommand("vsconan.recipe.selected", () => {
+        // TODO: Refresh package treeview
+        console.log("Recipe selected: " + treeViewConanRecipe.selection[0].label);
+    });
+
     context.subscriptions.push(commandConan);
     context.subscriptions.push(commandConanNew);
     context.subscriptions.push(commandConanCreate);
@@ -110,6 +123,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(commandConanPackage);
     context.subscriptions.push(commandConanExportPackage);
     context.subscriptions.push(commandConfigCreate);
+    context.subscriptions.push(commandRecipeSelected);
 }
 
 export function isFolderConanProject(ws: string): boolean {

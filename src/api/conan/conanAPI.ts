@@ -100,4 +100,31 @@ export class ConanAPI {
         return arrayRecipeList;
     }
 
+    public getProfiles(): Array<string> {
+
+        let arrayProfileList: Array<string> = [];
+
+        let jsonName: string = "profile.json"
+
+        let jsonPath: string = path.join(utils.getVSConanHomeDirTemp(), jsonName);
+
+        this.commandToJsonExecutor("python -m conans.conan profile list --json", jsonPath);
+
+        if (fs.existsSync(jsonPath))
+        {
+            let tempFile = fs.readFileSync(jsonPath, 'utf8');
+            let jsonData = JSON.parse(tempFile);
+
+            for (let profile of jsonData) {
+                arrayProfileList.push(profile);
+            }
+
+            // Delete the temporary file after processing
+            fs.unlinkSync(jsonPath);
+
+            return arrayProfileList;
+        }
+
+        return arrayProfileList;
+    }
 }
