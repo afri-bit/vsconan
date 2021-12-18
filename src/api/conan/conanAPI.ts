@@ -127,4 +127,65 @@ export class ConanAPI {
 
         return arrayProfileList;
     }
+
+    /**
+     * Get list of packages from a specific recipe
+     * 
+     * @param recipe Recipe ID to get the packages from
+     * @returns Return will be an array of dictionary / map from JSON file
+     */
+    public getPackages(recipe: string): Array<any> {
+        let arrayPackageList: Array<any> = [];
+        if (recipe == "") {
+            return arrayPackageList;
+        }
+        else {
+            let jsonName: string = "package.json"
+
+            let jsonPath: string = path.join(utils.getVSConanHomeDirTemp(), jsonName);
+
+            let recipeName: string = "";
+
+            if (!recipe.includes("@")) {
+                recipeName = recipe + "@";
+            }
+            else {
+                recipeName = recipe;
+            }
+
+            this.commandToJsonExecutor(`python -m conans.conan search ${recipeName} --json`, jsonPath);
+
+            // Check if the file exists
+            // With this check it validates if the conan command executed correctly without error
+            // No JSON file will be written if the command is not executed correctly
+            if (fs.existsSync(jsonPath)) {
+                let tempFile = fs.readFileSync(jsonPath, 'utf8');
+                let recipeJson = JSON.parse(tempFile);
+
+                // The result in the JSON file from contains an error flag
+                // If this contains error, the file will not be processed
+                if (!recipeJson.error) {
+                    // Double check if there is data inside by checking the length of the array
+                    if (recipeJson.results.length > 0) {
+                        let packageItems = recipeJson.results[0].items[0].packages;
+
+                        for (let pkg of packageItems) {
+                            arrayPackageList.push(pkg);
+                        }
+                    }
+                }
+                else {
+                    // TODO: Write some log / pop up message box
+                }
+
+                // Delete the temporary file after processing
+                fs.unlinkSync(jsonPath);
+
+                return arrayPackageList;
+            }
+
+            // Return an empty list
+            return arrayPackageList;
+        }
+    }
 }

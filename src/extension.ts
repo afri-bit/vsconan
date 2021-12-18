@@ -6,8 +6,9 @@ import { CommandExecutor } from "./cmd/exec/commandExecutor";
 import { ConanConfig, ConfigController } from "./config/conanConfig";
 import * as utils from "./utils/utils";
 import { ConanAPI } from "./api/conan/conanAPI";
-import { ConanRecipeItem, ConanRecipeNodeProvider } from "./ui/treeview/conanRecipeProvider";
+import { ConanRecipeNodeProvider } from "./ui/treeview/conanRecipeProvider";
 import { ConanProfileNodeProvider } from "./ui/treeview/conanProfileProvider";
+import { ConanPackageNodeProvider } from "./ui/treeview/conanPackageProvider";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -47,6 +48,11 @@ export function activate(context: vscode.ExtensionContext) {
     const conanProfileNodeProvider = new ConanProfileNodeProvider(conanApi);
     let treeViewConanProfile = vscode.window.createTreeView('vsconan-view-profile', {
         treeDataProvider: conanProfileNodeProvider
+    });
+
+    const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApi);
+    let treeViewConanPackage = vscode.window.createTreeView('vsconan-view-package', {
+        treeDataProvider: conanPackageNodeProvider
     });
 
     // This condition will be entered if vs code used as a workspace
@@ -111,6 +117,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     let commandRecipeSelected = vscode.commands.registerCommand("vsconan.recipe.selected", () => {
         // TODO: Refresh package treeview
+
+        conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
         console.log("Recipe selected: " + treeViewConanRecipe.selection[0].label);
     });
 
