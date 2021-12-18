@@ -188,4 +188,35 @@ export class ConanAPI {
             return arrayPackageList;
         }
     }
+
+    public getRemotes(): Array<any> {
+        let arrayRemoteList: Array<any> = [];
+
+        let jsonPath: string = path.join(utils.getConanCacheDir(), "remotes.json");
+
+        // Check if the file exists
+        // With this check it validates if the conan command executed correctly without error
+        // No JSON file will be written if the command is not executed correctly
+        if (fs.existsSync(jsonPath)) {
+            let tempFile = fs.readFileSync(jsonPath, 'utf8');
+            let remoteJson = JSON.parse(tempFile);
+
+            // The result in the JSON file from contains an error flag
+            // If this contains error, the file will not be processed
+
+            let remoteItemList = remoteJson.remotes
+
+            for (let remote of remoteItemList) {
+                arrayRemoteList.push(remote);
+            }
+
+            // Delete the temporary file after processing
+            fs.unlinkSync(jsonPath);
+
+            return arrayRemoteList;
+        }
+
+        // Return an empty list
+        return arrayRemoteList
+    }
 }

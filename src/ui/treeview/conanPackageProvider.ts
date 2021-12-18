@@ -48,7 +48,7 @@ export class ConanPackageItem extends vscode.TreeItem {
 
         this.detailInfo = detailInfo;
         
-        this.tooltip = `${this.label}`;
+        this.tooltip = JSON.stringify(this.detailInfo, null, 4);
 
         this.command = {
             "title": "Conan Recipe Selected",

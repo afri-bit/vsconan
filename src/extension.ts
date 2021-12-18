@@ -9,16 +9,16 @@ import { ConanAPI } from "./api/conan/conanAPI";
 import { ConanRecipeNodeProvider } from "./ui/treeview/conanRecipeProvider";
 import { ConanProfileNodeProvider } from "./ui/treeview/conanProfileProvider";
 import { ConanPackageNodeProvider } from "./ui/treeview/conanPackageProvider";
+import { ConanRemoteNodeProvider } from "./ui/treeview/conanRemoteProvider";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
     // To work for the API a extension folder will created in the home directory
-    if (!fs.existsSync(utils.getVSConanHomeDir()))
-    {
+    if (!fs.existsSync(utils.getVSConanHomeDir())) {
         fs.mkdirSync(utils.getVSConanHomeDir());
-
-        // TODO: Check if global config file is available, otherwise create a new one with default parameters
     }
+    
+    // TODO: Check if global config file is available, otherwise create a new one with default parameters
 
     // Additionally the temp folder will created to store temporary files
     if (!fs.existsSync(utils.getVSConanHomeDirTemp()))
@@ -53,6 +53,11 @@ export function activate(context: vscode.ExtensionContext) {
     const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApi);
     let treeViewConanPackage = vscode.window.createTreeView('vsconan-view-package', {
         treeDataProvider: conanPackageNodeProvider
+    });
+
+    const conanRemoteNodeProvider = new ConanRemoteNodeProvider(conanApi);
+    let treeViewConanRemote = vscode.window.createTreeView('vsconan-view-remote', {
+        treeDataProvider: conanRemoteNodeProvider
     });
 
     // This condition will be entered if vs code used as a workspace
@@ -116,10 +121,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandRecipeSelected = vscode.commands.registerCommand("vsconan.recipe.selected", () => {
-        // TODO: Refresh package treeview
-
         conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
-        console.log("Recipe selected: " + treeViewConanRecipe.selection[0].label);
     });
 
     context.subscriptions.push(commandConan);

@@ -51,3 +51,7 @@ export function getVSConanHomeDirTemp(): string {
     return path.join(getVSConanHomeDir(), "temp");
 }
 
+export function getConanCacheDir(): string {
+    return path.join(os.homedir(), ".conan");
+}
+
