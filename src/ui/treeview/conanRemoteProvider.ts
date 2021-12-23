@@ -56,9 +56,9 @@ export class ConanRemoteItem extends vscode.TreeItem {
     }
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'none.png'),
-        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'none.png')
+        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'remote.png'),
+        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'remote.png')
     };
 
-    contextValue = 'dependency';
+    contextValue = 'remote';
 }

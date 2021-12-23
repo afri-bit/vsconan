@@ -6,7 +6,7 @@ import { CommandExecutor } from "./cmd/exec/commandExecutor";
 import { ConanConfig, ConfigController } from "./config/conanConfig";
 import * as utils from "./utils/utils";
 import { ConanAPI } from "./api/conan/conanAPI";
-import { ConanRecipeNodeProvider } from "./ui/treeview/conanRecipeProvider";
+import { ConanRecipeNodeProvider, ConanRecipeItem } from "./ui/treeview/conanRecipeProvider";
 import { ConanProfileNodeProvider } from "./ui/treeview/conanProfileProvider";
 import { ConanPackageNodeProvider } from "./ui/treeview/conanPackageProvider";
 import { ConanRemoteNodeProvider } from "./ui/treeview/conanRemoteProvider";
@@ -122,6 +122,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     let commandRecipeSelected = vscode.commands.registerCommand("vsconan.recipe.selected", () => {
         conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
+    });
+
+    let bla = vscode.commands.registerCommand("vsconan.recipe.information", (node: ConanRecipeItem) => {
+        console.log(`Selected Node is ${node.label}`);
     });
 
     context.subscriptions.push(commandConan);

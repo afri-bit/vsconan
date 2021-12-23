@@ -1,215 +1,343 @@
 {
-	"name": "vsconan",
-	"displayName": "VSConan",
-	"description": "Conan package manager extension",
-	"version": "0.1.0",
-	"engines": {
-		"vscode": "^1.56.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onView:vsconan-view-recipe",
-		"onView:vsconan-view-package",
-		"onView:vsconan-view-profile",
-		"onView:vsconan-view-remote",
-		"onView:vsconan-view-dependencies",
-		"workspaceContains:conanfile.py",
-		"workspaceContains:conanfile.txt",
-		"onCommand:vsconan.conan",
-		"onCommand:vsconan.conan.new",
-		"onCommand:vsconan.conan.create",
-		"onCommand:vsconan.conan.install",
-		"onCommand:vsconan.conan.build",
-		"onCommand:vsconan.conan.source",
-		"onCommand:vsconan.conan.package",
-		"onCommand:vsconan.conan.package.export",
-		"onCommand:vsconan.config.create"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "vsconan-explorer",
-					"title": "VSConan Explorer",
-					"icon": "resources/icon/dark/dep.png"
-				}
-			]
-		},
-		"views": {
-			"vsconan-explorer": [
-				{
-					"id": "vsconan-view-recipe",
-					"name": "Conan - Recipe",
-					"icon": "resources/icon/dark/dep.png",
-					"contextualTitle": "Conan Recipe"
-				},
-				{
-					"id": "vsconan-view-package",
-					"name": "Conan - Package",
-					"icon": "resources/icon/dark/dep.png",
-					"contextualTitle": "Conan Package"
-				},
-				{
-					"id": "vsconan-view-profile",
-					"name": "Conan - Profile",
-					"icon": "resources/icon/dark/dep.png",
-					"contextualTitle": "Conan Package"
-				},
-				{
-					"id": "vsconan-view-remote",
-					"name": "Conan - Remote",
-					"icon": "resources/icon/dark/dep.png",
-					"contextualTitle": "Conan Package"
-				}
-			],
-			"explorer": [
-				{
-					"id": "vsconan-view-dependencies",
-					"name": "VSConan - Recipe Dependencies"
-				}
-			]
-		},
-		"commands": [
-			{
-				"command": "vsconan.conan",
-				"title": "VSConan: Conan"
-			},
-			{
-				"command": "vsconan.conan.new",
-				"title": "VSConan: New"
-			},
-			{
-				"command": "vsconan.conan.create",
-				"title": "VSConan: Create"
-			},
-			{
-				"command": "vsconan.conan.install",
-				"title": "VSConan: Install"
-			},
-			{
-				"command": "vsconan.conan.build",
-				"title": "VSConan: Build"
-			},
-			{
-				"command": "vsconan.conan.source",
-				"title": "VSConan: Source"
-			},
-			{
-				"command": "vsconan.conan.package",
-				"title": "VSConan: Package"
-			},
-			{
-				"command": "vsconan.conan.package.export",
-				"title": "VSConan: Export Package"
-			},
-			{
-				"command": "vsconan.config.create",
-				"title": "VSConan: Create Configuration (JSON)"
-			},
-			{
-				"command": "vsconan-explorer.refresh",
-				"title": "Refresh",
-				"icon": {
-					"light": "resources/icon/light/refresh.png",
-					"dark": "resources/icon/dark/refresh.png"
-				}
-			},
-			{
-				"command": "vsconan-view-recipe.refresh",
-				"title": "Refresh",
-				"icon": {
-					"light": "resources/icon/light/refresh.png",
-					"dark": "resources/icon/dark/refresh.png"
-				}
-			},
-			{
-				"command": "vsconan-view-package.refresh",
-				"title": "Refresh",
-				"icon": {
-					"light": "resources/icon/light/refresh.png",
-					"dark": "resources/icon/dark/refresh.png"
-				}
-			},
-			{
-				"command": "vsconan-view-profile.refresh",
-				"title": "Refresh",
-				"icon": {
-					"light": "resources/icon/light/refresh.png",
-					"dark": "resources/icon/dark/refresh.png"
-				}
-			},
-			{
-				"command": "vsconan-view-remote.refresh",
-				"title": "Refresh",
-				"icon": {
-					"light": "resources/icon/light/refresh.png",
-					"dark": "resources/icon/dark/refresh.png"
-				}
-			},
-			{
-				"command": "vsconan-view-dependencies.refresh",
-				"title": "Refresh",
-				"icon": {
-					"light": "resources/icon/light/refresh.png",
-					"dark": "resources/icon/dark/refresh.png"
-				}
-			}
-		],
-		"menus": {
-			"view/title": [
-				{
-					"command": "vsconan-view-recipe.refresh",
-					"when": "view == vsconan-view-recipe",
-					"group": "navigation"
-				},
-				{
-					"command": "vsconan-view-package.refresh",
-					"when": "view == vsconan-view-package",
-					"group": "navigation"
-				},
-				{
-					"command": "vsconan-view-profile.refresh",
-					"when": "view == vsconan-view-profile",
-					"group": "navigation"
-				},
-				{
-					"command": "vsconan-view-remote.refresh",
-					"when": "view == vsconan-view-remote",
-					"group": "navigation"
-				},
-				{
-					"command": "vsconan-view-dependencies.refresh",
-					"when": "view == vsconan-view-dependencies",
-					"group": "navigation"
-				}
-			]
-		}
-	},
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"pretest": "npm run compile && npm run lint",
-		"lint": "eslint src --ext ts",
-		"test": "node ./out/test/runTest.js"
-	},
-	"devDependencies": {
-		"@types/vscode": "^1.56.0",
-		"@types/glob": "^7.1.3",
-		"@types/mocha": "^8.0.4",
-		"@types/node": "^12.11.7",
-		"eslint": "^7.19.0",
-		"@typescript-eslint/eslint-plugin": "^4.14.1",
-		"@typescript-eslint/parser": "^4.14.1",
-		"glob": "^7.1.6",
-		"mocha": "^8.2.1",
-		"typescript": "^4.1.3",
-		"vscode-test": "^1.5.0"
-	},
-	"dependencies": {
-		"child_process": "^1.0.2"
-	}
+    "name": "vsconan",
+    "displayName": "VSConan",
+    "description": "Conan package manager extension",
+    "version": "0.1.0",
+    "engines": {
+        "vscode": "^1.56.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onView:vsconan-view-recipe",
+        "onView:vsconan-view-package",
+        "onView:vsconan-view-profile",
+        "onView:vsconan-view-remote",
+        "onView:vsconan-view-dependencies",
+        "workspaceContains:conanfile.py",
+        "workspaceContains:conanfile.txt",
+        "onCommand:vsconan.conan",
+        "onCommand:vsconan.conan.new",
+        "onCommand:vsconan.conan.create",
+        "onCommand:vsconan.conan.install",
+        "onCommand:vsconan.conan.build",
+        "onCommand:vsconan.conan.source",
+        "onCommand:vsconan.conan.package",
+        "onCommand:vsconan.conan.package.export",
+        "onCommand:vsconan.config.create"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "vsconan-explorer",
+                    "title": "VSConan Explorer",
+                    "icon": "resources/icon/vsconan.png"
+                }
+            ]
+        },
+        "views": {
+            "vsconan-explorer": [
+                {
+                    "id": "vsconan-view-recipe",
+                    "name": "Conan - Recipe",
+                    "contextualTitle": "Conan Recipe"
+                },
+                {
+                    "id": "vsconan-view-package",
+                    "name": "Conan - Package",
+                    "contextualTitle": "Conan Package"
+                },
+                {
+                    "id": "vsconan-view-profile",
+                    "name": "Conan - Profile",
+                    "contextualTitle": "Conan Package"
+                },
+                {
+                    "id": "vsconan-view-remote",
+                    "name": "Conan - Remote",
+                    "contextualTitle": "Conan Package"
+                }
+            ],
+            "explorer": [
+                {
+                    "id": "vsconan-view-dependencies",
+                    "name": "VSConan - Recipe Dependencies"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "vsconan.conan",
+                "title": "VSConan: Conan"
+            },
+            {
+                "command": "vsconan.conan.new",
+                "title": "VSConan: New"
+            },
+            {
+                "command": "vsconan.conan.create",
+                "title": "VSConan: Create"
+            },
+            {
+                "command": "vsconan.conan.install",
+                "title": "VSConan: Install"
+            },
+            {
+                "command": "vsconan.conan.build",
+                "title": "VSConan: Build"
+            },
+            {
+                "command": "vsconan.conan.source",
+                "title": "VSConan: Source"
+            },
+            {
+                "command": "vsconan.conan.package",
+                "title": "VSConan: Package"
+            },
+            {
+                "command": "vsconan.conan.package.export",
+                "title": "VSConan: Export Package"
+            },
+            {
+                "command": "vsconan.config.create",
+                "title": "VSConan: Create Configuration (JSON)"
+            },
+            {
+                "command": "vsconan-explorer.refresh",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/icon/light/refresh.png",
+                    "dark": "resources/icon/dark/refresh.png"
+                }
+            },
+            {
+                "command": "vsconan-view-recipe.refresh",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/icon/light/refresh.png",
+                    "dark": "resources/icon/dark/refresh.png"
+                }
+            },
+            {
+                "command": "vsconan-view-package.refresh",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/icon/light/refresh.png",
+                    "dark": "resources/icon/dark/refresh.png"
+                }
+            },
+            {
+                "command": "vsconan-view-profile.refresh",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/icon/light/refresh.png",
+                    "dark": "resources/icon/dark/refresh.png"
+                }
+            },
+            {
+                "command": "vsconan-view-remote.refresh",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/icon/light/refresh.png",
+                    "dark": "resources/icon/dark/refresh.png"
+                }
+            },
+            {
+                "command": "vsconan-view-dependencies.refresh",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/icon/light/refresh.png",
+                    "dark": "resources/icon/dark/refresh.png"
+                }
+            },
+            {
+                "command": "vsconan.recipe.information",
+                "title": "Information",
+                "icon": {
+                    "light": "resources/icon/light/info.png",
+                    "dark": "resources/icon/dark/info.png"
+                }
+            },
+            {
+                "command": "vsconan.recipe.open",
+                "title": "Open Folder",
+                "icon": {
+                    "light": "resources/icon/light/goto.png",
+                    "dark": "resources/icon/dark/goto.png"
+                }
+            },
+            {
+                "command": "vsconan.recipe.delete",
+                "title": "Remove",
+                "icon": {
+                    "light": "resources/icon/light/delete.png",
+                    "dark": "resources/icon/dark/delete.png"
+                }
+            },
+            {
+                "command": "vsconan.package.information",
+                "title": "Information",
+                "icon": {
+                    "light": "resources/icon/light/info.png",
+                    "dark": "resources/icon/dark/info.png"
+                }
+            },
+            {
+                "command": "vsconan.package.open",
+                "title": "Open Folder",
+                "icon": {
+                    "light": "resources/icon/light/goto.png",
+                    "dark": "resources/icon/dark/goto.png"
+                }
+            },
+            {
+                "command": "vsconan.package.delete",
+                "title": "Remove",
+                "icon": {
+                    "light": "resources/icon/light/delete.png",
+                    "dark": "resources/icon/dark/delete.png"
+                }
+            },
+            {
+                "command": "vsconan.profile.open",
+                "title": "Open Folder",
+                "icon": {
+                    "light": "resources/icon/light/goto.png",
+                    "dark": "resources/icon/dark/goto.png"
+                }
+            },
+            {
+                "command": "vsconan.profile.delete",
+                "title": "Remove",
+                "icon": {
+                    "light": "resources/icon/light/delete.png",
+                    "dark": "resources/icon/dark/delete.png"
+                }
+            },
+            {
+                "command": "vsconan.remote.open",
+                "title": "Open Folder",
+                "icon": {
+                    "light": "resources/icon/light/goto.png",
+                    "dark": "resources/icon/dark/goto.png"
+                }
+            },
+            {
+                "command": "vsconan.remote.delete",
+                "title": "Remove",
+                "icon": {
+                    "light": "resources/icon/light/delete.png",
+                    "dark": "resources/icon/dark/delete.png"
+                }
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "vsconan-view-recipe.refresh",
+                    "when": "view == vsconan-view-recipe",
+                    "group": "navigation"
+                },
+                {
+                    "command": "vsconan-view-package.refresh",
+                    "when": "view == vsconan-view-package",
+                    "group": "navigation"
+                },
+                {
+                    "command": "vsconan-view-profile.refresh",
+                    "when": "view == vsconan-view-profile",
+                    "group": "navigation"
+                },
+                {
+                    "command": "vsconan-view-remote.refresh",
+                    "when": "view == vsconan-view-remote",
+                    "group": "navigation"
+                },
+                {
+                    "command": "vsconan-view-dependencies.refresh",
+                    "when": "view == vsconan-view-dependencies",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "vsconan.recipe.information",
+                    "when": "view == vsconan-view-recipe",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.recipe.open",
+                    "when": "view == vsconan-view-recipe",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.recipe.delete",
+                    "when": "view == vsconan-view-recipe",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.package.information",
+                    "when": "view == vsconan-view-package",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.package.open",
+                    "when": "view == vsconan-view-package",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.package.delete",
+                    "when": "view == vsconan-view-package",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.profile.open",
+                    "when": "view == vsconan-view-profile",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.profile.delete",
+                    "when": "view == vsconan-view-profile",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.remote.open",
+                    "when": "view == vsconan-view-remote",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.remote.delete",
+                    "when": "view == vsconan-view-remote",
+                    "group": "inline"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.56.0",
+        "@types/glob": "^7.1.3",
+        "@types/mocha": "^8.0.4",
+        "@types/node": "^12.11.7",
+        "eslint": "^7.19.0",
+        "@typescript-eslint/eslint-plugin": "^4.14.1",
+        "@typescript-eslint/parser": "^4.14.1",
+        "glob": "^7.1.6",
+        "mocha": "^8.2.1",
+        "typescript": "^4.1.3",
+        "vscode-test": "^1.5.0"
+    },
+    "dependencies": {
+        "child_process": "^1.0.2"
+    }
 }

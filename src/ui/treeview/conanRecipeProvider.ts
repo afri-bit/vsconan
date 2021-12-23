@@ -52,9 +52,9 @@ export class ConanRecipeItem extends vscode.TreeItem {
     }
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'dep.png'),
-        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'dep.png')
+        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'conan_io_gray.png'),
+        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'conan_io_gray.png')
     };
 
-    contextValue = 'dependency';
+    contextValue = 'recipe';
 }
