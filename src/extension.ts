@@ -3,7 +3,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import * as os from "os";
 import { CommandExecutor } from "./cmd/exec/commandExecutor";
-import { ConanConfig, ConfigController } from "./config/conanConfig";
+import { ConfigWorkspace, ConfigWorkspaceController } from "./config/configWorkspace";
 import * as utils from "./utils/utils";
 import { ConanAPI } from "./api/conan/conanAPI";
 import { ConanRecipeNodeProvider, ConanRecipeItem } from "./ui/treeview/conanRecipeProvider";
@@ -33,8 +33,8 @@ export function activate(context: vscode.ExtensionContext) {
     var vsconanPath = utils.getVSConanPath();
     var configPath = utils.getWorkspaceConfigPath();
 
-    var configConan = new ConanConfig();
-    var configController = new ConfigController(configConan);
+    var configConan = new ConfigWorkspace();
+    var configController = new ConfigWorkspaceController(configConan);
 
     var channelVSConan = vscode.window.createOutputChannel("VSConan");
 

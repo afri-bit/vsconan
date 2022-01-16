@@ -2,7 +2,7 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import { CommandBuilder } from "../builder/commandBuilder";
-import { ConfigController } from "../../config/conanConfig";
+import { ConfigWorkspaceController } from "../../config/configWorkspace";
 import * as utils from "../../utils/utils";
 
 interface ConfigCommandQuickPickItem extends vscode.QuickPickItem {
@@ -34,7 +34,7 @@ async function executeCommand(cmd: string, channel: vscode.OutputChannel) {
 }
 
 export class CommandExecutor {
-    public static executeCommandConan(configController: ConfigController, channel: vscode.OutputChannel) {
+    public static executeCommandConan(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
         let cmd = CommandBuilder.buildCommandConan(configController.getPython());
 
         if (cmd != undefined)
@@ -43,12 +43,12 @@ export class CommandExecutor {
             vscode.window.showErrorMessage("Unable to execute CONAN command");
     }
 
-    public static executeCommandConanNew(configController: ConfigController, channel: vscode.OutputChannel) {
+    public static executeCommandConanNew(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
         vscode.window.showInformationMessage("Conan NEW command");
         // TODO: Implement function to insert name and version to creat conan workspace
     }
 
-    public static executeCommandConanCreate(configController: ConfigController, channel: vscode.OutputChannel) {
+    public static executeCommandConanCreate(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
         let cmdList = configController.getListCommandCreate();
 
         if (cmdList != undefined) {
@@ -82,7 +82,7 @@ export class CommandExecutor {
         }
     }
 
-    public static executeCommandConanInstall(configController: ConfigController, channel: vscode.OutputChannel) {
+    public static executeCommandConanInstall(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
         let cmdList = configController.getListCommandInstall();
 
         if (cmdList != undefined) {
@@ -116,7 +116,7 @@ export class CommandExecutor {
         }
     }
 
-    public static executeCommandConanBuild(configController: ConfigController, channel: vscode.OutputChannel) {
+    public static executeCommandConanBuild(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
         let cmdList = configController.getListCommandBuild();
 
         if (cmdList != undefined) {
@@ -150,7 +150,7 @@ export class CommandExecutor {
         }
     }
 
-    public static executeCommandConanSource(configController: ConfigController, channel: vscode.OutputChannel) {
+    public static executeCommandConanSource(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
         let cmdList = configController.getListCommandSource();
 
         if (cmdList != undefined) {
@@ -184,7 +184,7 @@ export class CommandExecutor {
         }
     }
 
-    public static executeCommandConanPackage(configController: ConfigController, channel: vscode.OutputChannel) {
+    public static executeCommandConanPackage(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
         let cmdList = configController.getListCommandPackage();
 
         if (cmdList != undefined) {
@@ -218,7 +218,7 @@ export class CommandExecutor {
         }
     }
 
-    public static executeCommandConanPackageExport(configController: ConfigController, channel: vscode.OutputChannel) {
+    public static executeCommandConanPackageExport(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
         let cmdList = configController.getListCommandPackageExport();
 
         if (cmdList != undefined) {
@@ -252,7 +252,7 @@ export class CommandExecutor {
         }
     }
 
-    public static executeCommandConfigCreate(configController: ConfigController, channel: vscode.OutputChannel) {
+    public static executeCommandConfigCreate(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
         if (!fs.existsSync(utils.getWorkspaceConfigPath()!)) {
             // Create .vscode folder if it doesnt exist
             if (!fs.existsSync(utils.getVSCodePath()!))

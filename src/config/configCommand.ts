@@ -1,5 +1,5 @@
 
-export class Config {
+export class ConfigCommand {
     public name: string;
     public description: string;
     public detail: string;
@@ -13,7 +13,7 @@ export class Config {
     }
 }
 
-export class ConfigCommandCreate extends Config {
+export class ConfigCommandCreate extends ConfigCommand {
     public profile: string;
     public user: string;
     public channel: string;
@@ -35,7 +35,7 @@ export class ConfigCommandCreate extends Config {
     }
 }
 
-export class ConfigCommandInstall extends Config {
+export class ConfigCommandInstall extends ConfigCommand {
     public installFolder: string;
     public profile: string;
     public user: string;
@@ -59,7 +59,7 @@ export class ConfigCommandInstall extends Config {
     }
 }
 
-export class ConfigCommandBuild extends Config {
+export class ConfigCommandBuild extends ConfigCommand {
     public installFolder: string;
     public buildFolder: string;
     public packageFolder: string;
@@ -83,7 +83,7 @@ export class ConfigCommandBuild extends Config {
     }
 }
 
-export class ConfigCommandSource extends Config {
+export class ConfigCommandSource extends ConfigCommand {
     public installFolder: string;
     public sourceFolder: string;
 
@@ -98,7 +98,7 @@ export class ConfigCommandSource extends Config {
     }
 }
 
-export class ConfigCommandPackage extends Config {
+export class ConfigCommandPackage extends ConfigCommand {
     public installFolder: string;
     public buildFolder: string;
     public packageFolder: string;
@@ -119,7 +119,7 @@ export class ConfigCommandPackage extends Config {
     }
 }
 
-export class ConfigCommandPackageExport extends Config {
+export class ConfigCommandPackageExport extends ConfigCommand {
     public installFolder: string;
     public buildFolder: string;
     public packageFolder: string;
@@ -143,27 +143,27 @@ export class ConfigCommandPackageExport extends Config {
     }
 }
 
-export class ConfigCommand {
+export class CommandContainer {
     public create: Array<ConfigCommandCreate>;
     public install: Array<ConfigCommandInstall>;
     public build: Array<ConfigCommandBuild>;
     public source: Array<ConfigCommandSource>;
     public pkg: Array<ConfigCommandPackage>;
-    public pkg_export: Array<ConfigCommandPackageExport>;
+    public pkgExport: Array<ConfigCommandPackageExport>;
 
     constructor(create: Array<ConfigCommandCreate> = [], 
         install: Array<ConfigCommandInstall> = [],
         build: Array<ConfigCommandBuild> = [], 
         source: Array<ConfigCommandSource> = [],
         pkg: Array<ConfigCommandPackage> = [],
-        pkg_export: Array<ConfigCommandPackageExport> = []) {
+        pkgExport: Array<ConfigCommandPackageExport> = []) {
 
         this.create = create;
         this.install = install;
         this.build = build;
         this.source = source;
         this.pkg = pkg;
-        this.pkg_export = pkg_export;
+        this.pkgExport = pkgExport;
     }
 }
 

@@ -1,27 +1,28 @@
 import * as fs from "fs";
 import * as vscode from "vscode";
 import {
-    ConfigCommand, ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall,
+    CommandContainer,
+    ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall,
     ConfigCommandPackage,
     ConfigCommandPackageExport, ConfigCommandSource
-} from "../cmd/config/commandConfig";
+} from "./configCommand";
 import * as utils from "../utils/utils";
 
 
-export class ConanConfig {
+export class ConfigWorkspace {
     public python: string;
-    public command: ConfigCommand;
+    public commandContainer: CommandContainer;
 
-    constructor(python: string = "python", command: ConfigCommand = new ConfigCommand()) {
+    constructor(python: string = "python", commandContainer: CommandContainer = new CommandContainer()) {
         this.python = python;
-        this.command = command;
+        this.commandContainer = commandContainer;
     }
 }
 
-export class ConfigController {
-    private config: ConanConfig;
+export class ConfigWorkspaceController {
+    private config: ConfigWorkspace;
 
-    constructor(config: ConanConfig) {
+    constructor(config: ConfigWorkspace) {
         this.config = config;
     }
 
@@ -29,13 +30,13 @@ export class ConfigController {
         return this.config.python;
     }
 
-    public getConfig(): ConanConfig {
+    public getConfig(): ConfigWorkspace {
         return this.config;
     }
 
     public generateDefaultConfig() {
 
-        let config = new ConanConfig("python", new ConfigCommand([new ConfigCommandCreate()],
+        let config = new ConfigWorkspace("python", new CommandContainer([new ConfigCommandCreate()],
             [new ConfigCommandInstall()],
             [new ConfigCommandBuild()],
             [new ConfigCommandSource()],
@@ -43,14 +44,6 @@ export class ConfigController {
             [new ConfigCommandPackageExport()]));
 
         this.config = config;
-    }
-
-    public updateConfig() {
-
-    }
-
-    public writeConfig() {
-
     }
 
     public fetchConfig(): boolean {
@@ -68,68 +61,68 @@ export class ConfigController {
 
     public getListCommandCreate(): Array<ConfigCommandCreate> | undefined {
         if (this.fetchConfig())
-            return this.config.command.create;
+            return this.config.commandContainer.create;
         else
             return undefined;
     }
 
     public getListCommandInstall(): Array<ConfigCommandInstall> | undefined {
         if (this.fetchConfig())
-            return this.config.command.install;
+            return this.config.commandContainer.install;
         else
             return undefined;
     }
 
     public getListCommandBuild(): Array<ConfigCommandBuild> | undefined {
         if (this.fetchConfig())
-            return this.config.command.build;
+            return this.config.commandContainer.build;
         else
             return undefined;
     }
 
     public getListCommandSource(): Array<ConfigCommandSource> | undefined {
         if (this.fetchConfig())
-            return this.config.command.source;
+            return this.config.commandContainer.source;
         else
             return undefined;
     }
 
     public getListCommandPackage(): Array<ConfigCommandPackage> | undefined {
         if (this.fetchConfig())
-            return this.config.command.pkg;
+            return this.config.commandContainer.pkg;
         else
             return undefined;
     }
 
     public getListCommandPackageExport(): Array<ConfigCommandPackageExport> | undefined {
         if (this.fetchConfig())
-            return this.config.command.pkg_export;
+            return this.config.commandContainer.pkgExport;
         else
             return undefined;
     }
 
     public getConfigCommandCreate(index: number): ConfigCommandCreate {
-        return this.config.command.create[index];
+        return this.config.commandContainer.create[index];
     }
 
     public getConfigCommandInstall(index: number): ConfigCommandInstall {
-        return this.config.command.install[index];
+        return this.config.commandContainer.install[index];
     }
 
     public getConfigCommandBuild(index: number): ConfigCommandBuild {
-        return this.config.command.build[index];
+        return this.config.commandContainer.build[index];
     }
 
     public getConfigCommandSource(index: number): ConfigCommandSource {
-        return this.config.command.source[index];
+        return this.config.commandContainer.source[index];
     }
 
     public getConfigCommandPackage(index: number): ConfigCommandPackage {
-        return this.config.command.pkg[index];
+        return this.config.commandContainer.pkg[index];
     }
 
     public getConfigCommandPackageExport(index: number): ConfigCommandPackageExport {
-        return this.config.command.pkg_export[index];
+        return this.config.commandContainer.pkgExport[index];
     }
 
 }
