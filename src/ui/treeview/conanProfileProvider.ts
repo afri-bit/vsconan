@@ -44,6 +44,11 @@ export class ConanProfileItem extends vscode.TreeItem {
         super(label, collapsibleState);
 
         this.tooltip = `${this.label}`;
+
+        this.command = {
+            "title": "Conan Profile Selected",
+            "command": "vsconan.profile.selected",
+        }
     }
 
     iconPath = {

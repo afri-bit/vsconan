@@ -102,8 +102,20 @@
                 "title": "VSConan: Export Package"
             },
             {
-                "command": "vsconan.config.create",
-                "title": "VSConan: Create Configuration (JSON)"
+                "command": "vsconan.config.global.create",
+                "title": "VSConan: Create Global Configuration (JSON)"
+            },
+            {
+                "command": "vsconan.config.global.open",
+                "title": "VSConan: Open Global Configuration (JSON)"
+            },
+            {
+                "command": "vsconan.config.workspace.create",
+                "title": "VSConan: Create Workspace Configuration (JSON)"
+            },
+            {
+                "command": "vsconan.config.workspace.open",
+                "title": "VSConan: Open Workspace Configuration (JSON)"
             },
             {
                 "command": "vsconan-explorer.refresh",
@@ -170,7 +182,7 @@
                 }
             },
             {
-                "command": "vsconan.recipe.delete",
+                "command": "vsconan.recipe.remove",
                 "title": "Remove",
                 "icon": {
                     "light": "resources/icon/light/delete.png",
@@ -194,7 +206,7 @@
                 }
             },
             {
-                "command": "vsconan.package.delete",
+                "command": "vsconan.package.remove",
                 "title": "Remove",
                 "icon": {
                     "light": "resources/icon/light/delete.png",
@@ -202,15 +214,7 @@
                 }
             },
             {
-                "command": "vsconan.profile.open",
-                "title": "Open Folder",
-                "icon": {
-                    "light": "resources/icon/light/goto.png",
-                    "dark": "resources/icon/dark/goto.png"
-                }
-            },
-            {
-                "command": "vsconan.profile.delete",
+                "command": "vsconan.profile.remove",
                 "title": "Remove",
                 "icon": {
                     "light": "resources/icon/light/delete.png",
@@ -218,15 +222,7 @@
                 }
             },
             {
-                "command": "vsconan.remote.open",
-                "title": "Open Folder",
-                "icon": {
-                    "light": "resources/icon/light/goto.png",
-                    "dark": "resources/icon/dark/goto.png"
-                }
-            },
-            {
-                "command": "vsconan.remote.delete",
+                "command": "vsconan.remote.remove",
                 "title": "Remove",
                 "icon": {
                     "light": "resources/icon/light/delete.png",
@@ -274,7 +270,7 @@
                     "group": "inline"
                 },
                 {
-                    "command": "vsconan.recipe.delete",
+                    "command": "vsconan.recipe.remove",
                     "when": "view == vsconan-view-recipe",
                     "group": "inline"
                 },
@@ -289,27 +285,17 @@
                     "group": "inline"
                 },
                 {
-                    "command": "vsconan.package.delete",
+                    "command": "vsconan.package.remove",
                     "when": "view == vsconan-view-package",
                     "group": "inline"
                 },
                 {
-                    "command": "vsconan.profile.open",
+                    "command": "vsconan.profile.remove",
                     "when": "view == vsconan-view-profile",
                     "group": "inline"
                 },
                 {
-                    "command": "vsconan.profile.delete",
-                    "when": "view == vsconan-view-profile",
-                    "group": "inline"
-                },
-                {
-                    "command": "vsconan.remote.open",
-                    "when": "view == vsconan-view-remote",
-                    "group": "inline"
-                },
-                {
-                    "command": "vsconan.remote.delete",
+                    "command": "vsconan.remote.remove",
                     "when": "view == vsconan-view-remote",
                     "group": "inline"
                 }
