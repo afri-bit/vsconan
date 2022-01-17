@@ -37,7 +37,7 @@ export function getWorkspaceConfigPath(): string | undefined {
     let configPath = undefined;
 
     if (getVSConanPath() != undefined) {
-        configPath = path.join(getVSConanPath()!, "vsconan.json");
+        configPath = path.join(getVSConanPath()!, "config.json");
     }
 
     return configPath;
@@ -49,6 +49,10 @@ export function getVSConanHomeDir(): string {
 
 export function getVSConanHomeDirTemp(): string {
     return path.join(getVSConanHomeDir(), "temp");
+}
+
+export function getGlobalConfigPath(): string {
+    return path.join(getVSConanHomeDir()!, "config.json");
 }
 
 export function getConanCacheDir(): string {

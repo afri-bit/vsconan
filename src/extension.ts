@@ -10,36 +10,53 @@ import { ConanRecipeNodeProvider, ConanRecipeItem } from "./ui/treeview/conanRec
 import { ConanProfileNodeProvider } from "./ui/treeview/conanProfileProvider";
 import { ConanPackageNodeProvider } from "./ui/treeview/conanPackageProvider";
 import { ConanRemoteNodeProvider } from "./ui/treeview/conanRemoteProvider";
+import { ConfigGlobal, ConfigGlobalController } from "./config/configGlobal";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
-    // To work for the API a extension folder will created in the home directory
+    // VSConan Workspace Area
+    // Variables for workspace area
+    var wsPath = utils.getWorkspaceFolder();
+    var vsconanPath = utils.getVSConanPath();
+    var configWorkspacePath = utils.getWorkspaceConfigPath();
+    var configWorkspace = new ConfigWorkspace();
+    var controllerConfigWorkspace = new ConfigWorkspaceController(configWorkspace);
+
+    // VSConan Global Area
+    // Variables for global area
+    var configGlobal = new ConfigGlobal();
+    var controllerConfigGlobal = new ConfigGlobalController(configGlobal);
+
+    // Create VSConan extension channel
+    // This channel is to show the command line outputs specifically for this extension
+    var channelVSConan = vscode.window.createOutputChannel("VSConan");
+
+    var conanApi = new ConanAPI();
+
+    // Global Area - The global area is stored under home folder ($HOME/.vsconan)
+    //               This area has lower priority then the workspace area
+    // Global Area - To work for the API a extension folder will created in the home directory
     if (!fs.existsSync(utils.getVSConanHomeDir())) {
         fs.mkdirSync(utils.getVSConanHomeDir());
     }
     
-    // TODO: Check if global config file is available, otherwise create a new one with default parameters
+    // Global Area - Check if global config file is available, otherwise create a new one with default parameters
+    if (!fs.existsSync(utils.getGlobalConfigPath())) {
+        controllerConfigGlobal.generateDefaultConfig();
 
-    // Additionally the temp folder will created to store temporary files
+        let jsonConfig = JSON.stringify(controllerConfigGlobal.getConfig(), null, 4);
+        fs.writeFile(utils.getGlobalConfigPath(), jsonConfig, "utf8", function (err) {
+            if (err) throw err;
+        });
+    }
+
+    // Global Area - dditionally the temp folder will created to store temporary files
     if (!fs.existsSync(utils.getVSConanHomeDirTemp()))
     {
         fs.mkdirSync(utils.getVSConanHomeDirTemp());
     }
 
-    // Check if it starts with workspace
-    // To check whether its workspace or not is to determine if the function "getWorkspaceFolder" returns undefined or a path
-    // If user only open anyfile without a folder (as editor) this the workspace path will return "undefined"
-    var wsPath = utils.getWorkspaceFolder();
-    var vsconanPath = utils.getVSConanPath();
-    var configPath = utils.getWorkspaceConfigPath();
-
-    var configConan = new ConfigWorkspace();
-    var configController = new ConfigWorkspaceController(configConan);
-
-    var channelVSConan = vscode.window.createOutputChannel("VSConan");
-
-    var conanApi = new ConanAPI();
-
+    // ========== Registering the treeview for the extension
     const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi);
     let treeViewConanRecipe = vscode.window.createTreeView('vsconan-view-recipe', {
         treeDataProvider: conanRecipeNodeProvider
@@ -60,10 +77,13 @@ export function activate(context: vscode.ExtensionContext) {
         treeDataProvider: conanRemoteNodeProvider
     });
 
+    // Check if it starts with workspace
+    // To check whether its workspace or not is to determine if the function "getWorkspaceFolder" returns undefined or a path
+    // If user only open anyfile without a folder (as editor) this the workspace path will return "undefined"
     // This condition will be entered if vs code used as a workspace
     if (wsPath != undefined) {
 
-        if (isFolderConanProject(wsPath) && !fs.existsSync(configPath!)) {
+        if (isFolderConanProject(wsPath) && !fs.existsSync(configWorkspacePath!)) {
 
             vscode.window
                 .showInformationMessage("The workspace is detected as a conan project. Do you want to configure this workspace?", ...["Yes", "No"])
@@ -73,10 +93,10 @@ export function activate(context: vscode.ExtensionContext) {
                         if (!fs.existsSync(vsconanPath!))
                             fs.mkdirSync(vsconanPath!);
 
-                        configController.generateDefaultConfig();
+                        controllerConfigWorkspace.generateDefaultConfig();
 
-                        let jsonConfig = JSON.stringify(configController.getConfig(), null, 4);
-                        fs.writeFile(configPath!, jsonConfig, "utf8", function (err) {
+                        let jsonConfig = JSON.stringify(controllerConfigWorkspace.getConfig(), null, 4);
+                        fs.writeFile(configWorkspacePath!, jsonConfig, "utf8", function (err) {
                             if (err) throw err;
                         });
                     }
@@ -84,47 +104,49 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }
 
+    // ========== Extension Commands Registration Section
     let commandConan = vscode.commands.registerCommand("vsconan.conan", () => {
-        CommandExecutor.executeCommandConan(configController, channelVSConan);
+        CommandExecutor.executeCommandConan(controllerConfigWorkspace, channelVSConan);
     });
 
     let commandConanNew = vscode.commands.registerCommand("vsconan.conan.new", () => {
-        CommandExecutor.executeCommandConanNew(configController, channelVSConan);
+        CommandExecutor.executeCommandConanNew(controllerConfigWorkspace, channelVSConan);
     });
 
     let commandConanCreate = vscode.commands.registerCommand("vsconan.conan.create", () => {
-        CommandExecutor.executeCommandConanCreate(configController, channelVSConan);
+        CommandExecutor.executeCommandConanCreate(controllerConfigWorkspace, channelVSConan);
     });
 
     let commandConanInstall = vscode.commands.registerCommand("vsconan.conan.install", () => {
-        CommandExecutor.executeCommandConanInstall(configController, channelVSConan);
+        CommandExecutor.executeCommandConanInstall(controllerConfigWorkspace, channelVSConan);
     });
 
     let commandConanBuild = vscode.commands.registerCommand("vsconan.conan.build", () => {
-        CommandExecutor.executeCommandConanBuild(configController, channelVSConan);
+        CommandExecutor.executeCommandConanBuild(controllerConfigWorkspace, channelVSConan);
     });
 
     let commandConanSource = vscode.commands.registerCommand("vsconan.conan.source", () => {
-        CommandExecutor.executeCommandConanSource(configController, channelVSConan);
+        CommandExecutor.executeCommandConanSource(controllerConfigWorkspace, channelVSConan);
     });
 
     let commandConanPackage = vscode.commands.registerCommand("vsconan.conan.package", () => {
-        CommandExecutor.executeCommandConanPackage(configController, channelVSConan);
+        CommandExecutor.executeCommandConanPackage(controllerConfigWorkspace, channelVSConan);
     });
 
     let commandConanExportPackage = vscode.commands.registerCommand("vsconan.conan.package.export", () => {
-        CommandExecutor.executeCommandConanPackageExport(configController, channelVSConan);
+        CommandExecutor.executeCommandConanPackageExport(controllerConfigWorkspace, channelVSConan);
     });
 
     let commandConfigCreate = vscode.commands.registerCommand("vsconan.config.create", () => {
-        CommandExecutor.executeCommandConfigCreate(configController, channelVSConan);
+        CommandExecutor.executeCommandConfigCreate(controllerConfigWorkspace, channelVSConan);
     });
 
     let commandRecipeSelected = vscode.commands.registerCommand("vsconan.recipe.selected", () => {
         conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
     });
 
-    let bla = vscode.commands.registerCommand("vsconan.recipe.information", (node: ConanRecipeItem) => {
+    let commandRecipeInformation = vscode.commands.registerCommand("vsconan.recipe.information", (node: ConanRecipeItem) => {
+        // TODO: Show information from the selected recipe
         console.log(`Selected Node is ${node.label}`);
     });
 
