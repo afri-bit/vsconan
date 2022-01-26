@@ -167,67 +167,43 @@
             },
             {
                 "command": "vsconan.recipe.information",
-                "title": "Information",
-                "icon": {
-                    "light": "resources/icon/light/info.png",
-                    "dark": "resources/icon/dark/info.png"
-                }
+                "title": "Information"
             },
             {
-                "command": "vsconan.recipe.open",
-                "title": "Open Folder",
-                "icon": {
-                    "light": "resources/icon/light/goto.png",
-                    "dark": "resources/icon/dark/goto.png"
-                }
+                "command": "vsconan.recipe.open.folder",
+                "title": "Open Folder"
+            },
+            {
+                "command": "vsconan.recipe.open.vscode",
+                "title": "Open VSCode"
             },
             {
                 "command": "vsconan.recipe.remove",
-                "title": "Remove",
-                "icon": {
-                    "light": "resources/icon/light/delete.png",
-                    "dark": "resources/icon/dark/delete.png"
-                }
+                "title": "Remove"
             },
             {
                 "command": "vsconan.package.information",
-                "title": "Information",
-                "icon": {
-                    "light": "resources/icon/light/info.png",
-                    "dark": "resources/icon/dark/info.png"
-                }
+                "title": "Information"
             },
             {
-                "command": "vsconan.package.open",
-                "title": "Open Folder",
-                "icon": {
-                    "light": "resources/icon/light/goto.png",
-                    "dark": "resources/icon/dark/goto.png"
-                }
+                "command": "vsconan.package.open.folder",
+                "title": "Open Folder"
+            },
+            {
+                "command": "vsconan.package.open.vscode",
+                "title": "Open VSCode"
             },
             {
                 "command": "vsconan.package.remove",
-                "title": "Remove",
-                "icon": {
-                    "light": "resources/icon/light/delete.png",
-                    "dark": "resources/icon/dark/delete.png"
-                }
+                "title": "Remove"
             },
             {
                 "command": "vsconan.profile.remove",
-                "title": "Remove",
-                "icon": {
-                    "light": "resources/icon/light/delete.png",
-                    "dark": "resources/icon/dark/delete.png"
-                }
+                "title": "Remove"
             },
             {
                 "command": "vsconan.remote.remove",
-                "title": "Remove",
-                "icon": {
-                    "light": "resources/icon/light/delete.png",
-                    "dark": "resources/icon/dark/delete.png"
-                }
+                "title": "Remove"
             }
         ],
         "menus": {
@@ -261,43 +237,43 @@
             "view/item/context": [
                 {
                     "command": "vsconan.recipe.information",
-                    "when": "view == vsconan-view-recipe",
-                    "group": "inline"
+                    "when": "view == vsconan-view-recipe"
                 },
                 {
-                    "command": "vsconan.recipe.open",
-                    "when": "view == vsconan-view-recipe",
-                    "group": "inline"
+                    "command": "vsconan.recipe.open.folder",
+                    "when": "view == vsconan-view-recipe"
+                },
+                {
+                    "command": "vsconan.recipe.open.vscode",
+                    "when": "view == vsconan-view-recipe"
                 },
                 {
                     "command": "vsconan.recipe.remove",
-                    "when": "view == vsconan-view-recipe",
-                    "group": "inline"
+                    "when": "view == vsconan-view-recipe"
                 },
                 {
                     "command": "vsconan.package.information",
-                    "when": "view == vsconan-view-package",
-                    "group": "inline"
+                    "when": "view == vsconan-view-package"
                 },
                 {
-                    "command": "vsconan.package.open",
-                    "when": "view == vsconan-view-package",
-                    "group": "inline"
+                    "command": "vsconan.package.open.folder",
+                    "when": "view == vsconan-view-package"
+                },
+                {
+                    "command": "vsconan.package.open.vscode",
+                    "when": "view == vsconan-view-package"
                 },
                 {
                     "command": "vsconan.package.remove",
-                    "when": "view == vsconan-view-package",
-                    "group": "inline"
+                    "when": "view == vsconan-view-package"
                 },
                 {
                     "command": "vsconan.profile.remove",
-                    "when": "view == vsconan-view-profile",
-                    "group": "inline"
+                    "when": "view == vsconan-view-profile"
                 },
                 {
                     "command": "vsconan.remote.remove",
-                    "when": "view == vsconan-view-remote",
-                    "group": "inline"
+                    "when": "view == vsconan-view-remote"
                 }
             ]
         }

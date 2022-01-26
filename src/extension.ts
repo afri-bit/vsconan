@@ -166,7 +166,11 @@ export function activate(context: vscode.ExtensionContext) {
         console.log(`Selected Node is ${node.label}`);
     });
 
-    let commandRecipeOpen = vscode.commands.registerCommand("vsconan.recipe.open", (node: ConanRecipeItem) => {
+    let commandRecipeOpenFolder = vscode.commands.registerCommand("vsconan.recipe.open.folder", (node: ConanRecipeItem) => {
+        // TODO: Open the folder to the recipe
+    });
+
+    let commandRecipeOpenVSCode = vscode.commands.registerCommand("vsconan.recipe.open.vscode", (node: ConanRecipeItem) => {
         // TODO: Open the folder to the recipe
     });
 
@@ -185,7 +189,11 @@ export function activate(context: vscode.ExtensionContext) {
         console.log(`Selected Package is ${packageNode.label}`);
     });
 
-    let commandPackageOpen = vscode.commands.registerCommand("vsconan.package.open", (node: ConanPackageItem) => {
+    let commandPackageOpenFolder = vscode.commands.registerCommand("vsconan.package.open.folder", (node: ConanPackageItem) => {
+        // TODO: Open the package folder
+    });
+
+    let commandPackageOpenVSCode = vscode.commands.registerCommand("vsconan.package.open.vscode", (node: ConanPackageItem) => {
         // TODO: Open the package folder
     });
 
@@ -228,13 +236,15 @@ export function activate(context: vscode.ExtensionContext) {
     // Recipe
     context.subscriptions.push(commandRecipeSelected);
     context.subscriptions.push(commandRecipeInformation);
-    context.subscriptions.push(commandRecipeOpen);
+    context.subscriptions.push(commandRecipeOpenFolder);
+    context.subscriptions.push(commandRecipeOpenVSCode);
     context.subscriptions.push(commandRecipeRemove);
 
     // Package
     context.subscriptions.push(commandPackageSelected);
     context.subscriptions.push(commandPackageInformation);
-    context.subscriptions.push(commandPackageOpen);
+    context.subscriptions.push(commandPackageOpenFolder);
+    context.subscriptions.push(commandPackageOpenVSCode);
     context.subscriptions.push(commandPackageRemove);
 
     // Profile
