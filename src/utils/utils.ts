@@ -52,7 +52,7 @@ export function getVSConanHomeDirTemp(): string {
 }
 
 export function getGlobalConfigPath(): string {
-    return path.join(getVSConanHomeDir()!, "config.json");
+    return path.join(getVSConanHomeDir(), "config.json");
 }
 
 export function getConanCacheDir(): string {

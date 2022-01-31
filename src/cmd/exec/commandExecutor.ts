@@ -2,8 +2,9 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import { CommandBuilder } from "../builder/commandBuilder";
-import { ConfigWorkspaceController } from "../../config/configWorkspace";
+import { ConfigDataWorkspace } from "../../config/configWorkspace";
 import * as utils from "../../utils/utils";
+import { ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from "../../config/configCommand";
 
 interface ConfigCommandQuickPickItem extends vscode.QuickPickItem {
     index: number;
@@ -34,31 +35,24 @@ async function executeCommand(cmd: string, channel: vscode.OutputChannel) {
 }
 
 export class CommandExecutor {
-    public static executeCommandConan(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
-        let cmd = CommandBuilder.buildCommandConan(configController.getPython());
-
-        if (cmd != undefined)
-            executeCommand(cmd, channel);
-        else
-            vscode.window.showErrorMessage("Unable to execute CONAN command");
+    public static executeCommandConan(python: string, channel: vscode.OutputChannel) {
+        executeCommand(python, channel);
     }
 
-    public static executeCommandConanNew(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
+    public static executeCommandConanNew(python: string, channel: vscode.OutputChannel) {
         vscode.window.showInformationMessage("Conan NEW command");
         // TODO: Implement function to insert name and version to creat conan workspace
     }
 
-    public static executeCommandConanCreate(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
-        let cmdList = configController.getListCommandCreate();
-
-        if (cmdList != undefined) {
+    public static executeCommandConanCreate(python: string, configCreateList: Array<ConfigCommandCreate>, channel: vscode.OutputChannel) {
+        if (configCreateList != undefined) {
             const quickPick = vscode.window.createQuickPick<ConfigCommandQuickPickItem>();
             let quickPickItems = []
-            for (let i = 0; i < cmdList!.length; i++) {
+            for (let i = 0; i < configCreateList!.length; i++) {
                 quickPickItems.push({
-                    label: cmdList[i].name,
-                    description: cmdList[i].description,
-                    detail: cmdList[i].detail,
+                    label: configCreateList[i].name,
+                    description: configCreateList[i].description,
+                    detail: configCreateList[i].detail,
                     index: i
                 })
             }
@@ -67,8 +61,8 @@ export class CommandExecutor {
 
             quickPick.onDidChangeSelection(([{ label }]) => {
 
-                let cfg = configController.getConfigCommandCreate(quickPick.selectedItems[0].index);
-                let cmd = CommandBuilder.buildCommandCreate(configController.getPython(), cfg);
+                let cfg = configCreateList[quickPick.selectedItems[0].index]
+                let cmd = CommandBuilder.buildCommandCreate(python, cfg);
 
                 if (cmd != undefined)
                     executeCommand(cmd, channel);
@@ -82,17 +76,15 @@ export class CommandExecutor {
         }
     }
 
-    public static executeCommandConanInstall(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
-        let cmdList = configController.getListCommandInstall();
-
-        if (cmdList != undefined) {
+    public static executeCommandConanInstall(python: string, configInstallList: Array<ConfigCommandInstall>, channel: vscode.OutputChannel) {
+        if (configInstallList != undefined) {
             const quickPick = vscode.window.createQuickPick<ConfigCommandQuickPickItem>();
             let quickPickItems = []
-            for (let i = 0; i < cmdList!.length; i++) {
+            for (let i = 0; i < configInstallList!.length; i++) {
                 quickPickItems.push({
-                    label: cmdList[i].name,
-                    description: cmdList[i].description,
-                    detail: cmdList[i].detail,
+                    label: configInstallList[i].name,
+                    description: configInstallList[i].description,
+                    detail: configInstallList[i].detail,
                     index: i
                 })
             }
@@ -101,8 +93,8 @@ export class CommandExecutor {
 
             quickPick.onDidChangeSelection(([{ label }]) => {
 
-                let cfg = configController.getConfigCommandInstall(quickPick.selectedItems[0].index);
-                let cmd = CommandBuilder.buildCommandInstall(configController.getPython(), cfg);
+                let cfg = configInstallList[quickPick.selectedItems[0].index];
+                let cmd = CommandBuilder.buildCommandInstall(python, cfg);
 
                 if (cmd != undefined)
                     executeCommand(cmd, channel);
@@ -116,17 +108,15 @@ export class CommandExecutor {
         }
     }
 
-    public static executeCommandConanBuild(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
-        let cmdList = configController.getListCommandBuild();
-
-        if (cmdList != undefined) {
+    public static executeCommandConanBuild(python: string, configBuildList: Array<ConfigCommandBuild>, channel: vscode.OutputChannel) {
+        if (configBuildList != undefined) {
             const quickPick = vscode.window.createQuickPick<ConfigCommandQuickPickItem>();
             let quickPickItems = []
-            for (let i = 0; i < cmdList!.length; i++) {
+            for (let i = 0; i < configBuildList!.length; i++) {
                 quickPickItems.push({
-                    label: cmdList[i].name,
-                    description: cmdList[i].description,
-                    detail: cmdList[i].detail,
+                    label: configBuildList[i].name,
+                    description: configBuildList[i].description,
+                    detail: configBuildList[i].detail,
                     index: i
                 })
             }
@@ -135,8 +125,8 @@ export class CommandExecutor {
 
             quickPick.onDidChangeSelection(([{ label }]) => {
 
-                let cfg = configController.getConfigCommandBuild(quickPick.selectedItems[0].index);
-                let cmd = CommandBuilder.buildCommandBuild(configController.getPython(), cfg);
+                let cfg = configBuildList[quickPick.selectedItems[0].index];
+                let cmd = CommandBuilder.buildCommandBuild(python, cfg);
 
                 if (cmd != undefined)
                     executeCommand(cmd, channel);
@@ -150,17 +140,15 @@ export class CommandExecutor {
         }
     }
 
-    public static executeCommandConanSource(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
-        let cmdList = configController.getListCommandSource();
-
-        if (cmdList != undefined) {
+    public static executeCommandConanSource(python: string, configSourceList: Array<ConfigCommandSource>, channel: vscode.OutputChannel) {
+        if (configSourceList != undefined) {
             const quickPick = vscode.window.createQuickPick<ConfigCommandQuickPickItem>();
             let quickPickItems = []
-            for (let i = 0; i < cmdList!.length; i++) {
+            for (let i = 0; i < configSourceList!.length; i++) {
                 quickPickItems.push({
-                    label: cmdList[i].name,
-                    description: cmdList[i].description,
-                    detail: cmdList[i].detail,
+                    label: configSourceList[i].name,
+                    description: configSourceList[i].description,
+                    detail: configSourceList[i].detail,
                     index: i
                 })
             }
@@ -169,8 +157,8 @@ export class CommandExecutor {
 
             quickPick.onDidChangeSelection(([{ label }]) => {
 
-                let cfg = configController.getConfigCommandSource(quickPick.selectedItems[0].index);
-                let cmd = CommandBuilder.buildCommandSource(configController.getPython(), cfg);
+                let cfg = configSourceList[quickPick.selectedItems[0].index];
+                let cmd = CommandBuilder.buildCommandSource(python, cfg);
 
                 if (cmd != undefined)
                     executeCommand(cmd, channel);
@@ -184,17 +172,15 @@ export class CommandExecutor {
         }
     }
 
-    public static executeCommandConanPackage(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
-        let cmdList = configController.getListCommandPackage();
-
-        if (cmdList != undefined) {
+    public static executeCommandConanPackage(python: string, configPackageList: Array<ConfigCommandPackage>, channel: vscode.OutputChannel) {
+        if (configPackageList != undefined) {
             const quickPick = vscode.window.createQuickPick<ConfigCommandQuickPickItem>();
             let quickPickItems = []
-            for (let i = 0; i < cmdList!.length; i++) {
+            for (let i = 0; i < configPackageList!.length; i++) {
                 quickPickItems.push({
-                    label: cmdList[i].name,
-                    description: cmdList[i].description,
-                    detail: cmdList[i].detail,
+                    label: configPackageList[i].name,
+                    description: configPackageList[i].description,
+                    detail: configPackageList[i].detail,
                     index: i
                 })
             }
@@ -203,8 +189,8 @@ export class CommandExecutor {
 
             quickPick.onDidChangeSelection(([{ label }]) => {
 
-                let cfg = configController.getConfigCommandPackage(quickPick.selectedItems[0].index);
-                let cmd = CommandBuilder.buildCommandPackage(configController.getPython(), cfg);
+                let cfg = configPackageList[quickPick.selectedItems[0].index];
+                let cmd = CommandBuilder.buildCommandPackage(python, cfg);
 
                 if (cmd != undefined)
                     executeCommand(cmd, channel);
@@ -218,17 +204,15 @@ export class CommandExecutor {
         }
     }
 
-    public static executeCommandConanPackageExport(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
-        let cmdList = configController.getListCommandPackageExport();
-
-        if (cmdList != undefined) {
+    public static executeCommandConanPackageExport(python: string, configPackageExpList: Array<ConfigCommandPackageExport>, channel: vscode.OutputChannel) {
+        if (configPackageExpList != undefined) {
             const quickPick = vscode.window.createQuickPick<ConfigCommandQuickPickItem>();
             let quickPickItems = []
-            for (let i = 0; i < cmdList!.length; i++) {
+            for (let i = 0; i < configPackageExpList!.length; i++) {
                 quickPickItems.push({
-                    label: cmdList[i].name,
-                    description: cmdList[i].description,
-                    detail: cmdList[i].detail,
+                    label: configPackageExpList[i].name,
+                    description: configPackageExpList[i].description,
+                    detail: configPackageExpList[i].detail,
                     index: i
                 })
             }
@@ -237,8 +221,8 @@ export class CommandExecutor {
 
             quickPick.onDidChangeSelection(([{ label }]) => {
 
-                let cfg = configController.getConfigCommandPackageExport(quickPick.selectedItems[0].index);
-                let cmd = CommandBuilder.buildCommandPackageExport(configController.getPython(), cfg);
+                let cfg = configPackageExpList[quickPick.selectedItems[0].index];
+                let cmd = CommandBuilder.buildCommandPackageExport(python, cfg);
 
                 if (cmd != undefined)
                     executeCommand(cmd, channel);
@@ -252,24 +236,24 @@ export class CommandExecutor {
         }
     }
 
-    public static executeCommandConfigCreate(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
-        if (!fs.existsSync(utils.getWorkspaceConfigPath()!)) {
-            // Create .vscode folder if it doesnt exist
-            if (!fs.existsSync(utils.getVSCodePath()!))
-                fs.mkdirSync(utils.getVSCodePath()!);
+    // public static executeCommandConfigCreate(configController: ConfigWorkspaceController, channel: vscode.OutputChannel) {
+    //     if (!fs.existsSync(utils.getWorkspaceConfigPath()!)) {
+    //         // Create .vscode folder if it doesnt exist
+    //         if (!fs.existsSync(utils.getVSCodePath()!))
+    //             fs.mkdirSync(utils.getVSCodePath()!);
 
-            if (!fs.existsSync(utils.getVSConanPath()!))
-                fs.mkdirSync(utils.getVSConanPath()!);
+    //         if (!fs.existsSync(utils.getVSConanPath()!))
+    //             fs.mkdirSync(utils.getVSConanPath()!);
 
-            configController.generateDefaultConfig();
+    //         configController.generateDefaultConfig();
 
-            let jsonConfig = JSON.stringify(configController.getConfig(), null, 4);
-            fs.writeFile(utils.getWorkspaceConfigPath()!, jsonConfig, "utf8", function (err) {
-                if (err) throw err;
-            });
-        }
-        else {
-            vscode.window.showInformationMessage("Config file already exists.");
-        }
-    }
+    //         let jsonConfig = JSON.stringify(configController.getConfig(), null, 4);
+    //         fs.writeFile(utils.getWorkspaceConfigPath()!, jsonConfig, "utf8", function (err) {
+    //             if (err) throw err;
+    //         });
+    //     }
+    //     else {
+    //         vscode.window.showInformationMessage("Config file already exists.");
+    //     }
+    // }
 }

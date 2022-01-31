@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import * as utils from "../utils/utils";
 
 
-export class ConfigGlobal {
+export class ConfigDataGlobal{
     public python: string;
 
     constructor(python: string = "python") {
@@ -11,10 +11,10 @@ export class ConfigGlobal {
     }
 }
 
-export class ConfigGlobalController {
-    private config: ConfigGlobal;
+export class ConfigGlobal {
+    private config: ConfigDataGlobal;
 
-    constructor(config: ConfigGlobal) {
+    constructor(config: ConfigDataGlobal) {
         this.config = config;
     }
 
@@ -22,28 +22,61 @@ export class ConfigGlobalController {
         return this.config.python;
     }
 
-    public getConfig(): ConfigGlobal {
+    public getConfig(): ConfigDataGlobal {
         return this.config;
     }
 
-    public generateDefaultConfig() {
-
-        let config = new ConfigGlobal("python");
-
-        this.config = config;
+    public getJsonString(): string{
+        let jsonString = JSON.stringify(this.config, null, 4);
+        return jsonString;
     }
 
-    public fetchConfig(): boolean {
+    /**
+     * Set the configurations parameter to default values
+     */
+    public setDefault(){
+        this.config = new ConfigDataGlobal("python");
+    }
 
-        if (fs.existsSync(utils.getGlobalConfigPath()!)) {
-            let configText = fs.readFileSync(utils.getGlobalConfigPath()!, 'utf8');
-            this.config = JSON.parse(configText);
-            return true;
+    /**
+     * Read config file with give filename
+     * 
+     * @param filename Full path where this file is located
+     */
+    public readConfigFromFile(filename: string){
+        let configText = fs.readFileSync(filename, 'utf8');
+        this.config = JSON.parse(configText);
+    }
+
+    /**
+     * Read config file from the default path of the config file
+     * 
+     */
+    public readConfig(){
+        if (fs.existsSync(utils.getGlobalConfigPath())) {
+            this.readConfigFromFile(utils.getGlobalConfigPath())
         }
         else {
-            vscode.window.showErrorMessage("Unable to find global config file.");
-            return false;
+            throw("Unable to find global config file.");
         }
     }
-}
 
+    /**
+     * Save current configuration to JSON file with give file name
+     * 
+     * @param filename
+     */
+    public writeConfigToFile(filename: string){
+        let jsonString = JSON.stringify(this.config, null, 4);
+        fs.writeFile(filename, jsonString, "utf8", function (err) {
+            if (err) throw err;
+        });
+    }
+
+    /**
+     * Save current configuration to JSON file with default location of the config file
+     */
+    public writeConfig(){
+        this.writeConfigToFile(utils.getGlobalConfigPath());
+    }
+}
