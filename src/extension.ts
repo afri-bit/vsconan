@@ -336,5 +336,48 @@ export function selectPython(configDataGlobal: ConfigDataGlobal, configDataWorks
 
 }
 
+/**
+ * Function to show quick pick to get a workspace path.
+ * This can list the multiple workspaces and user can select it using a quick pick menu. 
+ * 
+ * @returns <string | undefined> Selected workspace path or undefined
+ */
+export async function getWorkspace(): Promise<string | undefined> {
+    let wsList = vscode.workspace.workspaceFolders;
+
+    if (wsList!.length > 1) { // Workspace contains multiple folders
+        const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
+        let quickPickItems = []
+        for (let i = 0; i < wsList!.length; i++) {
+            quickPickItems.push({
+                label: wsList![i].name,
+                description: wsList![i].uri.fsPath,
+                detail: "",
+                index: i
+            })
+        }
+        quickPickItems.map(label => ({ label }));
+        quickPick.items = quickPickItems;
+
+        const choice = await vscode.window.showQuickPick(quickPickItems);
+
+        if (choice) {
+            // Returning the filesystem path
+            return choice.description;
+        }
+        else {
+            return undefined;
+        }
+    }
+    else if (wsList!.length == 1) {
+        // Choose the only path it has
+        return wsList![0].uri.fsPath;
+    }
+    else if (wsList == undefined) {
+        // Do nothing
+        return undefined;
+    }
+}
+
 // this method is called when your extension is deactivated
 export function deactivate() { }
