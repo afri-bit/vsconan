@@ -39,7 +39,7 @@ export class ConanAPI {
 
         let jsonName: string = "recipe.json"
 
-        let jsonPath: string = path.join(utils.getVSConanHomeDirTemp(), jsonName);
+        let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
         this.commandToJsonExecutor("python -m conans.conan search --raw --json", jsonPath);
 
@@ -106,7 +106,7 @@ export class ConanAPI {
 
         let jsonName: string = "profile.json"
 
-        let jsonPath: string = path.join(utils.getVSConanHomeDirTemp(), jsonName);
+        let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
         this.commandToJsonExecutor("python -m conans.conan profile list --json", jsonPath);
 
@@ -142,7 +142,7 @@ export class ConanAPI {
         else {
             let jsonName: string = "package.json"
 
-            let jsonPath: string = path.join(utils.getVSConanHomeDirTemp(), jsonName);
+            let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
             let recipeName: string = "";
 
@@ -192,7 +192,7 @@ export class ConanAPI {
     public getRemotes(): Array<any> {
         let arrayRemoteList: Array<any> = [];
 
-        let jsonPath: string = path.join(utils.getConanCacheDir(), "remotes.json");
+        let jsonPath: string = path.join(utils.conan.getConanCacheDir(), "remotes.json");
 
         // Check if the file exists
         // With this check it validates if the conan command executed correctly without error

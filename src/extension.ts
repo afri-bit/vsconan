@@ -1,31 +1,33 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import * as os from "os";
-import { CommandExecutor } from "./cmd/exec/commandExecutor";
-import { ConfigDataWorkspace, ConfigWorkspace } from "./config/configWorkspace";
-import * as utils from "./utils/utils";
 import { ConanAPI } from "./api/conan/conanAPI";
-import { ConanRecipeNodeProvider, ConanRecipeItem } from "./ui/treeview/conanRecipeProvider";
-import { ConanProfileItem, ConanProfileNodeProvider } from "./ui/treeview/conanProfileProvider";
+import { CommandExecutor } from "./cmd/exec/commandExecutor";
+import {
+    CommandContainer, ConfigCommandBuild, ConfigCommandCreate,
+    ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport,
+    ConfigCommandSource
+} from "./config/configCommand";
+// import { ConfigDataGlobal, ConfigGlobal } from "./config/configGlobal";
+import { ConfigWorkspace } from "./config/configWorkspace";
 import { ConanPackageItem, ConanPackageNodeProvider } from "./ui/treeview/conanPackageProvider";
+import { ConanProfileItem, ConanProfileNodeProvider } from "./ui/treeview/conanProfileProvider";
+import { ConanRecipeItem, ConanRecipeNodeProvider } from "./ui/treeview/conanRecipeProvider";
 import { ConanRemoteItem, ConanRemoteNodeProvider } from "./ui/treeview/conanRemoteProvider";
-import { ConfigDataGlobal, ConfigGlobal } from "./config/configGlobal";
+import * as utils from "./utils/utils";
+import * as globals from "./globals";
+import { ConfigGlobal } from "./config/configGlobal";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
-    // VSConan Workspace Area
-    // Variables for workspace area
-    var wsPath = utils.getWorkspaceFolder();
-    var vsconanPath = utils.getVSConanPath();
-    var configWorkspacePath = utils.getWorkspaceConfigPath();
-    var configDataWorkspace = new ConfigDataWorkspace();
-    var configWorkspace = new ConfigWorkspace(configDataWorkspace);
 
-    // VSConan Global Area
-    // Variables for global area
-    var configDataGlobal = new ConfigDataGlobal();
-    var configGlobal = new ConfigGlobal(configDataGlobal);
+    let configGlobal = new ConfigGlobal();
+    utils.json.readFromJSON(utils.vsconan.getGlobalConfigPath(), configGlobal);
+
+    // // VSConan Global Area
+    // // Variables for global area
+    // var configDataGlobal = new ConfigDataGlobal();
+    // var configGlobal = new ConfigGlobal(configDataGlobal);
 
     // Create VSConan extension channel
     // This channel is to show the command line outputs specifically for this extension
@@ -36,18 +38,18 @@ export function activate(context: vscode.ExtensionContext) {
     // Global Area - The global area is stored under home folder ($HOME/.vsconan)
     //               This area has lower priority then the workspace area
     // Global Area - To work for the API a extension folder will created in the home directory
-    if (!fs.existsSync(utils.getVSConanHomeDir())) {
-        fs.mkdirSync(utils.getVSConanHomeDir());
+    if (!fs.existsSync(utils.vsconan.getVSConanHomeDir())) {
+        fs.mkdirSync(utils.vsconan.getVSConanHomeDir());
     }
 
     // Global Area - Check if global config file is available, otherwise create a new one with default parameters
-    if (!fs.existsSync(utils.getGlobalConfigPath())) {
-        configGlobal.writeConfig();
+    if (!fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
+        // configGlobal.writeConfig();
     }
 
     // Global Area - dditionally the temp folder will created to store temporary files
-    if (!fs.existsSync(utils.getVSConanHomeDirTemp())) {
-        fs.mkdirSync(utils.getVSConanHomeDirTemp());
+    if (!fs.existsSync(utils.vsconan.getVSConanHomeDirTemp())) {
+        fs.mkdirSync(utils.vsconan.getVSConanHomeDirTemp());
     }
 
     // ========== Registering the treeview for the extension
@@ -75,35 +77,53 @@ export function activate(context: vscode.ExtensionContext) {
     // To check whether its workspace or not is to determine if the function "getWorkspaceFolder" returns undefined or a path
     // If user only open anyfile without a folder (as editor) this the workspace path will return "undefined"
     // This condition will be entered if vs code used as a workspace
-    if (wsPath != undefined) {
+    let wsList = vscode.workspace.workspaceFolders;
 
-        if (isFolderConanProject(wsPath) && !fs.existsSync(configWorkspacePath!)) {
+    if (wsList != undefined) {
 
-            vscode.window
-                .showInformationMessage("The workspace is detected as a conan project. Do you want to configure this workspace?", ...["Yes", "No"])
-                .then((answer) => {
-                    if (answer === "Yes") {
-                        // Create .vsconan folder if it doesnt exist
-                        if (!fs.existsSync(vsconanPath!))
-                            fs.mkdirSync(vsconanPath!);
+        for (let i = 0; i < wsList.length; i++) {
 
-                        configWorkspace.setDefault();
+            let wsPath = wsList[i].uri.fsPath;
+            let configPath = path.join(wsPath, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE)
 
-                        configWorkspace.writeConfigToFile(configWorkspacePath!);
-                    }
-                });
+            if (isFolderConanProject(wsPath) && !fs.existsSync(configPath!)) {
+
+                vscode.window
+                    .showInformationMessage(`The workspace '${wsList[i].name}' is detected as a conan project. Do you want to configure this workspace?`, ...["Yes", "Not Now"])
+                    .then((answer) => {
+                        if (answer === "Yes") {
+
+                            let vsconanPath = path.join(wsPath, globals.constant.VSCONAN_FOLDER);
+                            if (!fs.existsSync(vsconanPath)){
+                                fs.mkdirSync(vsconanPath!);
+                            }
+
+                            // Create a default config file
+                            let configWorkspace = new ConfigWorkspace("python", new CommandContainer(
+                                [new ConfigCommandCreate()],
+                                [new ConfigCommandInstall()],
+                                [new ConfigCommandBuild()],
+                                [new ConfigCommandSource()],
+                                [new ConfigCommandPackage()],
+                                [new ConfigCommandPackageExport()]
+                                ));
+
+                            utils.json.writeToJson(configWorkspace, configPath);
+                        }
+                    });
+            }
         }
     }
 
     // ========== Extension Commands Registration Section 
     let commandConan = vscode.commands.registerCommand("vsconan.conan", () => {
-        let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
-        if (python != undefined) {
-            CommandExecutor.executeCommandConan(python, channelVSConan);
-        }
-        else {
-            vscode.window.showErrorMessage("Unable to execute CONAN command. Define the Python intepreter.");
-        }
+        // let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
+        // if (python != undefined) {
+        //     CommandExecutor.executeCommandConan(python, channelVSConan);
+        // }
+        // else {
+        //     vscode.window.showErrorMessage("Unable to execute CONAN command. Define the Python intepreter.");
+        // }
     });
 
     // ========== Conan Workflow Command Registration
@@ -112,76 +132,76 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandConanCreate = vscode.commands.registerCommand("vsconan.conan.create", () => {
-        configGlobal.readConfig();
-        configWorkspace.readConfig();
-        let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
-        if (python != undefined) {
-            CommandExecutor.executeCommandConanCreate(python, configWorkspace.getConfig().commandContainer.create, channelVSConan);
-        }
-        else {
-            vscode.window.showErrorMessage("Unable to execute CONAN command. Python Intepreter is not defined!");
-        }
+        // configGlobal.readConfig();
+        // configWorkspace.readConfig();
+        // let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
+        // if (python != undefined) {
+        //     CommandExecutor.executeCommandConanCreate(python, configWorkspace.getConfig().commandContainer.create, channelVSConan);
+        // }
+        // else {
+        //     vscode.window.showErrorMessage("Unable to execute CONAN command. Python Intepreter is not defined!");
+        // }
 
     });
 
     let commandConanInstall = vscode.commands.registerCommand("vsconan.conan.install", () => {
-        configGlobal.readConfig();
-        configWorkspace.readConfig();
-        let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
-        if (python != undefined) {
-            CommandExecutor.executeCommandConanInstall(python, configWorkspace.getConfig().commandContainer.install, channelVSConan);
-        }
-        else {
-            vscode.window.showErrorMessage("Unable to execute CONAN command. Python Intepreter is not defined!");
-        }
+        // configGlobal.readConfig();
+        // configWorkspace.readConfig();
+        // let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
+        // if (python != undefined) {
+        //     CommandExecutor.executeCommandConanInstall(python, configWorkspace.getConfig().commandContainer.install, channelVSConan);
+        // }
+        // else {
+        //     vscode.window.showErrorMessage("Unable to execute CONAN command. Python Intepreter is not defined!");
+        // }
     });
 
     let commandConanBuild = vscode.commands.registerCommand("vsconan.conan.build", () => {
-        configGlobal.readConfig();
-        configWorkspace.readConfig();
-        let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
-        if (python != undefined) {
-            CommandExecutor.executeCommandConanBuild(python, configWorkspace.getConfig().commandContainer.build, channelVSConan);
-        }
-        else {
-            vscode.window.showErrorMessage("Unable to execute CONAN command. Python Intepreter is not defined!");
-        }
+        // configGlobal.readConfig();
+        // configWorkspace.readConfig();
+        // let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
+        // if (python != undefined) {
+        //     CommandExecutor.executeCommandConanBuild(python, configWorkspace.getConfig().commandContainer.build, channelVSConan);
+        // }
+        // else {
+        //     vscode.window.showErrorMessage("Unable to execute CONAN command. Python Intepreter is not defined!");
+        // }
     });
 
     let commandConanSource = vscode.commands.registerCommand("vsconan.conan.source", () => {
-        configGlobal.readConfig();
-        configWorkspace.readConfig();
-        let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
-        if (python != undefined) {
-            CommandExecutor.executeCommandConanSource(python, configWorkspace.getConfig().commandContainer.source, channelVSConan);
-        }
-        else {
-            vscode.window.showErrorMessage("Unable to execute CONAN command. Python Intepreter is not defined!");
-        }
+        // configGlobal.readConfig();
+        // configWorkspace.readConfig();
+        // let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
+        // if (python != undefined) {
+        //     CommandExecutor.executeCommandConanSource(python, configWorkspace.getConfig().commandContainer.source, channelVSConan);
+        // }
+        // else {
+        //     vscode.window.showErrorMessage("Unable to execute CONAN command. Python Intepreter is not defined!");
+        // }
     });
 
     let commandConanPackage = vscode.commands.registerCommand("vsconan.conan.package", () => {
-        configGlobal.readConfig();
-        configWorkspace.readConfig();
-        let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
-        if (python != undefined) {
-            CommandExecutor.executeCommandConanPackage(python, configWorkspace.getConfig().commandContainer.pkg, channelVSConan);
-        }
-        else {
-            vscode.window.showErrorMessage("Unable to execute CONAN command. Python Intepreter is not defined!");
-        }
+        // configGlobal.readConfig();
+        // configWorkspace.readConfig();
+        // let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
+        // if (python != undefined) {
+        //     CommandExecutor.executeCommandConanPackage(python, configWorkspace.getConfig().commandContainer.pkg, channelVSConan);
+        // }
+        // else {
+        //     vscode.window.showErrorMessage("Unable to execute CONAN command. Python Intepreter is not defined!");
+        // }
     });
 
     let commandConanExportPackage = vscode.commands.registerCommand("vsconan.conan.package.export", () => {
-        configGlobal.readConfig();
-        configWorkspace.readConfig();
-        let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
-        if (python != undefined) {
-            CommandExecutor.executeCommandConanPackageExport(python, configWorkspace.getConfig().commandContainer.pkgExport, channelVSConan);
-        }
-        else {
-            vscode.window.showErrorMessage("Unable to execute CONAN command. Python Intepreter is not defined!");
-        }
+        // configGlobal.readConfig();
+        // configWorkspace.readConfig();
+        // let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
+        // if (python != undefined) {
+        //     CommandExecutor.executeCommandConanPackageExport(python, configWorkspace.getConfig().commandContainer.pkgExport, channelVSConan);
+        // }
+        // else {
+        //     vscode.window.showErrorMessage("Unable to execute CONAN command. Python Intepreter is not defined!");
+        // }
     });
 
     // ========== Global Configuration Command Registration
@@ -316,25 +336,25 @@ export function isFolderConanProject(ws: string): boolean {
     return ret;
 }
 
-/**
- * Method to select python between global and workspace
- */
-export function selectPython(configDataGlobal: ConfigDataGlobal, configDataWorkspace: ConfigDataWorkspace): string | undefined {
-    // TODO: Config workspace has priority over the global config
-    // If workspace config is undefined or empty, the global config will be used
-    // With this logic, user can define the python configuration locally in workspace
+// /**
+//  * Method to select python between global and workspace
+//  */
+// export function selectPython(configDataGlobal: ConfigDataGlobal, configDataWorkspace: ConfigDataWorkspace): string | undefined {
+//     // TODO: Config workspace has priority over the global config
+//     // If workspace config is undefined or empty, the global config will be used
+//     // With this logic, user can define the python configuration locally in workspace
 
-    if (configDataWorkspace.python != undefined && configDataWorkspace.python != "") { // Returning workspace python
-        return configDataWorkspace.python;
-    }
-    else if (configDataGlobal.python != undefined && configDataGlobal.python != "") { // Returning global python
-        return configDataGlobal.python;
-    }
-    else { // No other option available
-        return undefined;
-    }
+//     if (configDataWorkspace.python != undefined && configDataWorkspace.python != "") { // Returning workspace python
+//         return configDataWorkspace.python;
+//     }
+//     else if (configDataGlobal.python != undefined && configDataGlobal.python != "") { // Returning global python
+//         return configDataGlobal.python;
+//     }
+//     else { // No other option available
+//         return undefined;
+//     }
 
-}
+// }
 
 /**
  * Function to show quick pick to get a workspace path.
@@ -342,7 +362,7 @@ export function selectPython(configDataGlobal: ConfigDataGlobal, configDataWorks
  * 
  * @returns <string | undefined> Selected workspace path or undefined
  */
-export async function getWorkspace(): Promise<string | undefined> {
+export async function selectWorkspace(): Promise<string | undefined> {
     let wsList = vscode.workspace.workspaceFolders;
 
     if (wsList!.length > 1) { // Workspace contains multiple folders
