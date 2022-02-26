@@ -20,36 +20,33 @@ import { ConfigGlobal } from "./config/configGlobal";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
-
-    let configGlobal = new ConfigGlobal();
-    utils.json.readFromJSON(utils.vsconan.getGlobalConfigPath(), configGlobal);
-
-    // // VSConan Global Area
-    // // Variables for global area
-    // var configDataGlobal = new ConfigDataGlobal();
-    // var configGlobal = new ConfigGlobal(configDataGlobal);
-
     // Create VSConan extension channel
     // This channel is to show the command line outputs specifically for this extension
     var channelVSConan = vscode.window.createOutputChannel("VSConan");
 
     var conanApi = new ConanAPI();
 
+    // ----- Global Area Initialization -----
     // Global Area - The global area is stored under home folder ($HOME/.vsconan)
     //               This area has lower priority then the workspace area
     // Global Area - To work for the API a extension folder will created in the home directory
-    if (!fs.existsSync(utils.vsconan.getVSConanHomeDir())) {
-        fs.mkdirSync(utils.vsconan.getVSConanHomeDir());
-    }
+    {
+        if (!fs.existsSync(utils.vsconan.getVSConanHomeDir())) {
+            fs.mkdirSync(utils.vsconan.getVSConanHomeDir());
+        }
 
-    // Global Area - Check if global config file is available, otherwise create a new one with default parameters
-    if (!fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
-        // configGlobal.writeConfig();
-    }
+        // Check if global config file is available, otherwise create a new one with default parameters
+        if (!fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
+            let configGlobal = new ConfigGlobal();
+            configGlobal.general.python = "python";
+            configGlobal.explorer.python = "python";
+            configGlobal.writeToFile(utils.vsconan.getGlobalConfigPath());
+        }
 
-    // Global Area - dditionally the temp folder will created to store temporary files
-    if (!fs.existsSync(utils.vsconan.getVSConanHomeDirTemp())) {
-        fs.mkdirSync(utils.vsconan.getVSConanHomeDirTemp());
+        //  Additionally the temp folder will created to store temporary files
+        if (!fs.existsSync(utils.vsconan.getVSConanHomeDirTemp())) {
+            fs.mkdirSync(utils.vsconan.getVSConanHomeDirTemp());
+        }
     }
 
     // ========== Registering the treeview for the extension
@@ -79,6 +76,7 @@ export function activate(context: vscode.ExtensionContext) {
     // This condition will be entered if vs code used as a workspace
     let wsList = vscode.workspace.workspaceFolders;
 
+    // If it starts with workspace, there should be at least one element in the array of workspace folder
     if (wsList != undefined) {
 
         for (let i = 0; i < wsList.length; i++) {
@@ -94,21 +92,11 @@ export function activate(context: vscode.ExtensionContext) {
                         if (answer === "Yes") {
 
                             let vsconanPath = path.join(wsPath, globals.constant.VSCONAN_FOLDER);
-                            if (!fs.existsSync(vsconanPath)){
+                            if (!fs.existsSync(vsconanPath)) {
                                 fs.mkdirSync(vsconanPath!);
                             }
 
                             // Create a default config file
-                            let configWorkspace = new ConfigWorkspace("python", new CommandContainer(
-                                [new ConfigCommandCreate()],
-                                [new ConfigCommandInstall()],
-                                [new ConfigCommandBuild()],
-                                [new ConfigCommandSource()],
-                                [new ConfigCommandPackage()],
-                                [new ConfigCommandPackageExport()]
-                                ));
-
-                            utils.json.writeToJson(configWorkspace, configPath);
                         }
                     });
             }
@@ -216,6 +204,50 @@ export function activate(context: vscode.ExtensionContext) {
     // ========== Workspace Configuration Command Registration
     let commandConfigWorkspaceCreate = vscode.commands.registerCommand("vsconan.config.workspace.create", () => {
         // CommandExecutor.executeCommandConfigCreate(controllerConfigWorkspace, channelVSConan);
+        
+        let ws = selectWorkspace();
+        
+        ws.then(result => {
+            if (result != undefined) {
+                let vsconanPath = path.join(String(result), globals.constant.VSCONAN_FOLDER);
+                if (!fs.existsSync(vsconanPath)) {
+                    fs.mkdirSync(vsconanPath);
+                }
+                
+                let configFilePath = path.join(vsconanPath, globals.constant.CONFIG_FILE);
+                if (fs.existsSync(configFilePath)) {
+                    vscode.window.showInformationMessage("Config file already exists in the workspace.");
+                }
+                else {
+                    createInitialWorkspaceConfig(vsconanPath);
+                }
+            }
+            else {
+                vscode.window.showInformationMessage("Cannot create config file. No workspace detected.");
+            }
+
+        });
+
+        // let bla = selectWorkspace().then(value => {
+        //     console.log(value);
+        // });
+
+        // if (ws != undefined) {
+        //     let vsconanPath = path.join(String(ws), globals.constant.VSCONAN_FOLDER);
+        //     if (!fs.existsSync(vsconanPath)) {
+        //         fs.mkdirSync(vsconanPath);
+        //     }
+
+        //     if (fs.existsSync(path.join(vsconanPath, globals.constant.CONFIG_FILE))) {
+        //         vscode.window.showInformationMessage("Config file already exists in the workspace.");
+        //     }
+        //     else {
+        //         createInitialWorkspaceConfig(vsconanPath);
+        //     }
+        // }
+        // else {
+        //     console.error("Cannot create config file. No workspace detected.")
+        // }
     });
 
     let commandConfigWorkspaceOpen = vscode.commands.registerCommand("vsconan.config.workspace.open", () => {
@@ -323,7 +355,29 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(commandRemoteRemove);
 }
 
-export function isFolderConanProject(ws: string): boolean {
+// this method is called when your extension is deactivated
+export function deactivate() { }
+
+function createInitialGlobalConfig() {
+    let configGlobal = new ConfigGlobal();
+    configGlobal.writeToFile(utils.vsconan.getGlobalConfigPath());
+}
+
+function createInitialWorkspaceConfig(configPath: string) {
+    // TODO: Write object to JSON file
+    let configWorkspace = new ConfigWorkspace("python", new CommandContainer(
+        [new ConfigCommandCreate()],
+        [new ConfigCommandInstall()],
+        [new ConfigCommandBuild()],
+        [new ConfigCommandSource()],
+        [new ConfigCommandPackage()],
+        [new ConfigCommandPackageExport()]
+    ));
+
+    configWorkspace.writeToFile(path.join(configPath, globals.constant.CONFIG_FILE));
+}
+
+function isFolderConanProject(ws: string): boolean {
     let ret: boolean = false;
 
     let conanpy: string = path.join(ws, "conanfile.py");
@@ -362,7 +416,7 @@ export function isFolderConanProject(ws: string): boolean {
  * 
  * @returns <string | undefined> Selected workspace path or undefined
  */
-export async function selectWorkspace(): Promise<string | undefined> {
+async function selectWorkspace(): Promise<string | undefined> {
     let wsList = vscode.workspace.workspaceFolders;
 
     if (wsList!.length > 1) { // Workspace contains multiple folders
@@ -398,6 +452,3 @@ export async function selectWorkspace(): Promise<string | undefined> {
         return undefined;
     }
 }
-
-// this method is called when your extension is deactivated
-export function deactivate() { }
