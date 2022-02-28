@@ -203,55 +203,38 @@ export function activate(context: vscode.ExtensionContext) {
 
     // ========== Workspace Configuration Command Registration
     let commandConfigWorkspaceCreate = vscode.commands.registerCommand("vsconan.config.workspace.create", () => {
-        // CommandExecutor.executeCommandConfigCreate(controllerConfigWorkspace, channelVSConan);
-        
         let ws = selectWorkspace();
         
         ws.then(result => {
-            if (result != undefined) {
-                let vsconanPath = path.join(String(result), globals.constant.VSCONAN_FOLDER);
-                if (!fs.existsSync(vsconanPath)) {
-                    fs.mkdirSync(vsconanPath);
-                }
-                
-                let configFilePath = path.join(vsconanPath, globals.constant.CONFIG_FILE);
-                if (fs.existsSync(configFilePath)) {
-                    vscode.window.showInformationMessage("Config file already exists in the workspace.");
-                }
-                else {
-                    createInitialWorkspaceConfig(vsconanPath);
-                }
+            let vsconanPath = path.join(String(result), globals.constant.VSCONAN_FOLDER);
+            if (!fs.existsSync(vsconanPath)) {
+                fs.mkdirSync(vsconanPath);
+            }
+
+            let configFilePath = path.join(vsconanPath, globals.constant.CONFIG_FILE);
+            if (fs.existsSync(configFilePath)) {
+                vscode.window.showInformationMessage("Config file already exists in the workspace.");
             }
             else {
-                vscode.window.showInformationMessage("Cannot create config file. No workspace detected.");
+                createInitialWorkspaceConfig(vsconanPath);
             }
-
+        }).catch(reject =>{
+            vscode.window.showInformationMessage("Cannot create config file. No workspace detected.");
         });
-
-        // let bla = selectWorkspace().then(value => {
-        //     console.log(value);
-        // });
-
-        // if (ws != undefined) {
-        //     let vsconanPath = path.join(String(ws), globals.constant.VSCONAN_FOLDER);
-        //     if (!fs.existsSync(vsconanPath)) {
-        //         fs.mkdirSync(vsconanPath);
-        //     }
-
-        //     if (fs.existsSync(path.join(vsconanPath, globals.constant.CONFIG_FILE))) {
-        //         vscode.window.showInformationMessage("Config file already exists in the workspace.");
-        //     }
-        //     else {
-        //         createInitialWorkspaceConfig(vsconanPath);
-        //     }
-        // }
-        // else {
-        //     console.error("Cannot create config file. No workspace detected.")
-        // }
     });
 
     let commandConfigWorkspaceOpen = vscode.commands.registerCommand("vsconan.config.workspace.open", () => {
-        // TODO: Open workspace configuration file in the editor
+        let ws = selectWorkspace();
+
+        ws.then(async result => {
+            if ((result != undefined) && (result != "")){
+                const doc = await vscode.workspace.openTextDocument(path.join(result!, ".vsconan", "config.json"));
+                vscode.window.showTextDocument(doc);
+            }
+            else{
+                vscode.window.showErrorMessage("Unable to find the config file.");
+            }
+        });
     });
 
     // ========== Treeview RECIPE Command Registration
@@ -358,11 +341,22 @@ export function activate(context: vscode.ExtensionContext) {
 // this method is called when your extension is deactivated
 export function deactivate() { }
 
+/**
+ * Function to create initial global configuration file at the home folder of VSConan
+ * VSConan home folder is located at ~/.vsconan
+ */
 function createInitialGlobalConfig() {
     let configGlobal = new ConfigGlobal();
     configGlobal.writeToFile(utils.vsconan.getGlobalConfigPath());
 }
 
+/**
+ * Function to create initial workspace configuration file with all conan commands
+ * registered in the config files
+ * 
+ * @param configPath Path where the config file is to be stored
+ * 
+ */
 function createInitialWorkspaceConfig(configPath: string) {
     // TODO: Write object to JSON file
     let configWorkspace = new ConfigWorkspace("python", new CommandContainer(
@@ -414,41 +408,43 @@ function isFolderConanProject(ws: string): boolean {
  * Function to show quick pick to get a workspace path.
  * This can list the multiple workspaces and user can select it using a quick pick menu. 
  * 
- * @returns <string | undefined> Selected workspace path or undefined
+ * @returns Promise<string | undefined> Selected workspace path or undefined
  */
 async function selectWorkspace(): Promise<string | undefined> {
     let wsList = vscode.workspace.workspaceFolders;
 
-    if (wsList!.length > 1) { // Workspace contains multiple folders
-        const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
-        let quickPickItems = []
-        for (let i = 0; i < wsList!.length; i++) {
-            quickPickItems.push({
-                label: wsList![i].name,
-                description: wsList![i].uri.fsPath,
-                detail: "",
-                index: i
-            })
-        }
-        quickPickItems.map(label => ({ label }));
-        quickPick.items = quickPickItems;
+    return new Promise<string | undefined>(async (resolve, reject) => {
+        if (wsList!.length > 1) { // Workspace contains multiple folders
+            const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
+            let quickPickItems = []
+            for (let i = 0; i < wsList!.length; i++) {
+                quickPickItems.push({
+                    label: wsList![i].name,
+                    description: wsList![i].uri.fsPath,
+                    detail: "",
+                    index: i
+                })
+            }
+            quickPickItems.map(label => ({ label }));
+            quickPick.items = quickPickItems;
 
-        const choice = await vscode.window.showQuickPick(quickPickItems);
+            const choice = await vscode.window.showQuickPick(quickPickItems);
 
-        if (choice) {
-            // Returning the filesystem path
-            return choice.description;
+            if (choice) {
+                // Returning the filesystem path
+                return resolve(choice.description);
+            }
+            else {
+                return reject;
+            }
         }
-        else {
-            return undefined;
+        else if (wsList!.length == 1) {
+            // Choose the only path it has
+            return resolve(wsList![0].uri.fsPath);
         }
-    }
-    else if (wsList!.length == 1) {
-        // Choose the only path it has
-        return wsList![0].uri.fsPath;
-    }
-    else if (wsList == undefined) {
-        // Do nothing
-        return undefined;
-    }
+        else if (wsList == undefined) {
+            // Do nothing
+            return reject;
+        }
+    });
 }
