@@ -2,7 +2,7 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import * as vscode from "vscode";
 import { CommandBuilder } from "../builder/commandBuilder";
-import { ConfigDataWorkspace } from "../../config/configWorkspace";
+import { ConfigWorkspace } from "../../config/configWorkspace";
 import * as utils from "../../utils/utils";
 import { ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from "../../config/configCommand";
 

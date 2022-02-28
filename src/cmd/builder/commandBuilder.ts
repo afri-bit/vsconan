@@ -10,10 +10,11 @@ import { ConfigCommandBuild,
     ConfigCommandSource } from "../../config/configCommand"
 
 function getWorkspaceAbsolutePath(pathName: string): string {
-    if (path.isAbsolute(pathName))
-        return pathName;
-    else
-        return path.join(utils.getWorkspaceFolder()!, pathName);
+    // if (path.isAbsolute(pathName))
+    //     return pathName;
+    // else
+    //     return path.join(utils.getWorkspaceFolder()!, pathName);
+    return "";
 }
 
 export class CommandBuilder {

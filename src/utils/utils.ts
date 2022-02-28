@@ -1,61 +1,41 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as os from "os";
+import * as global from "../globals";
+import * as fs from "fs";
 
-export function getWorkspaceFolder(): string | undefined {
-    let wsPath = undefined;
+export namespace conan {
+    export function getConanCacheDir(): string {
+        return path.join(os.homedir(), ".conan");
+    }
+}
 
-    if (vscode.workspace.workspaceFolders?.length === 1) {
-        let root = vscode.workspace.workspaceFolders[0];
-        wsPath = root.uri.fsPath;
+export namespace vsconan {
+    export function getVSConanHomeDir(): string {
+        return path.join(os.homedir(), global.constant.VSCONAN_FOLDER);
     }
 
-    return wsPath
-}
-
-export function getVSCodePath(): string | undefined {
-    let vscodePath = undefined;
-
-    if (getWorkspaceFolder() != undefined) {
-        vscodePath = path.join(getWorkspaceFolder()!, ".vscode");
+    export function getVSConanHomeDirTemp(): string {
+        return path.join(getVSConanHomeDir(), global.constant.TEMP_FOLDER);
     }
 
-    return vscodePath;
+    export function getGlobalConfigPath(): string {
+        return path.join(getVSConanHomeDir(), global.constant.CONFIG_FILE);
+    }
 }
 
-export function getVSConanPath(): string | undefined {
-    let vsconanPath = undefined;
-
-    if (getWorkspaceFolder() != undefined) {
-        vsconanPath = path.join(getWorkspaceFolder()!, ".vsconan");
+export namespace json {
+    export function writeToJson(object: any, filename: string, indent: number = 4) {
+        let jsonString = JSON.stringify(object, null, indent);
+        fs.writeFile(filename, jsonString, "utf8", function (err) {
+            if (err) throw err;
+        });
     }
 
-    return vsconanPath;
-}
-
-export function getWorkspaceConfigPath(): string | undefined {
-    let configPath = undefined;
-
-    if (getVSConanPath() != undefined) {
-        configPath = path.join(getVSConanPath()!, "config.json");
+    export function readFromJSON(filename: string, object: any) {
+        let configText = fs.readFileSync(filename, 'utf8');
+        object = JSON.parse(configText);
+        return object;
     }
-
-    return configPath;
-}
-
-export function getVSConanHomeDir(): string {
-    return path.join(os.homedir(), ".vsconan");
-}
-
-export function getVSConanHomeDirTemp(): string {
-    return path.join(getVSConanHomeDir(), "temp");
-}
-
-export function getGlobalConfigPath(): string {
-    return path.join(getVSConanHomeDir(), "config.json");
-}
-
-export function getConanCacheDir(): string {
-    return path.join(os.homedir(), ".conan");
 }
 
