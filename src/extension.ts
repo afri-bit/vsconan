@@ -16,7 +16,7 @@ import { ConanRecipeItem, ConanRecipeNodeProvider } from "./ui/treeview/conanRec
 import { ConanRemoteItem, ConanRemoteNodeProvider } from "./ui/treeview/conanRemoteProvider";
 import * as utils from "./utils/utils";
 import * as globals from "./globals";
-import { ConfigGlobal } from "./config/configGlobal";
+import { ConfigGlobal, ConfigGlobalExplorer, ConfigGlobalGeneral } from "./config/configGlobal";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -30,24 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Global Area - The global area is stored under home folder ($HOME/.vsconan)
     //               This area has lower priority then the workspace area
     // Global Area - To work for the API a extension folder will created in the home directory
-    {
-        if (!fs.existsSync(utils.vsconan.getVSConanHomeDir())) {
-            fs.mkdirSync(utils.vsconan.getVSConanHomeDir());
-        }
-
-        // Check if global config file is available, otherwise create a new one with default parameters
-        if (!fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
-            let configGlobal = new ConfigGlobal();
-            configGlobal.general.python = "python";
-            configGlobal.explorer.python = "python";
-            configGlobal.writeToFile(utils.vsconan.getGlobalConfigPath());
-        }
-
-        //  Additionally the temp folder will created to store temporary files
-        if (!fs.existsSync(utils.vsconan.getVSConanHomeDirTemp())) {
-            fs.mkdirSync(utils.vsconan.getVSConanHomeDirTemp());
-        }
-    }
+    initializeGlobalArea();
 
     // ========== Registering the treeview for the extension
     const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi);
@@ -91,12 +74,14 @@ export function activate(context: vscode.ExtensionContext) {
                     .then((answer) => {
                         if (answer === "Yes") {
 
+                            // .vsconan path in the workspace
                             let vsconanPath = path.join(wsPath, globals.constant.VSCONAN_FOLDER);
                             if (!fs.existsSync(vsconanPath)) {
                                 fs.mkdirSync(vsconanPath!);
                             }
 
                             // Create a default config file
+                            createInitialWorkspaceConfig(vsconanPath);
                         }
                     });
             }
@@ -194,11 +179,26 @@ export function activate(context: vscode.ExtensionContext) {
 
     // ========== Global Configuration Command Registration
     let commandConfigGlobalCreate = vscode.commands.registerCommand("vsconan.config.global.create", () => {
-        // TODO: Create default global configuration
+        if (!fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
+            // Initial the global area even it just needs to create the configuration file
+            initializeGlobalArea();
+            vscode.window.showInformationMessage("Global configuration file has been created.");
+
+            // Opening the file after being created
+            openFileInEditor(utils.vsconan.getGlobalConfigPath());
+        }
+        else {
+            vscode.window.showInformationMessage("Global configuration file already exists.");
+        }
     });
 
     let commandConfigGlobalOpen = vscode.commands.registerCommand("vsconan.config.global.open", () => {
-        // TODO: Open global configuration file in the editor
+        if (fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
+            openFileInEditor(utils.vsconan.getGlobalConfigPath());
+        }
+        else {
+            vscode.window.showErrorMessage("Unable to find the GLOBAL config file.");
+        }
     });
 
     // ========== Workspace Configuration Command Registration
@@ -217,6 +217,9 @@ export function activate(context: vscode.ExtensionContext) {
             }
             else {
                 createInitialWorkspaceConfig(vsconanPath);
+
+                // Open configuration file after being created
+                openFileInEditor(configFilePath);
             }
         }).catch(reject =>{
             vscode.window.showInformationMessage("Cannot create config file. No workspace detected.");
@@ -228,8 +231,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         ws.then(async result => {
             if ((result != undefined) && (result != "")){
-                const doc = await vscode.workspace.openTextDocument(path.join(result!, ".vsconan", "config.json"));
-                vscode.window.showTextDocument(doc);
+                openFileInEditor(path.join(result!, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE));
             }
             else{
                 vscode.window.showErrorMessage("Unable to find the config file.");
@@ -346,7 +348,7 @@ export function deactivate() { }
  * VSConan home folder is located at ~/.vsconan
  */
 function createInitialGlobalConfig() {
-    let configGlobal = new ConfigGlobal();
+    let configGlobal = new ConfigGlobal(new ConfigGlobalGeneral("python"), new ConfigGlobalExplorer("python"));
     configGlobal.writeToFile(utils.vsconan.getGlobalConfigPath());
 }
 
@@ -447,4 +449,38 @@ async function selectWorkspace(): Promise<string | undefined> {
             return reject;
         }
     });
+}
+
+/**
+ * Function to initialize the global area such as creating .vsconan folder
+ * in the HOME folder, creating a temporary folder and creating a default global
+ * config file
+ */
+function initializeGlobalArea(){
+    if (!fs.existsSync(utils.vsconan.getVSConanHomeDir())) {
+        fs.mkdirSync(utils.vsconan.getVSConanHomeDir());
+    }
+
+    // Check if global config file is available, otherwise create a new one with default parameters
+    if (!fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
+        let configGlobal = new ConfigGlobal(new ConfigGlobalGeneral("python"), new ConfigGlobalExplorer("python"));
+        configGlobal.writeToFile(utils.vsconan.getGlobalConfigPath());
+    }
+
+    //  Additionally the temp folder will created to store temporary files
+    if (!fs.existsSync(utils.vsconan.getVSConanHomeDirTemp())) {
+        fs.mkdirSync(utils.vsconan.getVSConanHomeDirTemp());
+    }
+}
+
+/**
+ * Function to open file in the editor, with or without workspace.
+ * This function is just to simplify the mechanism of opening file in the editor
+ * 
+ * @param filePath File path to be opened
+ */
+async function openFileInEditor(filePath: string){
+
+    const doc = await vscode.workspace.openTextDocument(filePath);
+    vscode.window.showTextDocument(doc);
 }

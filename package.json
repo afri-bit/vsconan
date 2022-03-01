@@ -25,7 +25,11 @@
         "onCommand:vsconan.conan.source",
         "onCommand:vsconan.conan.package",
         "onCommand:vsconan.conan.package.export",
-        "onCommand:vsconan.config.create"
+        "onCommand:vsconan.config.create",
+        "onCommand:vsconan.config.global.create",
+        "onCommand:vsconan.config.global.open",
+        "onCommand:vsconan.config.workspace.create",
+        "onCommand:vsconan.config.workspace.open"
     ],
     "main": "./out/extension.js",
     "contributes": {
