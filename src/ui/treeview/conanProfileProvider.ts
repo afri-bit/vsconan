@@ -8,10 +8,7 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
     private _onDidChangeTreeData: vscode.EventEmitter<ConanProfileItem | undefined | void> = new vscode.EventEmitter<ConanProfileItem | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<ConanProfileItem | undefined | void> = this._onDidChangeTreeData.event;
 
-    private conanApi: ConanAPI;
-
-    constructor(conanApi: ConanAPI) {
-        this.conanApi = conanApi;
+    constructor() {
     }
 
     refresh(): void {
@@ -23,7 +20,7 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
     }
 
     getChildren(element?: ConanProfileItem): Thenable<ConanProfileItem[]> {
-        let profileList: Array<string> = this.conanApi.getProfiles();
+        let profileList: Array<string> = ConanAPI.getProfiles("python");
 
         let recipeItemList: Array<ConanProfileItem> = [];
 

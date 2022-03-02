@@ -8,11 +8,9 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
     private _onDidChangeTreeData: vscode.EventEmitter<ConanPackageItem | undefined | void> = new vscode.EventEmitter<ConanPackageItem | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<ConanPackageItem | undefined | void> = this._onDidChangeTreeData.event;
 
-    private conanApi: ConanAPI;
     private recipeName: string = "";
 
-    constructor(conanApi: ConanAPI) {
-        this.conanApi = conanApi;
+    constructor() {
     }
 
     refresh(recipeName: string): void {
@@ -25,7 +23,7 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
     }
 
     getChildren(element?: ConanPackageItem): Thenable<ConanPackageItem[]> {
-        let packageList = this.conanApi.getPackages(this.recipeName);
+        let packageList = ConanAPI.getPackages("python", this.recipeName);
 
         let packageItemList: Array<ConanPackageItem> = [];
 

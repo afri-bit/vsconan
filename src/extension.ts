@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import { ConanAPI } from "./api/conan/conanAPI";
 import { CommandExecutor } from "./cmd/exec/commandExecutor";
 import {
     CommandContainer, ConfigCommandBuild, ConfigCommandCreate,
@@ -24,8 +23,6 @@ export function activate(context: vscode.ExtensionContext) {
     // This channel is to show the command line outputs specifically for this extension
     var channelVSConan = vscode.window.createOutputChannel("VSConan");
 
-    var conanApi = new ConanAPI();
-
     // ----- Global Area Initialization -----
     // Global Area - The global area is stored under home folder ($HOME/.vsconan)
     //               This area has lower priority then the workspace area
@@ -33,22 +30,22 @@ export function activate(context: vscode.ExtensionContext) {
     initializeGlobalArea();
 
     // ========== Registering the treeview for the extension
-    const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi);
+    const conanRecipeNodeProvider = new ConanRecipeNodeProvider();
     let treeViewConanRecipe = vscode.window.createTreeView('vsconan-view-recipe', {
         treeDataProvider: conanRecipeNodeProvider
     });
 
-    const conanProfileNodeProvider = new ConanProfileNodeProvider(conanApi);
+    const conanProfileNodeProvider = new ConanProfileNodeProvider();
     let treeViewConanProfile = vscode.window.createTreeView('vsconan-view-profile', {
         treeDataProvider: conanProfileNodeProvider
     });
 
-    const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApi);
+    const conanPackageNodeProvider = new ConanPackageNodeProvider();
     let treeViewConanPackage = vscode.window.createTreeView('vsconan-view-package', {
         treeDataProvider: conanPackageNodeProvider
     });
 
-    const conanRemoteNodeProvider = new ConanRemoteNodeProvider(conanApi);
+    const conanRemoteNodeProvider = new ConanRemoteNodeProvider();
     let treeViewConanRemote = vscode.window.createTreeView('vsconan-view-remote', {
         treeDataProvider: conanRemoteNodeProvider
     });
@@ -185,7 +182,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showInformationMessage("Global configuration file has been created.");
 
             // Opening the file after being created
-            openFileInEditor(utils.vsconan.getGlobalConfigPath());
+            utils.editor.openFileInEditor(utils.vsconan.getGlobalConfigPath());
         }
         else {
             vscode.window.showInformationMessage("Global configuration file already exists.");
@@ -194,7 +191,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     let commandConfigGlobalOpen = vscode.commands.registerCommand("vsconan.config.global.open", () => {
         if (fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
-            openFileInEditor(utils.vsconan.getGlobalConfigPath());
+            utils.editor.openFileInEditor(utils.vsconan.getGlobalConfigPath());
         }
         else {
             vscode.window.showErrorMessage("Unable to find the GLOBAL config file.");
@@ -219,7 +216,7 @@ export function activate(context: vscode.ExtensionContext) {
                 createInitialWorkspaceConfig(vsconanPath);
 
                 // Open configuration file after being created
-                openFileInEditor(configFilePath);
+                utils.editor.openFileInEditor(configFilePath);
             }
         }).catch(reject =>{
             vscode.window.showInformationMessage("Cannot create config file. No workspace detected.");
@@ -231,7 +228,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         ws.then(async result => {
             if ((result != undefined) && (result != "")){
-                openFileInEditor(path.join(result!, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE));
+                utils.editor.openFileInEditor(path.join(result!, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE));
             }
             else{
                 vscode.window.showErrorMessage("Unable to find the config file.");
@@ -471,16 +468,4 @@ function initializeGlobalArea(){
     if (!fs.existsSync(utils.vsconan.getVSConanHomeDirTemp())) {
         fs.mkdirSync(utils.vsconan.getVSConanHomeDirTemp());
     }
-}
-
-/**
- * Function to open file in the editor, with or without workspace.
- * This function is just to simplify the mechanism of opening file in the editor
- * 
- * @param filePath File path to be opened
- */
-async function openFileInEditor(filePath: string){
-
-    const doc = await vscode.workspace.openTextDocument(filePath);
-    vscode.window.showTextDocument(doc);
 }

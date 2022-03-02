@@ -10,11 +10,6 @@ import * as utils from "../../utils/utils";
  * writing and reading results of the command execution to and from JSON file.
  */
 export class ConanAPI {
-
-    constructor() {
-
-    }
-
     /**
      * This function executes conan command and write the result to a JSON file
      * Conan API doesn't provide direct JSON output from the stdout. So to get a proper result
@@ -24,7 +19,7 @@ export class ConanAPI {
      * @param cmd Command to be executed
      * @param jsonPath JSON file path to store the result of the command execution
      */
-    private commandToJsonExecutor(cmd: string, jsonPath: string) {
+    private static commandToJsonExecutor(cmd: string, jsonPath: string) {
         try {
             execSync(`${cmd} ${jsonPath}`).toString();
         }
@@ -33,7 +28,7 @@ export class ConanAPI {
         }
     }
 
-    public getRecipes(): Array<string> {
+    public static getRecipes(python: string): Array<string> {
 
         let arrayRecipeList: Array<string> = [];
 
@@ -41,7 +36,7 @@ export class ConanAPI {
 
         let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
-        this.commandToJsonExecutor("python -m conans.conan search --raw --json", jsonPath);
+        this.commandToJsonExecutor(`${python} -m conans.conan search --raw --json`, jsonPath);
 
         // Check if the file exists
         // With this check it validates if the conan command executed correctly without error
@@ -100,7 +95,7 @@ export class ConanAPI {
         return arrayRecipeList;
     }
 
-    public getProfiles(): Array<string> {
+    public static getProfiles(python: string): Array<string> {
 
         let arrayProfileList: Array<string> = [];
 
@@ -108,7 +103,7 @@ export class ConanAPI {
 
         let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
-        this.commandToJsonExecutor("python -m conans.conan profile list --json", jsonPath);
+        this.commandToJsonExecutor(`${python} -m conans.conan profile list --json`, jsonPath);
 
         if (fs.existsSync(jsonPath))
         {
@@ -134,7 +129,7 @@ export class ConanAPI {
      * @param recipe Recipe ID to get the packages from
      * @returns Return will be an array of dictionary / map from JSON file
      */
-    public getPackages(recipe: string): Array<any> {
+    public static getPackages(python: string, recipe: string): Array<any> {
         let arrayPackageList: Array<any> = [];
         if (recipe == "") {
             return arrayPackageList;
@@ -153,7 +148,7 @@ export class ConanAPI {
                 recipeName = recipe;
             }
 
-            this.commandToJsonExecutor(`python -m conans.conan search ${recipeName} --json`, jsonPath);
+            this.commandToJsonExecutor(`${python} -m conans.conan search ${recipeName} --json`, jsonPath);
 
             // Check if the file exists
             // With this check it validates if the conan command executed correctly without error
@@ -189,7 +184,7 @@ export class ConanAPI {
         }
     }
 
-    public getRemotes(): Array<any> {
+    public static getRemotes(): Array<any> {
         let arrayRemoteList: Array<any> = [];
 
         let jsonPath: string = path.join(utils.conan.getConanCacheDir(), "remotes.json");
