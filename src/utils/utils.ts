@@ -24,6 +24,21 @@ export namespace vsconan {
     }
 }
 
+
+export namespace editor {
+    /**
+     * Function to open file in the editor, with or without workspace.
+     * This function is just to simplify the mechanism of opening file in the editor
+     * 
+     * @param filePath File path to be opened
+     */
+    export async function openFileInEditor(filePath: string) {
+
+        const doc = await vscode.workspace.openTextDocument(filePath);
+        vscode.window.showTextDocument(doc);
+    }
+}
+
 export namespace json {
     export function writeToJson(object: any, filename: string, indent: number = 4) {
         let jsonString = JSON.stringify(object, null, indent);
