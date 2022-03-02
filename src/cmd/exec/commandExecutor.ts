@@ -74,6 +74,9 @@ export class CommandExecutor {
 
             quickPick.show();
         }
+        else {
+            vscode.window.showErrorMessage("No option available for CREATE command!")
+        }
     }
 
     public static executeCommandConanInstall(python: string, configInstallList: Array<ConfigCommandInstall>, channel: vscode.OutputChannel) {

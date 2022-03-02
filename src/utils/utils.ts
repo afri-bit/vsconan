@@ -3,6 +3,8 @@ import * as path from "path";
 import * as os from "os";
 import * as global from "../globals";
 import * as fs from "fs";
+import { ConfigGlobal } from "../config/configGlobal";
+import { ConfigWorkspace } from "../config/configWorkspace";
 
 export namespace conan {
     export function getConanCacheDir(): string {
@@ -54,3 +56,31 @@ export namespace json {
     }
 }
 
+export namespace config{
+    /**
+     * Method to select python interpreter between global and workspace configuration
+     * The workspace python has higher priority over the global configuration.
+     * If both are filled with information, the workspace interpreter will be chosen as return.
+     * 
+     * @param configDataGlobal 
+     * @param configDataWorkspace 
+     * @returns <string> String return will occur if the configuration is not empty string
+     *          <undefined> This will be return as result if string is empty string or atrribute is not defined in the configuration file
+     */
+    export function selectPython(configGlobal: ConfigGlobal, configWorkspace: ConfigWorkspace): string | undefined {
+        // TODO: Config workspace has priority over the global config
+        // If workspace config is undefined or empty, the global config will be used
+        // With this logic, user can define the python configuration locally in workspace
+
+        if (configWorkspace.python != undefined && configWorkspace.python != "") { // Returning workspace python
+            return configWorkspace.python;
+        }
+        else if (configGlobal.general.python != undefined && configGlobal.general.python != "") { // Returning global python
+            return configGlobal.general.python;
+        }
+        else { // No other option available
+            return undefined;
+        }
+
+    }
+}

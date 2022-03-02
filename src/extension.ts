@@ -87,13 +87,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // ========== Extension Commands Registration Section 
     let commandConan = vscode.commands.registerCommand("vsconan.conan", () => {
-        // let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
-        // if (python != undefined) {
-        //     CommandExecutor.executeCommandConan(python, channelVSConan);
-        // }
-        // else {
-        //     vscode.window.showErrorMessage("Unable to execute CONAN command. Define the Python intepreter.");
-        // }
+        // TODO: Check if this command is necessary. This command is just calling conan command with no argument.
     });
 
     // ========== Conan Workflow Command Registration
@@ -102,16 +96,17 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandConanCreate = vscode.commands.registerCommand("vsconan.conan.create", () => {
-        // configGlobal.readConfig();
-        // configWorkspace.readConfig();
-        // let python = selectPython(configGlobal.getConfig(), configWorkspace.getConfig());
-        // if (python != undefined) {
-        //     CommandExecutor.executeCommandConanCreate(python, configWorkspace.getConfig().commandContainer.create, channelVSConan);
-        // }
-        // else {
-        //     vscode.window.showErrorMessage("Unable to execute CONAN command. Python Intepreter is not defined!");
-        // }
+        let ws = selectWorkspace();
 
+        ws.then(result => {
+            let configPath = path.join(result!, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE);
+            if (fs.existsSync(configPath)){
+                let configWorkspace = new ConfigWorkspace();
+                let configText = fs.readFileSync(configPath, 'utf8');
+                configWorkspace = JSON.parse(configText);
+                CommandExecutor.executeCommandConanCreate(configWorkspace.python, configWorkspace.commandContainer.create, channelVSConan);
+            }
+        });
     });
 
     let commandConanInstall = vscode.commands.registerCommand("vsconan.conan.install", () => {
@@ -383,26 +378,6 @@ function isFolderConanProject(ws: string): boolean {
     return ret;
 }
 
-// /**
-//  * Method to select python between global and workspace
-//  */
-// export function selectPython(configDataGlobal: ConfigDataGlobal, configDataWorkspace: ConfigDataWorkspace): string | undefined {
-//     // TODO: Config workspace has priority over the global config
-//     // If workspace config is undefined or empty, the global config will be used
-//     // With this logic, user can define the python configuration locally in workspace
-
-//     if (configDataWorkspace.python != undefined && configDataWorkspace.python != "") { // Returning workspace python
-//         return configDataWorkspace.python;
-//     }
-//     else if (configDataGlobal.python != undefined && configDataGlobal.python != "") { // Returning global python
-//         return configDataGlobal.python;
-//     }
-//     else { // No other option available
-//         return undefined;
-//     }
-
-// }
-
 /**
  * Function to show quick pick to get a workspace path.
  * This can list the multiple workspaces and user can select it using a quick pick menu. 
@@ -413,38 +388,39 @@ async function selectWorkspace(): Promise<string | undefined> {
     let wsList = vscode.workspace.workspaceFolders;
 
     return new Promise<string | undefined>(async (resolve, reject) => {
-        if (wsList!.length > 1) { // Workspace contains multiple folders
-            const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
-            let quickPickItems = []
-            for (let i = 0; i < wsList!.length; i++) {
-                quickPickItems.push({
-                    label: wsList![i].name,
-                    description: wsList![i].uri.fsPath,
-                    detail: "",
-                    index: i
-                })
+        if (wsList != undefined){
+            if (wsList!.length > 1) { // Workspace contains multiple folders
+                const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
+                let quickPickItems = []
+                for (let i = 0; i < wsList!.length; i++) {
+                    quickPickItems.push({
+                        label: wsList![i].name,
+                        description: wsList![i].uri.fsPath,
+                        detail: "",
+                        index: i
+                    })
+                }
+                quickPickItems.map(label => ({ label }));
+                quickPick.items = quickPickItems;
+    
+                const choice = await vscode.window.showQuickPick(quickPickItems);
+    
+                if (choice) {
+                    // Returning the filesystem path
+                    return resolve(choice.description);
+                }
+                else {
+                    return resolve(undefined);
+                }
             }
-            quickPickItems.map(label => ({ label }));
-            quickPick.items = quickPickItems;
-
-            const choice = await vscode.window.showQuickPick(quickPickItems);
-
-            if (choice) {
-                // Returning the filesystem path
-                return resolve(choice.description);
-            }
-            else {
-                return reject;
+            else if (wsList!.length == 1) {
+                // Choose the only path it has
+                return resolve(wsList![0].uri.fsPath);
             }
         }
-        else if (wsList!.length == 1) {
-            // Choose the only path it has
-            return resolve(wsList![0].uri.fsPath);
-        }
-        else if (wsList == undefined) {
-            // Do nothing
-            return reject;
-        }
+        else {
+            return reject(undefined);
+        } 
     });
 }
 
