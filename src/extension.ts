@@ -5,7 +5,7 @@ import * as utils from "./utils/utils";
 import * as globals from "./globals";
 import { CommandExecutor } from "./cmd/exec/commandExecutor";
 import {
-    CommandContainer, ConfigCommandBuild, ConfigCommandCreate,
+    CommandContainer, ConfigCommand, ConfigCommandBuild, ConfigCommandCreate,
     ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport,
     ConfigCommandSource
 } from "./config/configCommand";
@@ -101,31 +101,31 @@ export function activate(context: vscode.ExtensionContext) {
 
     // ========== Conan Workflow Command Registration
     let commandConanNew = vscode.commands.registerCommand("vsconan.conan.new", () => {
-        executeCommand(ConanCommand.NEW, channelVSConan);
+        executeConanCommand(ConanCommand.NEW, channelVSConan);
     });
 
     let commandConanCreate = vscode.commands.registerCommand("vsconan.conan.create", () => {
-        executeCommand(ConanCommand.CREATE, channelVSConan);
+        executeConanCommand(ConanCommand.CREATE, channelVSConan);
     });
 
     let commandConanInstall = vscode.commands.registerCommand("vsconan.conan.install", (cmd) => {
-        executeCommand(ConanCommand.INSTALL, channelVSConan);
+        executeConanCommand(ConanCommand.INSTALL, channelVSConan);
     });
 
     let commandConanBuild = vscode.commands.registerCommand("vsconan.conan.build", () => {
-        executeCommand(ConanCommand.BUILD, channelVSConan);
+        executeConanCommand(ConanCommand.BUILD, channelVSConan);
     });
 
     let commandConanSource = vscode.commands.registerCommand("vsconan.conan.source", () => {
-        executeCommand(ConanCommand.SOURCE, channelVSConan);
+        executeConanCommand(ConanCommand.SOURCE, channelVSConan);
     });
 
     let commandConanPackage = vscode.commands.registerCommand("vsconan.conan.package", () => {
-        executeCommand(ConanCommand.PACKAGE, channelVSConan);
+        executeConanCommand(ConanCommand.PACKAGE, channelVSConan);
     });
 
     let commandConanExportPackage = vscode.commands.registerCommand("vsconan.conan.package.export", () => {
-        executeCommand(ConanCommand.PACKAGE_EXPORT, channelVSConan);
+        executeConanCommand(ConanCommand.PACKAGE_EXPORT, channelVSConan);
     });
 
     // ========== Global Configuration Command Registration
@@ -303,7 +303,7 @@ export function deactivate() { }
  * @param channelVSConan VS Code channel to print the output of command
  * @returns <void>
  */
-function executeCommand(cmdType: ConanCommand, channelVSConan: any): void {
+function executeConanCommand(cmdType: ConanCommand, channelVSConan: any): void {
     if (cmdType == ConanCommand.NEW) {
         // TODO: Design the implementation
         vscode.window.showInformationMessage("No implementation on command NEW");
@@ -314,9 +314,9 @@ function executeCommand(cmdType: ConanCommand, channelVSConan: any): void {
     // Check the configuration and executed pre selected command based on this function argument
     let ws = selectWorkspace();
 
-    ws.then(result => {
+    ws.then(wsPath => {
 
-        let configPath = path.join(result!, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE);
+        let configPath = path.join(wsPath!, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE);
         
         if (fs.existsSync(configPath)) {
             let configWorkspace = new ConfigWorkspace();
@@ -324,27 +324,27 @@ function executeCommand(cmdType: ConanCommand, channelVSConan: any): void {
             configWorkspace = JSON.parse(configText);
             switch(+cmdType){
                 case ConanCommand.CREATE: {
-                    CommandExecutor.executeCommandConanCreate(configWorkspace.python, configWorkspace.commandContainer.create, channelVSConan);
+                    CommandExecutor.executeCommandConanCreate(wsPath!, configWorkspace.python, configWorkspace.commandContainer.create, channelVSConan);
                     break;
                 }
                 case ConanCommand.INSTALL: {
-                    CommandExecutor.executeCommandConanInstall(configWorkspace.python, configWorkspace.commandContainer.install, channelVSConan);
+                    CommandExecutor.executeCommandConanInstall(wsPath!, configWorkspace.python, configWorkspace.commandContainer.install, channelVSConan);
                     break;
                 }
                 case ConanCommand.BUILD: {
-                    CommandExecutor.executeCommandConanBuild(configWorkspace.python, configWorkspace.commandContainer.build, channelVSConan);
+                    CommandExecutor.executeCommandConanBuild(wsPath!, configWorkspace.python, configWorkspace.commandContainer.build, channelVSConan);
                     break;
                 }
                 case ConanCommand.SOURCE: {
-                    CommandExecutor.executeCommandConanSource(configWorkspace.python, configWorkspace.commandContainer.source, channelVSConan);
+                    CommandExecutor.executeCommandConanSource(wsPath!, configWorkspace.python, configWorkspace.commandContainer.source, channelVSConan);
                     break;
                 }
                 case ConanCommand.PACKAGE: {
-                    CommandExecutor.executeCommandConanPackage(configWorkspace.python, configWorkspace.commandContainer.pkg, channelVSConan);
+                    CommandExecutor.executeCommandConanPackage(wsPath!, configWorkspace.python, configWorkspace.commandContainer.pkg, channelVSConan);
                     break;
                 }
                 case ConanCommand.PACKAGE_EXPORT: {
-                    CommandExecutor.executeCommandConanPackageExport(configWorkspace.python, configWorkspace.commandContainer.pkgExport, channelVSConan);
+                    CommandExecutor.executeCommandConanPackageExport(wsPath!, configWorkspace.python, configWorkspace.commandContainer.pkgExport, channelVSConan);
                     break;
                 }
             }
