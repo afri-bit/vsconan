@@ -28,6 +28,88 @@ export class ConanAPI {
         }
     }
 
+    /**
+     * Method to get the home folder of conan by using CLI
+     * 
+     * @param python path to python interpreter that contains conan
+     * @returns
+     *      string - path is successful obtained
+     *      undefined - on error
+     */
+    public static getConanHomePath(python: string = "python"): string | undefined {
+        try {
+            let homePath = execSync(`${python} -m conans.conan config home`).toString();
+            return homePath.trim(); // Remove whitespace and new lines
+        }
+        catch (err: any) {
+            console.log(err.message);
+            return undefined;
+        }
+    }
+
+    public static getRecipePath(recipe: string, python: string = "python") {
+        let conanHome = this.getConanHomePath(python = python);
+
+        if (conanHome != undefined) { // Start processing the data if the conan home folder exists
+            let conanDataPath = path.join(conanHome, "data");
+            let recipeName: string = "";
+            let recipeVersion: string = "";
+            let recipeUser: string = "_";
+            let recipeChannel: string = "_";
+
+            if (recipe.includes("@")) { // Recipe has user and channel
+                recipeName = recipe.split("@")[0].split("/")[0];
+                recipeVersion = recipe.split("@")[0].split("/")[1];
+                recipeUser = recipe.split("@")[1].split("/")[0];
+                recipeChannel = recipe.split("@")[1].split("/")[1];
+            }
+            else { // Recipe has NO user and channel
+                recipeName = recipe.split("/")[0];
+                recipeVersion = recipe.split("/")[1];
+            }
+
+            let recipePath = path.join(conanDataPath, recipeName, recipeVersion, recipeUser, recipeChannel);
+
+            return (fs.existsSync(recipePath) ? recipePath : undefined);
+        }
+        else {
+            return undefined
+        }
+    }
+
+    /**
+     * Function to get the specified binary package path.
+     * This method doesnt use original Conan CLI but constructs the path based recipe and package ID
+     * to navigate through the file system.
+     * Required basic information is the Conan home folder. 
+     * 
+     * @param recipe 
+     * @param packageId 
+     * @param python 
+     * @returns 
+     */
+    public static getPackagePath(recipe: string, packageId: string, python: string = "python") {
+        let recipePath = this.getRecipePath(recipe, python);
+
+        if (recipePath != undefined) {
+            let packageFolder = path.join(recipePath, "package", packageId);
+
+            let conanLinkFile = path.join(packageFolder, ".conanlink");
+
+            // If .conanlink exists, it means conan only give reference to the real path using content of this file
+            if (fs.existsSync(conanLinkFile)) {
+                let realPackagePath = fs.readFileSync(conanLinkFile).toString('utf8');
+                return realPackagePath.trim();
+            }
+            else {
+                return packageFolder;
+            }
+        }
+        else {
+            return undefined;
+        }
+    }
+
     public static getRecipes(python: string): Array<string> {
 
         let arrayRecipeList: Array<string> = [];
@@ -213,5 +295,17 @@ export class ConanAPI {
 
         // Return an empty list
         return arrayRemoteList
+    }
+
+    public static getPackageInformation(python: string, recipe: string, packageId: string) {
+        let packageList = this.getPackages(python, recipe);
+
+        for (let pkg of packageList) {
+            if (pkg.id == packageId) {
+                return pkg;
+            }
+        }
+
+        return undefined;
     }
 }
