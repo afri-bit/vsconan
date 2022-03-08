@@ -266,10 +266,16 @@ export class ConanAPI {
         }
     }
 
-    public static getRemotes(): Array<any> {
+    public static getRemotes(python: string = "python"): Array<any> {
         let arrayRemoteList: Array<any> = [];
 
-        let jsonPath: string = path.join(utils.conan.getConanCacheDir(), "remotes.json");
+        let conanHomePath = this.getConanHomePath(python);
+
+        if (conanHomePath == undefined) {
+            throw new Error("Unable to locate Conan home folder.");
+        }
+
+        let jsonPath: string = path.join(conanHomePath!, "remotes.json");
 
         // Check if the file exists
         // With this check it validates if the conan command executed correctly without error
@@ -307,5 +313,13 @@ export class ConanAPI {
         }
 
         return undefined;
+    }
+
+    public static removePackage(recipe: string, packageId: string, python: string = "python") {
+        execSync(`${python} -m conans.conan remove ${recipe} -p ${packageId} -f`);
+    }
+
+    public static removeRecipe(recipe: string, python: string = "python") {
+        execSync(`${python} -m conans.conan remove ${recipe} -f`);
     }
 }

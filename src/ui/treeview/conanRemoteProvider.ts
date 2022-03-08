@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as utils from '../../utils/utils'
 import { ConanAPI } from "../../api/conan/conanAPI";
 
 export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRemoteItem> {
@@ -22,7 +23,9 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
     }
 
     getChildren(element?: ConanRemoteItem): Thenable<ConanRemoteItem[]> {
-        let remoteList = ConanAPI.getRemotes();
+        let python = utils.config.getExplorerPython();
+
+        let remoteList = ConanAPI.getRemotes(python);
 
         let remoteItemList: Array<ConanRemoteItem> = [];
 

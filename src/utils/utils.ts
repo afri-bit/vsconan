@@ -83,4 +83,18 @@ export namespace config{
         }
 
     }
+
+    export function getExplorerPython(): string | undefined {
+        if (fs.existsSync(vsconan.getGlobalConfigPath())) {
+            let configGlobal = new ConfigGlobal();
+
+            let configText = fs.readFileSync(vsconan.getGlobalConfigPath(), 'utf8');
+            configGlobal = JSON.parse(configText);
+
+            return configGlobal.explorer.python!;
+        }
+        else {
+            vscode.window.showErrorMessage("Unable to find configuration file")
+        }
+    }
 }
