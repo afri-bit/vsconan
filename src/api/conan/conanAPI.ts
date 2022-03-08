@@ -94,7 +94,7 @@ export class ConanAPI {
         if (recipePath != undefined) {
             let packageFolder = path.join(recipePath, "package", packageId);
 
-            let conanLinkFile = path.join(packageFolder, ".conanlink");
+            let conanLinkFile = path.join(packageFolder, ".conan_link");
 
             // If .conanlink exists, it means conan only give reference to the real path using content of this file
             if (fs.existsSync(conanLinkFile)) {
