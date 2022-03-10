@@ -13,3 +13,5 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
     * Remote Explorer
 * Remove entire recipe
 * Remove binary package from a recipe
+* Remove remote using explorer
+* Remove profile using explorer

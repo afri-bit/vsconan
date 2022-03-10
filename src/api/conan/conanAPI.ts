@@ -47,6 +47,17 @@ export class ConanAPI {
         }
     }
 
+    public static getConanProfilesPath(python: string = "python"): string | undefined {
+        let conanHomePath = this.getConanHomePath(python);
+
+        if (conanHomePath != undefined) {
+            return path.join(conanHomePath, "profiles");
+        }
+        else {
+            return undefined;
+        }
+    }
+
     public static getRecipePath(recipe: string, python: string = "python") {
         let conanHome = this.getConanHomePath(python = python);
 
@@ -321,6 +332,18 @@ export class ConanAPI {
 
     public static removeRecipe(recipe: string, python: string = "python") {
         execSync(`${python} -m conans.conan remove ${recipe} -f`);
+    }
+
+    public static removeProfile(profile: string, python: string = "python") {
+        let conanProfilesPath = this.getConanProfilesPath(python);
+        
+        if (conanProfilesPath == undefined) {
+            throw new Error("Unable to locate Conan profiles folder.");
+        }
+
+        let profileFilePath = path.join(conanProfilesPath, profile);
+
+        fs.unlinkSync(profileFilePath);
     }
 
     public static removeRemote(remote: string, python: string="python") {

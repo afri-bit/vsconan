@@ -303,7 +303,16 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandProfileRemove = vscode.commands.registerCommand("vsconan.profile.remove", (node: ConanProfileItem) => {
-        // TODO: Remove the selected profile
+        let python = utils.config.getExplorerPython();
+
+        try {
+            ConanAPI.removeProfile(node.label, python);
+
+            conanProfileNodeProvider.refresh();
+        }
+        catch (err: any) {
+            vscode.window.showErrorMessage(err);
+        }
     });
 
     // ========== Treeview REMOTE Command Registration
