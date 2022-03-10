@@ -58,6 +58,17 @@ export class ConanAPI {
         }
     }
 
+    public static getProfileFilePath(profile: string, python: string = "python"): string | undefined {
+        let conanProfilesPath = this.getConanProfilesPath(python)
+
+        if (conanProfilesPath != undefined) {
+            return path.join(conanProfilesPath, profile);
+        }
+        else {
+            return undefined;
+        }
+    }
+
     public static getRecipePath(recipe: string, python: string = "python") {
         let conanHome = this.getConanHomePath(python = python);
 

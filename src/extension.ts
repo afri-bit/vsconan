@@ -297,9 +297,16 @@ export function activate(context: vscode.ExtensionContext) {
         conanProfileNodeProvider.refresh();
     });
 
-    let commandProfileSelected = vscode.commands.registerCommand("vsconan.profile.selected", (node: ConanProfileItem) => {
-        // TODO: Open the profile in the editor
-        console.log(`Selected Remote is ${node.label}`);
+    let commandProfileSelected = vscode.commands.registerCommand("vsconan.profile.selected", () => {
+        let python = utils.config.getExplorerPython();
+
+        try {
+            utils.editor.openFileInEditor(ConanAPI.getProfileFilePath( treeViewConanProfile.selection[0].label, python)!);
+        }
+        catch (err: any) {
+            vscode.window.showErrorMessage(err);
+        }
+
     });
 
     let commandProfileRemove = vscode.commands.registerCommand("vsconan.profile.remove", (node: ConanProfileItem) => {
