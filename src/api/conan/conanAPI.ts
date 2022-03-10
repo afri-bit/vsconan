@@ -322,4 +322,8 @@ export class ConanAPI {
     public static removeRecipe(recipe: string, python: string = "python") {
         execSync(`${python} -m conans.conan remove ${recipe} -f`);
     }
+
+    public static removeRemote(remote: string, python: string="python") {
+        execSync(`${python} -m conans.conan remote remove ${remote}`);
+    }
 }

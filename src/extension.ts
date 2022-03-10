@@ -316,7 +316,16 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandRemoteRemove = vscode.commands.registerCommand("vsconan.remote.remove", (node: ConanRemoteItem) => {
-        // TODO: Remove the selected remote
+        let python = utils.config.getExplorerPython();
+
+        try {
+            ConanAPI.removeRemote(node.label, python);
+
+            conanRemoteNodeProvider.refresh();
+        }
+        catch (err: any) {
+            vscode.window.showErrorMessage(err);
+        }
     });
 
     context.subscriptions.push(commandConan);
