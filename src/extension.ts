@@ -209,8 +209,15 @@ export function activate(context: vscode.ExtensionContext) {
         console.log(`Selected Node is ${node.label}`);
     });
 
-    let commandRecipeOpenFolder = vscode.commands.registerCommand("vsconan.recipe.open.folder", (node: ConanRecipeItem) => {
-        // TODO: Open the folder to the recipe
+    let commandRecipeOpenFolder = vscode.commands.registerCommand("vsconan.recipe.open.explorer", (node: ConanRecipeItem) => {
+        let python = utils.config.getExplorerPython();
+
+        try {
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getRecipePath(node.label, python)!))
+        }
+        catch (err: any) {
+            vscode.window.showErrorMessage(err);
+        }
     });
 
     let commandRecipeOpenVSCode = vscode.commands.registerCommand("vsconan.recipe.open.vscode", (node: ConanRecipeItem) => {
@@ -258,8 +265,15 @@ export function activate(context: vscode.ExtensionContext) {
         console.log(`Selected Package is ${packageNode.label}`);
     });
 
-    let commandPackageOpenFolder = vscode.commands.registerCommand("vsconan.package.open.folder", (node: ConanPackageItem) => {
-        // TODO: Open the package folder
+    let commandPackageOpenFolder = vscode.commands.registerCommand("vsconan.package.open.explorer", (node: ConanPackageItem) => {
+        let python = utils.config.getExplorerPython();
+
+        try {
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getPackagePath(treeViewConanRecipe.selection[0].label, node.label, python)!));
+        }
+        catch (err: any) {
+            vscode.window.showErrorMessage(err);
+        }
     });
 
     let commandPackageOpenVSCode = vscode.commands.registerCommand("vsconan.package.open.vscode", (node: ConanPackageItem) => {

@@ -174,12 +174,12 @@
                 "title": "Information"
             },
             {
-                "command": "vsconan.recipe.open.folder",
-                "title": "Open Folder"
+                "command": "vsconan.recipe.open.explorer",
+                "title": "Open in File Explorer"
             },
             {
                 "command": "vsconan.recipe.open.vscode",
-                "title": "Open VSCode"
+                "title": "Open in VSCode"
             },
             {
                 "command": "vsconan.recipe.remove",
@@ -190,12 +190,12 @@
                 "title": "Information"
             },
             {
-                "command": "vsconan.package.open.folder",
-                "title": "Open Folder"
+                "command": "vsconan.package.open.explorer",
+                "title": "Open in File Explorer"
             },
             {
                 "command": "vsconan.package.open.vscode",
-                "title": "Open VSCode"
+                "title": "Open in VSCode"
             },
             {
                 "command": "vsconan.package.remove",
@@ -244,7 +244,7 @@
                     "when": "view == vsconan-view-recipe"
                 },
                 {
-                    "command": "vsconan.recipe.open.folder",
+                    "command": "vsconan.recipe.open.explorer",
                     "when": "view == vsconan-view-recipe"
                 },
                 {
@@ -260,7 +260,7 @@
                     "when": "view == vsconan-view-package"
                 },
                 {
-                    "command": "vsconan.package.open.folder",
+                    "command": "vsconan.package.open.explorer",
                     "when": "view == vsconan-view-package"
                 },
                 {
