@@ -24,7 +24,7 @@
     "categories": [
         "Other"
     ],
-    "icon": "resources/icon/vsconan.png",
+    "icon": "resources/icon/vsconan-extension-logo.png",
     "activationEvents": [
         "onView:vsconan-explorer.treeview.recipe",
         "onView:vsconan-explorer.treeview.package",
@@ -52,7 +52,7 @@
                 {
                     "id": "vsconan-explorer",
                     "title": "VSConan Explorer",
-                    "icon": "resources/icon/vsconan.png"
+                    "icon": "resources/icon/vsconan-explorer-logo.png"
                 }
             ]
         },

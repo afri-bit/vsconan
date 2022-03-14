@@ -44,7 +44,7 @@ export class ConanRecipeItem extends vscode.TreeItem {
 
         this.command = {
             "title": "Conan Recipe Selected",
-            "command": "vsconan.recipe.selected",
+            "command": "vsconan-explorer.item.recipe.selected",
         }
     }
 
