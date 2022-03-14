@@ -68,7 +68,7 @@ export namespace config{
      *          <undefined> This will be return as result if string is empty string or atrribute is not defined in the configuration file
      */
     export function selectPython(configGlobal: ConfigGlobal, configWorkspace: ConfigWorkspace): string | undefined {
-        // TODO: Config workspace has priority over the global config
+        // Config workspace has priority over the global config
         // If workspace config is undefined or empty, the global config will be used
         // With this logic, user can define the python configuration locally in workspace
 

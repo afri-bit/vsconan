@@ -72,11 +72,6 @@ export class CommandExecutor {
         executeCommand(python, channel);
     }
 
-    public static executeCommandConanNew(python: string, channel: vscode.OutputChannel) {
-        vscode.window.showInformationMessage("Conan NEW command");
-        // TODO: Implement function to insert name and version to creat conan workspace
-    }
-
     public static executeCommandConanCreate(wsPath: string, python: string, configList: Array<ConfigCommandCreate>, channel: vscode.OutputChannel) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 

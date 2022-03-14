@@ -16,11 +16,8 @@ import { ConanRecipeItem, ConanRecipeNodeProvider } from "./ui/treeview/conanRec
 import { ConanRemoteItem, ConanRemoteNodeProvider } from "./ui/treeview/conanRemoteProvider";
 import { ConfigGlobal, ConfigGlobalExplorer, ConfigGlobalGeneral } from "./config/configGlobal";
 import { ConanAPI } from "./api/conan/conanAPI";
-import { execSync } from "child_process";
-import { URL } from "url";
 
 enum ConanCommand{
-    NEW,
     CREATE,
     INSTALL,
     BUILD,
@@ -43,22 +40,22 @@ export function activate(context: vscode.ExtensionContext) {
 
     // ========== Registering the treeview for the extension
     const conanRecipeNodeProvider = new ConanRecipeNodeProvider();
-    let treeViewConanRecipe = vscode.window.createTreeView('vsconan-view-recipe', {
+    let treeViewConanRecipe = vscode.window.createTreeView('vsconan-explorer.treeview.recipe', {
         treeDataProvider: conanRecipeNodeProvider
     });
 
     const conanProfileNodeProvider = new ConanProfileNodeProvider();
-    let treeViewConanProfile = vscode.window.createTreeView('vsconan-view-profile', {
+    let treeViewConanProfile = vscode.window.createTreeView('vsconan-explorer.treeview.profile', {
         treeDataProvider: conanProfileNodeProvider
     });
 
     const conanPackageNodeProvider = new ConanPackageNodeProvider();
-    let treeViewConanPackage = vscode.window.createTreeView('vsconan-view-package', {
+    let treeViewConanPackage = vscode.window.createTreeView('vsconan-explorer.treeview.package', {
         treeDataProvider: conanPackageNodeProvider
     });
 
     const conanRemoteNodeProvider = new ConanRemoteNodeProvider();
-    let treeViewConanRemote = vscode.window.createTreeView('vsconan-view-remote', {
+    let treeViewConanRemote = vscode.window.createTreeView('vsconan-explorer.treeview.remote', {
         treeDataProvider: conanRemoteNodeProvider
     });
 
@@ -98,15 +95,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     // ========== Extension Commands Registration Section 
-    let commandConan = vscode.commands.registerCommand("vsconan.conan", () => {
-        // TODO: Check if this command is necessary. This command is just calling conan command with no argument.
-    });
-
     // ========== Conan Workflow Command Registration
-    let commandConanNew = vscode.commands.registerCommand("vsconan.conan.new", () => {
-        executeConanCommand(ConanCommand.NEW, channelVSConan);
-    });
-
     let commandConanCreate = vscode.commands.registerCommand("vsconan.conan.create", () => {
         executeConanCommand(ConanCommand.CREATE, channelVSConan);
     });
@@ -195,7 +184,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // ========== Treeview RECIPE Command Registration
     // Command on selecting a recipe. This will show list of the package binary
-    let commandRecipeRefresh = vscode.commands.registerCommand("vsconan-view-recipe.refresh", () =>{
+    let commandRecipeRefresh = vscode.commands.registerCommand("vsconan-explorer.treeview.recipe.refresh", () =>{
         conanRecipeNodeProvider.refresh();
         conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
     });
@@ -204,12 +193,11 @@ export function activate(context: vscode.ExtensionContext) {
         conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
     });
 
-    let commandRecipeInformation = vscode.commands.registerCommand("vsconan.recipe.information", (node: ConanRecipeItem) => {
+    let commandRecipeInformation = vscode.commands.registerCommand("vsconan-explorer.item.recipe.option.information", (node: ConanRecipeItem) => {
         // TODO: Show information from the selected recipe
-        console.log(`Selected Node is ${node.label}`);
     });
 
-    let commandRecipeOpenFolder = vscode.commands.registerCommand("vsconan.recipe.open.explorer", (node: ConanRecipeItem) => {
+    let commandRecipeOpenFolder = vscode.commands.registerCommand("vsconan-explorer.item.recipe.option.open.explorer", (node: ConanRecipeItem) => {
         let python = utils.config.getExplorerPython();
 
         try {
@@ -220,7 +208,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    let commandRecipeOpenVSCode = vscode.commands.registerCommand("vsconan.recipe.open.vscode", (node: ConanRecipeItem) => {
+    let commandRecipeOpenVSCode = vscode.commands.registerCommand("vsconan-explorer.item.recipe.option.open.vscode", (node: ConanRecipeItem) => {
         let python = utils.config.getExplorerPython();
 
         if (python != undefined) {
@@ -237,7 +225,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    let commandRecipeRemove = vscode.commands.registerCommand("vsconan.recipe.remove", (node: ConanRecipeItem) => {
+    let commandRecipeRemove = vscode.commands.registerCommand("vsconan-explorer.item.recipe.option.remove", (node: ConanRecipeItem) => {
         let python = utils.config.getExplorerPython();
 
         try {
@@ -251,21 +239,15 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // ========== Treeview PACKAGE Command Registration
-    let commandPackageRefresh = vscode.commands.registerCommand("vsconan-view-package.refresh", () => {
-        conanPackageNodeProvider.refresh(treeViewConanPackage.selection[0].label);
+    let commandPackageRefresh = vscode.commands.registerCommand("vsconan-explorer.treeview.package.refresh", () => {
+        conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
     });
 
-    let commandPackageSelected = vscode.commands.registerCommand("vsconan.package.selected", () => {
-        // TODO: ??? Maybe do nothing...
-    });
-
-    let commandPackageInformation = vscode.commands.registerCommand("vsconan.package.information", (packageNode: ConanPackageItem) => {
+    let commandPackageInformation = vscode.commands.registerCommand("vsconan-explorer.item.package.option.information", (packageNode: ConanPackageItem) => {
         // TODO: Show information from the selected recipe
-        console.log(`Selected Recipe  is ${treeViewConanRecipe.selection[0].label}`);
-        console.log(`Selected Package is ${packageNode.label}`);
     });
 
-    let commandPackageOpenFolder = vscode.commands.registerCommand("vsconan.package.open.explorer", (node: ConanPackageItem) => {
+    let commandPackageOpenFolder = vscode.commands.registerCommand("vsconan-explorer.item.package.option.open.explorer", (node: ConanPackageItem) => {
         let python = utils.config.getExplorerPython();
 
         try {
@@ -276,7 +258,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    let commandPackageOpenVSCode = vscode.commands.registerCommand("vsconan.package.open.vscode", (node: ConanPackageItem) => {
+    let commandPackageOpenVSCode = vscode.commands.registerCommand("vsconan-explorer.item.package.option.open.vscode", (node: ConanPackageItem) => {
         let python = utils.config.getExplorerPython();
 
         if (python != undefined) {
@@ -293,7 +275,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    let commandPackageRemove = vscode.commands.registerCommand("vsconan.package.remove", (node: ConanPackageItem) => {
+    let commandPackageRemove = vscode.commands.registerCommand("vsconan-explorer.item.package.option.remove", (node: ConanPackageItem) => {
         let python = utils.config.getExplorerPython();
 
         try {
@@ -307,7 +289,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // ========== Treeview PROFILE Command Registration
-    let commandProfileRefresh = vscode.commands.registerCommand("vsconan-view-profile.refresh", () => {
+    let commandProfileRefresh = vscode.commands.registerCommand("vsconan-explorer.treeview.profile.refresh", () => {
         conanProfileNodeProvider.refresh();
     });
 
@@ -323,7 +305,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     });
 
-    let commandProfileRemove = vscode.commands.registerCommand("vsconan.profile.remove", (node: ConanProfileItem) => {
+    let commandProfileRemove = vscode.commands.registerCommand("vsconan-explorer.item.profile.option.remove", (node: ConanProfileItem) => {
         let python = utils.config.getExplorerPython();
 
         try {
@@ -337,15 +319,15 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // ========== Treeview REMOTE Command Registration
-    let commandRemoteRefresh = vscode.commands.registerCommand("vsconan-view-remote.refresh", () => {
+    let commandRemoteRefresh = vscode.commands.registerCommand("vsconan-explorer.treeview.remote.refresh", () => {
         conanRemoteNodeProvider.refresh();
     })
 
     let commandRemoteSelected = vscode.commands.registerCommand("vsconan.remote.selected", (node: ConanRemoteItem) => {
-        // TODO: Open the remote in the editor
+        // TODO: Open the remote JSON file in the editor
     });
 
-    let commandRemoteRemove = vscode.commands.registerCommand("vsconan.remote.remove", (node: ConanRemoteItem) => {
+    let commandRemoteRemove = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.remove", (node: ConanRemoteItem) => {
         let python = utils.config.getExplorerPython();
 
         try {
@@ -358,8 +340,6 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    context.subscriptions.push(commandConan);
-    context.subscriptions.push(commandConanNew);
     context.subscriptions.push(commandConanCreate);
     context.subscriptions.push(commandConanInstall);
     context.subscriptions.push(commandConanBuild);
@@ -380,17 +360,19 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(commandRecipeRemove);
 
     // Package
-    context.subscriptions.push(commandPackageSelected);
+    context.subscriptions.push(commandPackageRefresh);
     context.subscriptions.push(commandPackageInformation);
     context.subscriptions.push(commandPackageOpenFolder);
     context.subscriptions.push(commandPackageOpenVSCode);
     context.subscriptions.push(commandPackageRemove);
 
     // Profile
+    context.subscriptions.push(commandProfileRefresh);
     context.subscriptions.push(commandProfileSelected);
     context.subscriptions.push(commandProfileRemove);
 
     // Remote
+    context.subscriptions.push(commandRemoteRefresh);
     context.subscriptions.push(commandRemoteSelected);
     context.subscriptions.push(commandRemoteRemove);
 }
@@ -408,12 +390,6 @@ export function deactivate() { }
  * @returns <void>
  */
 function executeConanCommand(cmdType: ConanCommand, channelVSConan: any): void {
-    if (cmdType == ConanCommand.NEW) {
-        // TODO: Design the implementation
-        vscode.window.showInformationMessage("No implementation on command NEW");
-        return;
-    }
-    
     // The flow of following commands is the same by selecting the workspace first
     // Check the configuration and executed pre selected command based on this function argument
     let ws = selectWorkspace();
@@ -473,7 +449,6 @@ function createInitialGlobalConfig() {
  * 
  */
 function createInitialWorkspaceConfig(configPath: string) {
-    // TODO: Write object to JSON file
     let configWorkspace = new ConfigWorkspace("python", new CommandContainer(
         [new ConfigCommandCreate()],
         [new ConfigCommandInstall()],
