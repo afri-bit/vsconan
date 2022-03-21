@@ -55,8 +55,8 @@ export class ConanPackageItem extends vscode.TreeItem {
     }
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'binary.png'),
-        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'binary.png')
+        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'package.png'),
+        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'package.png')
     };
 
     contextValue = 'package';
