@@ -248,6 +248,14 @@
                 }
             },
             {
+                "command": "vsconan-explorer.item.profile.option.rename",
+                "title": "Rename",
+                "icon": {
+                    "light": "resources/icon/light/rename.png",
+                    "dark": "resources/icon/dark/rename.png"
+                }
+            },
+            {
                 "command": "vsconan-explorer.item.remote.option.remove",
                 "title": "Remove Remote"
             }
@@ -339,6 +347,11 @@
                 },
                 {
                     "command": "vsconan-explorer.item.profile.option.duplicate",
+                    "when": "view == vsconan-explorer.treeview.profile",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan-explorer.item.profile.option.rename",
                     "when": "view == vsconan-explorer.treeview.profile",
                     "group": "inline"
                 },
