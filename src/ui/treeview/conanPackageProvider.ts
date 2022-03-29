@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as utils from "../../utils/utils";
 import { ConanAPI } from "../../api/conan/conanAPI";
 
 export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPackageItem> {
@@ -23,7 +24,15 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
     }
 
     getChildren(element?: ConanPackageItem): Thenable<ConanPackageItem[]> {
-        let packageList = ConanAPI.getPackages("python", this.recipeName);
+        
+        // Get the python interpreter from the explorer configuration file
+        // If something goes wrong it will be an empty list
+        let python = utils.config.getExplorerPython();
+
+        let packageList = [];
+        
+        if (python)
+            packageList = ConanAPI.getPackages(python!, this.recipeName);
 
         let packageItemList: Array<ConanPackageItem> = [];
 
@@ -40,14 +49,12 @@ export class ConanPackageItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public detailInfo: any) {
+        public readonly detailInfo: string) {
 
         super(label, collapsibleState);
 
-        this.detailInfo = detailInfo;
+        this.detailInfo = JSON.stringify(this.detailInfo, null, 4);
         
-        this.tooltip = JSON.stringify(this.detailInfo, null, 4);
-
         this.command = {
             "title": "Conan Package Selected",
             "command": "vsconan.package.selected",
