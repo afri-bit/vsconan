@@ -190,6 +190,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandRecipeSelected = vscode.commands.registerCommand("vsconan-explorer.item.recipe.selected", () => {
+        treeViewConanPackage.title = treeViewConanRecipe.selection[0].label;
         conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
     });
 
