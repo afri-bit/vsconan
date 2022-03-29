@@ -360,4 +360,30 @@ export class ConanAPI {
     public static removeRemote(remote: string, python: string="python") {
         execSync(`${python} -m conans.conan remote remove ${remote}`);
     }
+
+    public static renameProfile(oldProfileName: string, newProfileName: string, python: string = "python") {
+        let oldProfilePath = this.getProfileFilePath(oldProfileName, python);
+
+        if (oldProfilePath) {
+            fs.renameSync(oldProfilePath, path.join(this.getConanProfilesPath(python)!, newProfileName));
+        }
+        else {
+            throw new Error(`Unable to locate profile ${oldProfileName}`);
+        }
+    }
+
+    public static duplicateProfile(oldProfileName: string, newProfileName: string, python: string = "python") {
+        let oldProfilePath = this.getProfileFilePath(oldProfileName, python);
+
+        if (oldProfileName) {
+            fs.copyFileSync(oldProfilePath!, path.join(this.getConanProfilesPath(python)!, newProfileName));
+        }
+        else {
+            throw new Error(`Unable to duplicate profile ${oldProfileName}`)
+        }
+    }
+
+    public static createNewProfile(profileName: string, python: string = "python") {
+        execSync(`${python} -m conans.conan profile new  ${profileName}`);
+    }
 }

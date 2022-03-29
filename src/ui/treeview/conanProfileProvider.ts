@@ -19,7 +19,8 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
         return element;
     }
 
-    getChildren(element?: ConanProfileItem): Thenable<ConanProfileItem[]> {
+    getChildren(element?: ConanProfileItem): ConanProfileItem[] {
+        // TODO: Get the python from the configuration file
         let profileList: Array<string> = ConanAPI.getProfiles("python");
 
         let recipeItemList: Array<ConanProfileItem> = [];
@@ -27,8 +28,18 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
         for (let profile of profileList) {
             recipeItemList.push(new ConanProfileItem(profile, vscode.TreeItemCollapsibleState.None));
         }
+        return recipeItemList;
+        // return Promise.resolve(recipeItemList);
+    }
 
-        return Promise.resolve(recipeItemList);
+    getChildrenString(): string[] {
+        let childStringList = [];
+
+        for (let child of this.getChildren()) {
+            childStringList.push(child.label);
+        }
+
+        return childStringList
     }
 }
 
