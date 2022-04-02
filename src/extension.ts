@@ -190,6 +190,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandRecipeSelected = vscode.commands.registerCommand("vsconan-explorer.item.recipe.selected", () => {
+        treeViewConanPackage.title = treeViewConanRecipe.selection[0].label;
         conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
     });
 
@@ -276,12 +277,18 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandPackageRemove = vscode.commands.registerCommand("vsconan-explorer.item.package.option.remove", (node: ConanPackageItem) => {
-        let python = utils.config.getExplorerPython();
-
         try {
-            ConanAPI.removePackage(treeViewConanRecipe.selection[0].label, node.label, python);
+            vscode.window
+            .showWarningMessage(`Are you sure you want to remove the binary package '${node.label}' from '${treeViewConanPackage.title!}'?` , ...["Yes", "No"])
+            .then((answer) => {
+                if (answer === "Yes") {
+                    let python = utils.config.getExplorerPython();
 
-            conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
+                    ConanAPI.removePackage(treeViewConanRecipe.selection[0].label, node.label, python);
+
+                    conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
+                }
+            });
         }
         catch (err: any) {
             vscode.window.showErrorMessage(err);

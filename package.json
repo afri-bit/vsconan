@@ -201,19 +201,35 @@
             },
             {
                 "command": "vsconan-explorer.item.package.option.information",
-                "title": "Information"
+                "title": "Information",
+                "icon": {
+                    "light": "resources/icon/light/info.png",
+                    "dark": "resources/icon/dark/info.png"
+                }
             },
             {
                 "command": "vsconan-explorer.item.package.option.open.explorer",
-                "title": "Open in File Explorer"
+                "title": "Open in File Explorer",
+                "icon": {
+                    "light": "resources/icon/light/goto.png",
+                    "dark": "resources/icon/dark/goto.png"
+                }
             },
             {
                 "command": "vsconan-explorer.item.package.option.open.vscode",
-                "title": "Open in VSCode"
+                "title": "Open in VSCode",
+                "icon": {
+                    "light": "resources/icon/light/vscode.png",
+                    "dark": "resources/icon/dark/vscode.png"
+                }
             },
             {
                 "command": "vsconan-explorer.item.package.option.remove",
-                "title": "Remove Package"
+                "title": "Remove Package",
+                "icon": {
+                    "light": "resources/icon/light/remove.png",
+                    "dark": "resources/icon/dark/remove.png"
+                }
             },
             {
                 "command": "vsconan-explorer.item.profile.option.remove",
@@ -312,23 +328,23 @@
                 },
                 {
                     "command": "vsconan-explorer.item.package.option.information",
-                    "when": "view == vsconan-explorer.treeview.package"
+                    "when": "view == vsconan-explorer.treeview.package",
+                    "group": "inline"
                 },
                 {
                     "command": "vsconan-explorer.item.package.option.open.explorer",
-                    "when": "view == vsconan-explorer.treeview.package"
+                    "when": "view == vsconan-explorer.treeview.package",
+                    "group": "inline"
                 },
                 {
                     "command": "vsconan-explorer.item.package.option.open.vscode",
-                    "when": "view == vsconan-explorer.treeview.package"
+                    "when": "view == vsconan-explorer.treeview.package",
+                    "group": "inline"
                 },
                 {
                     "command": "vsconan-explorer.item.package.option.remove",
-                    "when": "view == vsconan-explorer.treeview.package"
-                },
-                {
-                    "command": "vsconan-explorer.item.profile.option.remove",
-                    "when": "view == vsconan-explorer.treeview.package"
+                    "when": "view == vsconan-explorer.treeview.package",
+                    "group": "inline"
                 },
                 {
                     "command": "vsconan-explorer.item.profile.option.remove",
