@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as utils from '../../utils/utils';
 import { ConanAPI } from "../../api/conan/conanAPI";
 
 export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanProfileItem> {
@@ -8,31 +9,37 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
     private _onDidChangeTreeData: vscode.EventEmitter<ConanProfileItem | undefined | void> = new vscode.EventEmitter<ConanProfileItem | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<ConanProfileItem | undefined | void> = this._onDidChangeTreeData.event;
 
-    constructor() {
+    public constructor() {
     }
 
-    refresh(): void {
+    public refresh(): void {
         this._onDidChangeTreeData.fire();
     }
 
-    getTreeItem(element: ConanProfileItem): vscode.TreeItem {
+    public getTreeItem(element: ConanProfileItem): vscode.TreeItem {
         return element;
     }
 
-    getChildren(element?: ConanProfileItem): ConanProfileItem[] {
-        // TODO: Get the python from the configuration file
-        let profileList: Array<string> = ConanAPI.getProfiles("python");
+    public getChildren(element?: ConanProfileItem): ConanProfileItem[] {
+        // Get the python interpreter from the explorer configuration file
+        // If something goes wrong it will be an empty list
+        let python = utils.config.getExplorerPython();
 
-        let recipeItemList: Array<ConanProfileItem> = [];
+        let profileList: string[] = [];
+
+        if (python)
+            profileList = ConanAPI.getProfiles(python!);
+
+        let profileItemList: Array<ConanProfileItem> = [];
 
         for (let profile of profileList) {
-            recipeItemList.push(new ConanProfileItem(profile, vscode.TreeItemCollapsibleState.None));
+            profileItemList.push(new ConanProfileItem(profile, vscode.TreeItemCollapsibleState.None));
         }
-        return recipeItemList;
-        // return Promise.resolve(recipeItemList);
+
+        return profileItemList;
     }
 
-    getChildrenString(): string[] {
+    public getChildrenString(): string[] {
         let childStringList = [];
 
         for (let child of this.getChildren()) {

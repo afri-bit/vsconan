@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as utils from '../../utils/utils';
 import { ConanAPI } from "../../api/conan/conanAPI";
 
 export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRecipeItem> {
@@ -8,19 +9,28 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
     private _onDidChangeTreeData: vscode.EventEmitter<ConanRecipeItem | undefined | void> = new vscode.EventEmitter<ConanRecipeItem | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<ConanRecipeItem | undefined | void> = this._onDidChangeTreeData.event;
 
-    constructor() {
+    public selectedRecipe: string | undefined = undefined;
+
+    public constructor() {
     }
 
-    refresh(): void {
+    public refresh(): void {
         this._onDidChangeTreeData.fire();
     }
 
-    getTreeItem(element: ConanRecipeItem): vscode.TreeItem {
+    public getTreeItem(element: ConanRecipeItem): vscode.TreeItem {
         return element;
     }
 
-    getChildren(element?: ConanRecipeItem): Thenable<ConanRecipeItem[]> {
-        let recipeList: Array<string> = ConanAPI.getRecipes("python");
+    public getChildren(element?: ConanRecipeItem): ConanRecipeItem[] {
+        // Get the python interpreter from the explorer configuration file
+        // If something goes wrong it will be an empty list
+        let python = utils.config.getExplorerPython();
+
+        let recipeList: string[] = [];
+
+        if (python)
+            recipeList = ConanAPI.getRecipes(python!);
 
         let recipeItemList: Array<ConanRecipeItem> = [];
 
@@ -28,7 +38,17 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
             recipeItemList.push(new ConanRecipeItem(recipe, vscode.TreeItemCollapsibleState.None));
         }
 
-        return Promise.resolve(recipeItemList);
+        return recipeItemList;
+    }
+
+    public getChildrenString(): string[] {
+        let childStringList = [];
+
+        for (let child of this.getChildren()) {
+            childStringList.push(child.label);
+        }
+
+        return childStringList
     }
 }
 

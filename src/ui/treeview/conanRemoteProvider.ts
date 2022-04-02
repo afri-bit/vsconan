@@ -11,21 +11,26 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
 
     private recipeName: string = "";
 
-    constructor() {
+    public constructor() {
     }
 
-    refresh(): void {
+    public refresh(): void {
         this._onDidChangeTreeData.fire();
     }
 
-    getTreeItem(element: ConanRemoteItem): vscode.TreeItem {
+    public getTreeItem(element: ConanRemoteItem): vscode.TreeItem {
         return element;
     }
 
-    getChildren(element?: ConanRemoteItem): Thenable<ConanRemoteItem[]> {
+    public getChildren(element?: ConanRemoteItem): ConanRemoteItem[] {
+        // Get the python interpreter from the explorer configuration file
+        // If something goes wrong it will be an empty list
         let python = utils.config.getExplorerPython();
 
-        let remoteList = ConanAPI.getRemotes(python);
+        let remoteList = [];
+
+        if (python)
+            remoteList = ConanAPI.getRemotes(python!);
 
         let remoteItemList: Array<ConanRemoteItem> = [];
 
@@ -33,7 +38,17 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
             remoteItemList.push(new ConanRemoteItem(remote.name, vscode.TreeItemCollapsibleState.None, remote));
         }
 
-        return Promise.resolve(remoteItemList);
+        return remoteItemList;
+    }
+
+    public getChildrenString(): string[] {
+        let childStringList = [];
+
+        for (let child of this.getChildren()) {
+            childStringList.push(child.label);
+        }
+
+        return childStringList
     }
 }
 

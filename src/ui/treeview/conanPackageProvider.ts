@@ -11,20 +11,19 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
 
     private recipeName: string = "";
 
-    constructor() {
+    public constructor() {
     }
 
-    refresh(recipeName: string): void {
+    public refresh(recipeName: string): void {
         this.recipeName = recipeName;
         this._onDidChangeTreeData.fire();
     }
 
-    getTreeItem(element: ConanPackageItem): vscode.TreeItem {
+    public getTreeItem(element: ConanPackageItem): vscode.TreeItem {
         return element;
     }
 
-    getChildren(element?: ConanPackageItem): Thenable<ConanPackageItem[]> {
-        
+    public getChildren(element?: ConanPackageItem): ConanPackageItem[] {
         // Get the python interpreter from the explorer configuration file
         // If something goes wrong it will be an empty list
         let python = utils.config.getExplorerPython();
@@ -40,7 +39,17 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
             packageItemList.push(new ConanPackageItem(pkg.id, vscode.TreeItemCollapsibleState.None, pkg));
         }
 
-        return Promise.resolve(packageItemList);
+        return packageItemList;
+    }
+
+    public getChildrenString(): string[] {
+        let childStringList = [];
+
+        for (let child of this.getChildren()) {
+            childStringList.push(child.label);
+        }
+
+        return childStringList
     }
 }
 
