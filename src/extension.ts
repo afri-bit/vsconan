@@ -227,12 +227,18 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandRecipeRemove = vscode.commands.registerCommand("vsconan-explorer.item.recipe.option.remove", (node: ConanRecipeItem) => {
-        let python = utils.config.getExplorerPython();
-
         try {
-            ConanAPI.removeRecipe(node.label, python);
-            conanRecipeNodeProvider.refresh()
-            conanPackageNodeProvider.refresh("");
+            vscode.window
+            .showWarningMessage(`Are you sure you want to remove the recipe '${node.label}'?` , ...["Yes", "No"])
+            .then((answer) => {
+                if (answer === "Yes") {
+                    let python = utils.config.getExplorerPython();
+
+                    ConanAPI.removeRecipe(node.label, python);
+                    conanRecipeNodeProvider.refresh()
+                    conanPackageNodeProvider.refresh("");
+                }
+            });
         }
         catch (err: any) {
             vscode.window.showErrorMessage(err);
