@@ -186,7 +186,10 @@ export function activate(context: vscode.ExtensionContext) {
     // Command on selecting a recipe. This will show list of the package binary
     let commandRecipeRefresh = vscode.commands.registerCommand("vsconan-explorer.treeview.recipe.refresh", () => {
         conanRecipeNodeProvider.refresh();
-        conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
+        conanRecipeNodeProvider.selectedRecipe = undefined;
+
+        conanPackageNodeProvider.refresh("");
+        treeViewConanPackage.title = "Conan - Package";
     });
 
     let commandRecipeSelected = vscode.commands.registerCommand("vsconan-explorer.item.recipe.selected", () => {
@@ -236,7 +239,9 @@ export function activate(context: vscode.ExtensionContext) {
 
                     ConanAPI.removeRecipe(node.label, python);
                     conanRecipeNodeProvider.refresh()
-                    conanPackageNodeProvider.refresh("");
+
+                    conanPackageNodeProvider.refresh(""); // Empty the binary package treeview
+                    treeViewConanPackage.title = "Conan - Package" // Reset the title of the binary package treeview panel
                 }
             });
         }
