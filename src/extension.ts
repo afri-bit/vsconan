@@ -207,21 +207,21 @@ export function activate(context: vscode.ExtensionContext) {
         try {
             vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getRecipePath(node.label, python)!))
         }
-        catch (err: any) {
-            vscode.window.showErrorMessage(err);
+        catch (err) {
+            vscode.window.showErrorMessage((err as Error).message);
         }
     });
 
     let commandRecipeOpenVSCode = vscode.commands.registerCommand("vsconan-explorer.item.recipe.option.open.vscode", (node: ConanRecipeItem) => {
         let python = utils.config.getExplorerPython();
 
-        if (python != undefined) {
+        if (python) {
             try {
                 let packagePath = ConanAPI.getRecipePath(node.label, python);
                 vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
             }
-            catch (err: any) {
-                vscode.window.showErrorMessage("Error on opening folder in VS Code. Check the configuration file.");
+            catch (err) {
+                vscode.window.showErrorMessage((err as Error).message);
             }
         }
         else {
@@ -245,8 +245,8 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             });
         }
-        catch (err: any) {
-            vscode.window.showErrorMessage(err);
+        catch (err) {
+            vscode.window.showErrorMessage((err as Error).message);
         }
     });
 
@@ -265,8 +265,8 @@ export function activate(context: vscode.ExtensionContext) {
         try {
             vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getPackagePath(treeViewConanRecipe.selection[0].label, node.label, python)!));
         }
-        catch (err: any) {
-            vscode.window.showErrorMessage(err);
+        catch (err) {
+            vscode.window.showErrorMessage((err as Error).message);
         }
     });
 
@@ -278,8 +278,8 @@ export function activate(context: vscode.ExtensionContext) {
                 let packagePath = ConanAPI.getPackagePath(treeViewConanRecipe.selection[0].label, node.label, python);
                 vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
             }
-            catch (err: any) {
-                vscode.window.showErrorMessage("Error on opening folder in VS Code. Check the configuration file.");
+            catch (err) {
+                vscode.window.showErrorMessage((err as Error).message);
             }
         }
         else {
@@ -301,8 +301,8 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             });
         }
-        catch (err: any) {
-            vscode.window.showErrorMessage(err);
+        catch (err) {
+            vscode.window.showErrorMessage((err as Error).message);
         }
     });
 
@@ -390,8 +390,8 @@ export function activate(context: vscode.ExtensionContext) {
                     ConanAPI.renameProfile(node.label, newProfileName, python);
                     conanProfileNodeProvider.refresh();
                 }
-                catch (err: any) {
-                    vscode.window.showErrorMessage(err);
+                catch (err) {
+                    vscode.window.showErrorMessage((err as Error).message);
                 }
             }
         }
@@ -431,8 +431,8 @@ export function activate(context: vscode.ExtensionContext) {
                     // Refresh the treeview once again
                     conanProfileNodeProvider.refresh();
                 }
-                catch (err: any) {
-                    vscode.window.showErrorMessage(err);
+                catch (err) {
+                    vscode.window.showErrorMessage((err as Error).message);
                 }
             }
         }
@@ -469,8 +469,8 @@ export function activate(context: vscode.ExtensionContext) {
                 // Refresh the treeview once again
                 conanProfileNodeProvider.refresh();
             }
-            catch (err: any) {
-                vscode.window.showErrorMessage(err);
+            catch (err) {
+                vscode.window.showErrorMessage((err as Error).message);
             }
         }
     });
