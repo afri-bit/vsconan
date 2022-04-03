@@ -176,6 +176,22 @@
                 }
             },
             {
+                "command": "vsconan-explorer.treeview.remote.add",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/icon/light/add.png",
+                    "dark": "resources/icon/dark/add.png"
+                }
+            },
+            {
+                "command": "vsconan-explorer.treeview.remote.edit",
+                "title": "Edit",
+                "icon": {
+                    "light": "resources/icon/light/edit.png",
+                    "dark": "resources/icon/dark/edit.png"
+                }
+            },
+            {
                 "command": "vsconan-view-dependencies.refresh",
                 "title": "Refresh",
                 "icon": {
@@ -289,7 +305,11 @@
             },
             {
                 "command": "vsconan-explorer.item.remote.option.remove",
-                "title": "Remove Remote"
+                "title": "Remove Remote",
+                "icon": {
+                    "light": "resources/icon/light/remove.png",
+                    "dark": "resources/icon/dark/remove.png"
+                }
             }
         ],
         "menus": {
@@ -312,6 +332,16 @@
                 {
                     "command": "vsconan-explorer.treeview.profile.add",
                     "when": "view == vsconan-explorer.treeview.profile",
+                    "group": "navigation"
+                },
+                {
+                    "command": "vsconan-explorer.treeview.remote.add",
+                    "when": "view == vsconan-explorer.treeview.remote",
+                    "group": "navigation"
+                },
+                {
+                    "command": "vsconan-explorer.treeview.remote.edit",
+                    "when": "view == vsconan-explorer.treeview.remote",
                     "group": "navigation"
                 },
                 {
@@ -393,7 +423,8 @@
                 },
                 {
                     "command": "vsconan-explorer.item.remote.option.remove",
-                    "when": "view == vsconan-explorer.treeview.remote"
+                    "when": "view == vsconan-explorer.treeview.remote",
+                    "group": "inline"
                 }
             ]
         }

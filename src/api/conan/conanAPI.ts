@@ -23,8 +23,8 @@ export class ConanAPI {
         try {
             execSync(`${cmd} ${jsonPath}`).toString();
         }
-        catch (err: any) {
-            console.log(err.message);
+        catch (err) {
+            console.log((err as Error).message);
         }
     }
 
@@ -41,8 +41,8 @@ export class ConanAPI {
             let homePath = execSync(`${python} -m conans.conan config home`).toString();
             return homePath.trim(); // Remove whitespace and new lines
         }
-        catch (err: any) {
-            console.log(err.message);
+        catch (err) {
+            console.log((err as Error).message);
             return undefined;
         }
     }
@@ -288,6 +288,18 @@ export class ConanAPI {
         }
     }
 
+    public static getRemoteFilePath(python: string = "python"): string | undefined {
+        let conanHomePath = this.getConanHomePath(python);
+
+        let remotePath = undefined;
+
+        if (conanHomePath) {
+            remotePath = path.join(conanHomePath!, "remotes.json");
+        }
+
+        return remotePath;
+    }
+
     public static getRemotes(python: string = "python"): Array<any> {
         let arrayRemoteList: Array<any> = [];
 
@@ -299,9 +311,6 @@ export class ConanAPI {
 
         let jsonPath: string = path.join(conanHomePath!, "remotes.json");
 
-        // Check if the file exists
-        // With this check it validates if the conan command executed correctly without error
-        // No JSON file will be written if the command is not executed correctly
         if (fs.existsSync(jsonPath)) {
             let tempFile = fs.readFileSync(jsonPath, 'utf8');
             let remoteJson = JSON.parse(tempFile);
@@ -314,14 +323,8 @@ export class ConanAPI {
             for (let remote of remoteItemList) {
                 arrayRemoteList.push(remote);
             }
-
-            // Delete the temporary file after processing
-            fs.unlinkSync(jsonPath);
-
-            return arrayRemoteList;
         }
 
-        // Return an empty list
         return arrayRemoteList
     }
 
@@ -355,6 +358,10 @@ export class ConanAPI {
         let profileFilePath = path.join(conanProfilesPath, profile);
 
         fs.unlinkSync(profileFilePath);
+    }
+
+    public static addRemote(remote: string, url: string, python: string = "python") {
+        execSync(`${python} -m conans.conan remote add ${remote} ${url}`);
     }
 
     public static removeRemote(remote: string, python: string="python") {
