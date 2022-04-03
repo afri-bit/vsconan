@@ -326,6 +326,22 @@
                     "light": "resources/icon/light/disable.png",
                     "dark": "resources/icon/dark/disable.png"
                 }
+            },
+            {
+                "command": "vsconan-explorer.item.remote.option.rename",
+                "title": "Rename Remote",
+                "icon": {
+                    "light": "resources/icon/light/rename.png",
+                    "dark": "resources/icon/dark/rename.png"
+                }
+            },
+            {
+                "command": "vsconan-explorer.item.remote.option.update-url",
+                "title": "Update URL",
+                "icon": {
+                    "light": "resources/icon/light/url.png",
+                    "dark": "resources/icon/dark/url.png"
+                }
             }
         ],
         "menus": {
@@ -413,44 +429,54 @@
                     "group": "inline"
                 },
                 {
-                    "command": "vsconan-explorer.item.profile.option.remove",
+                    "command": "vsconan-explorer.item.profile.option.edit",
                     "when": "view == vsconan-explorer.treeview.profile",
-                    "group": "inline"
+                    "group": "inline@0"
                 },
                 {
                     "command": "vsconan-explorer.item.profile.option.open.explorer",
                     "when": "view == vsconan-explorer.treeview.profile",
-                    "group": "inline"
-                },
-                {
-                    "command": "vsconan-explorer.item.profile.option.edit",
-                    "when": "view == vsconan-explorer.treeview.profile",
-                    "group": "inline"
+                    "group": "inline@1"
                 },
                 {
                     "command": "vsconan-explorer.item.profile.option.duplicate",
                     "when": "view == vsconan-explorer.treeview.profile",
-                    "group": "inline"
+                    "group": "inline@3"
                 },
                 {
                     "command": "vsconan-explorer.item.profile.option.rename",
                     "when": "view == vsconan-explorer.treeview.profile",
-                    "group": "inline"
+                    "group": "inline@2"
                 },
                 {
-                    "command": "vsconan-explorer.item.remote.option.remove",
+                    "command": "vsconan-explorer.item.profile.option.remove",
+                    "when": "view == vsconan-explorer.treeview.profile",
+                    "group": "inline@4"
+                },
+                {
+                    "command": "vsconan-explorer.item.remote.option.rename",
                     "when": "view == vsconan-explorer.treeview.remote",
-                    "group": "inline"
+                    "group": "inline@0"
+                },
+                {
+                    "command": "vsconan-explorer.item.remote.option.update-url",
+                    "when": "view == vsconan-explorer.treeview.remote",
+                    "group": "inline@1"
                 },
                 {
                     "command": "vsconan-explorer.item.remote.option.enable",
                     "when": "view == vsconan-explorer.treeview.remote",
-                    "group": "inline"
+                    "group": "inline@2"
                 },
                 {
                     "command": "vsconan-explorer.item.remote.option.disable",
                     "when": "view == vsconan-explorer.treeview.remote",
-                    "group": "inline"
+                    "group": "inline@3"
+                },
+                {
+                    "command": "vsconan-explorer.item.remote.option.remove",
+                    "when": "view == vsconan-explorer.treeview.remote",
+                    "group": "inline@4"
                 }
             ]
         }
