@@ -495,9 +495,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     let commandRemoteRemove = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.remove", (node: ConanRemoteItem) => {
         conanRemoteNodeProvider.refresh();
-        let conanProfileList = conanRemoteNodeProvider.getChildrenString();
+        let conanRemoteList = conanRemoteNodeProvider.getChildrenString();
 
-        if (conanProfileList.includes(node.label)) {
+        if (conanRemoteList.includes(node.label)) {
             vscode.window
                 .showWarningMessage(`Are you sure you want to remove the remote '${node.label}'?`, ...["Yes", "No"])
                 .then((answer) => {
@@ -511,7 +511,7 @@ export function activate(context: vscode.ExtensionContext) {
                 });
         }
         else {
-            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`)
+            vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`)
         }
     });
 
@@ -564,6 +564,32 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    let commandRemoteEnable = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.enable", (node: ConanRemoteItem) => {
+        try {
+            let python = utils.config.getExplorerPython();
+
+            ConanAPI.enableRemote(node.label, true, python);
+
+            conanRemoteNodeProvider.refresh();
+        }
+        catch (err) {
+            vscode.window.showErrorMessage((err as Error).message);
+        }
+    });
+
+    let commandRemoteDisable = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.disable", (node: ConanRemoteItem) => {
+        try {
+            let python = utils.config.getExplorerPython();
+
+            ConanAPI.enableRemote(node.label, false, python);
+
+            conanRemoteNodeProvider.refresh();
+        }
+        catch (err) {
+            vscode.window.showErrorMessage((err as Error).message);
+        }
+    });
+
     context.subscriptions.push(commandConanCreate);
     context.subscriptions.push(commandConanInstall);
     context.subscriptions.push(commandConanBuild);
@@ -604,6 +630,8 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(commandRemoteRemove);
     context.subscriptions.push(commandRemoteAdd);
     context.subscriptions.push(commandRemoteEdit);
+    context.subscriptions.push(commandRemoteEnable);
+    context.subscriptions.push(commandRemoteDisable);
 }
 
 // this method is called when your extension is deactivated

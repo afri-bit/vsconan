@@ -61,20 +61,46 @@ export class ConanRemoteItem extends vscode.TreeItem {
 
         super(label, collapsibleState);
 
-        this.detailInfo = detailInfo;
-        
-        this.tooltip = JSON.stringify(this.detailInfo, null, 4);
+        this.detailInfo = JSON.stringify(this.detailInfo, null, 4);
+
+        this.tooltip = this.detailInfo;
 
         this.command = {
             "title": "Conan Remote Selected",
             "command": "vsconan.remote.selected",
         }
+
+        this.setRemoteEnableIcon(this.isEnabled()!);
+    }
+    
+    public isEnabled() {
+        let jsonObj = JSON.parse(this.detailInfo);
+
+        // Remote is disabled
+        if (jsonObj.disabled == true) { // Remote is disabled
+            return false;
+        }
+        // Undefined mean that this remote is enabled
+        // The 'disabled' option will be visible only if the remote is disabled
+        else if (jsonObj.disabled == undefined || jsonObj.disabled == false) {
+            return true;
+        }
     }
 
-    iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'remote.png'),
-        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'remote.png')
-    };
+    public setRemoteEnableIcon(state: boolean) {
+        if (state) { // Remote is enabled
+            this.iconPath = {
+                light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'remote_on.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'remote_on.png')
+            };
+        }
+        else { // Remote is disabled
+            this.iconPath = {
+                light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'remote_off.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'remote_off.png')
+            };
+        }
+    }
 
     contextValue = 'remote';
 }

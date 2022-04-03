@@ -310,6 +310,22 @@
                     "light": "resources/icon/light/remove.png",
                     "dark": "resources/icon/dark/remove.png"
                 }
+            },
+            {
+                "command": "vsconan-explorer.item.remote.option.enable",
+                "title": "Enable Remote",
+                "icon": {
+                    "light": "resources/icon/light/enable.png",
+                    "dark": "resources/icon/dark/enable.png"
+                }
+            },
+            {
+                "command": "vsconan-explorer.item.remote.option.disable",
+                "title": "Disable Remote",
+                "icon": {
+                    "light": "resources/icon/light/disable.png",
+                    "dark": "resources/icon/dark/disable.png"
+                }
             }
         ],
         "menus": {
@@ -423,6 +439,16 @@
                 },
                 {
                     "command": "vsconan-explorer.item.remote.option.remove",
+                    "when": "view == vsconan-explorer.treeview.remote",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan-explorer.item.remote.option.enable",
+                    "when": "view == vsconan-explorer.treeview.remote",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan-explorer.item.remote.option.disable",
                     "when": "view == vsconan-explorer.treeview.remote",
                     "group": "inline"
                 }

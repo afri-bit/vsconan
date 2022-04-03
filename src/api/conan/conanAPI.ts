@@ -368,6 +368,15 @@ export class ConanAPI {
         execSync(`${python} -m conans.conan remote remove ${remote}`);
     }
 
+    public static enableRemote(remote: string, enable: boolean, python: string="python" ) {
+        if (enable) {
+            execSync(`${python} -m conans.conan remote enable ${remote}`);
+        }
+        else {
+            execSync(`${python} -m conans.conan remote disable ${remote}`);
+        }
+    }
+
     public static renameProfile(oldProfileName: string, newProfileName: string, python: string = "python") {
         let oldProfilePath = this.getProfileFilePath(oldProfileName, python);
 
