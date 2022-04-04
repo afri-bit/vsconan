@@ -770,6 +770,9 @@ function executeConanCommand(cmdType: ConanCommand, channelVSConan: any): void {
                 }
             }
         }
+        else {
+            vscode.window.showWarningMessage(`Unable to find configuration file in the workspace '${wsPath}'`);
+        }
     });
 }
 
