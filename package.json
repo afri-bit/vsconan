@@ -315,16 +315,16 @@
                 "command": "vsconan-explorer.item.remote.option.enable",
                 "title": "Enable Remote",
                 "icon": {
-                    "light": "resources/icon/light/enable.png",
-                    "dark": "resources/icon/dark/enable.png"
+                    "light": "resources/icon/light/on.png",
+                    "dark": "resources/icon/dark/on.png"
                 }
             },
             {
                 "command": "vsconan-explorer.item.remote.option.disable",
                 "title": "Disable Remote",
                 "icon": {
-                    "light": "resources/icon/light/disable.png",
-                    "dark": "resources/icon/dark/disable.png"
+                    "light": "resources/icon/light/off.png",
+                    "dark": "resources/icon/dark/off.png"
                 }
             },
             {
