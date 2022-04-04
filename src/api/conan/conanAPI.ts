@@ -377,6 +377,14 @@ export class ConanAPI {
         }
     }
 
+    public static renameRemote(remoteName: string, newName: string, python: string = "python") {
+        execSync(`${python} -m conans.conan remote rename ${remoteName} ${newName}`);
+    }
+
+    public static updateRemoteURL(remoteName: string, url: string, python: string = "python") {
+        execSync(`${python} -m conans.conan remote update ${remoteName} ${url}`);
+    }
+
     public static renameProfile(oldProfileName: string, newProfileName: string, python: string = "python") {
         let oldProfilePath = this.getProfileFilePath(oldProfileName, python);
 
