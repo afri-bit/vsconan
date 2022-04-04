@@ -37,16 +37,16 @@ async function executeCommand(cmd: string, channel: vscode.OutputChannel) {
 export class CommandExecutor {
     private static getCommandConfigIndex(configList: Array<ConfigCommand>): Promise<number | undefined> {
         return new Promise<number | undefined>(async (resolve, reject) => {
-            if (configList != undefined) {
+            if (configList !== undefined) {
                 const quickPick = vscode.window.createQuickPick<ConfigCommandQuickPickItem>();
-                let quickPickItems = []
+                let quickPickItems = [];
                 for (let i = 0; i < configList!.length; i++) {
                     quickPickItems.push({
                         label: configList[i].name,
                         description: configList[i].description,
                         detail: configList[i].detail,
                         index: i
-                    })
+                    });
                 }
 
                 quickPickItems.map(label => ({ label }));
@@ -76,11 +76,11 @@ export class CommandExecutor {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
         promiseIndex.then(index => {
-            if (index != undefined) {
+            if (index !== undefined) {
                 let selectedConfig = configList[index];
                 let cmd = CommandBuilder.buildCommandCreate(wsPath, python, selectedConfig);
 
-                if (cmd != undefined) {
+                if (cmd !== undefined) {
                     executeCommand(cmd, channel);
                 }
                 else {
@@ -94,11 +94,11 @@ export class CommandExecutor {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
         promiseIndex.then(index => {
-            if (index != undefined) {
+            if (index !== undefined) {
                 let selectedConfig = configList[index];
                 let cmd = CommandBuilder.buildCommandInstall(wsPath, python, selectedConfig);
 
-                if (cmd != undefined) {
+                if (cmd !== undefined) {
                     executeCommand(cmd, channel);
                 }
                 else {
@@ -112,11 +112,11 @@ export class CommandExecutor {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
         promiseIndex.then(index => {
-            if (index != undefined) {
+            if (index !== undefined) {
                 let selectedConfig = configList[index];
                 let cmd = CommandBuilder.buildCommandBuild(wsPath, python, selectedConfig);
 
-                if (cmd != undefined) {
+                if (cmd !== undefined) {
                     executeCommand(cmd, channel);
                 }
                 else {
@@ -130,11 +130,11 @@ export class CommandExecutor {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
         promiseIndex.then(index => {
-            if (index != undefined) {
+            if (index !== undefined) {
                 let selectedConfig = configList[index];
                 let cmd = CommandBuilder.buildCommandSource(wsPath, python, selectedConfig);
 
-                if (cmd != undefined) {
+                if (cmd !== undefined) {
                     executeCommand(cmd, channel);
                 }
                 else {
@@ -148,11 +148,11 @@ export class CommandExecutor {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
         promiseIndex.then(index => {
-            if (index != undefined) {
+            if (index !== undefined) {
                 let selectedConfig = configList[index];
                 let cmd = CommandBuilder.buildCommandPackage(wsPath, python, selectedConfig);
 
-                if (cmd != undefined) {
+                if (cmd !== undefined) {
                     executeCommand(cmd, channel);
                 }
                 else {
@@ -166,11 +166,11 @@ export class CommandExecutor {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
         promiseIndex.then(index => {
-            if (index != undefined) {
+            if (index !== undefined) {
                 let selectedConfig = configList[index];
                 let cmd = CommandBuilder.buildCommandPackageExport(wsPath, python, selectedConfig);
 
-                if (cmd != undefined) {
+                if (cmd !== undefined) {
                     executeCommand(cmd, channel);
                 }
                 else {

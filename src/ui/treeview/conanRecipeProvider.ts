@@ -29,8 +29,9 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
 
         let recipeList: string[] = [];
 
-        if (python)
+        if (python) {
             recipeList = ConanAPI.getRecipes(python!);
+        }
 
         let recipeItemList: Array<ConanRecipeItem> = [];
 
@@ -48,7 +49,7 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
             childStringList.push(child.label);
         }
 
-        return childStringList
+        return childStringList;
     }
 
     public setSelectedRecipe(recipe: string | undefined) {
@@ -73,7 +74,7 @@ export class ConanRecipeItem extends vscode.TreeItem {
         this.command = {
             "title": "Conan Recipe Selected",
             "command": "vsconan-explorer.item.recipe.selected",
-        }
+        };
     }
 
     iconPath = {

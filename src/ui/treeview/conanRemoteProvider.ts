@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as utils from '../../utils/utils'
+import * as utils from '../../utils/utils';
 import { ConanAPI } from "../../api/conan/conanAPI";
 
 export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRemoteItem> {
@@ -29,8 +29,9 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
 
         let remoteList = [];
 
-        if (python)
+        if (python) {
             remoteList = ConanAPI.getRemotes(python!);
+        }
 
         let remoteItemList: Array<ConanRemoteItem> = [];
 
@@ -48,7 +49,7 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
             childStringList.push(child.label);
         }
 
-        return childStringList
+        return childStringList;
     }
 }
 
@@ -68,7 +69,7 @@ export class ConanRemoteItem extends vscode.TreeItem {
         this.command = {
             "title": "Conan Remote Selected",
             "command": "vsconan.remote.selected",
-        }
+        };
 
         this.setRemoteEnableIcon(this.isEnabled()!);
     }
@@ -77,12 +78,12 @@ export class ConanRemoteItem extends vscode.TreeItem {
         let jsonObj = JSON.parse(this.detailInfo);
 
         // Remote is disabled
-        if (jsonObj.disabled == true) { // Remote is disabled
+        if (jsonObj.disabled === true) { // Remote is disabled
             return false;
         }
         // Undefined mean that this remote is enabled
         // The 'disabled' option will be visible only if the remote is disabled
-        else if (jsonObj.disabled == undefined || jsonObj.disabled == false) {
+        else if (jsonObj.disabled === undefined || jsonObj.disabled === false) {
             return true;
         }
     }

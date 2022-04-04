@@ -39,7 +39,9 @@ export class ConfigGlobal {
     public writeToFile(filename: string) {
         let jsonString = JSON.stringify(this, null, 4);
         fs.writeFile(filename, jsonString, "utf8", function (err) {
-            if (err) throw err;
+            if (err) {
+                throw err;
+            }
         });
     }
 }

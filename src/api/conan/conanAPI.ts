@@ -50,7 +50,7 @@ export class ConanAPI {
     public static getConanProfilesPath(python: string = "python"): string | undefined {
         let conanHomePath = this.getConanHomePath(python);
 
-        if (conanHomePath != undefined) {
+        if (conanHomePath !== undefined) {
             return path.join(conanHomePath, "profiles");
         }
         else {
@@ -59,9 +59,9 @@ export class ConanAPI {
     }
 
     public static getProfileFilePath(profile: string, python: string = "python"): string | undefined {
-        let conanProfilesPath = this.getConanProfilesPath(python)
+        let conanProfilesPath = this.getConanProfilesPath(python);
 
-        if (conanProfilesPath != undefined) {
+        if (conanProfilesPath !== undefined) {
             return path.join(conanProfilesPath, profile);
         }
         else {
@@ -72,7 +72,7 @@ export class ConanAPI {
     public static getRecipePath(recipe: string, python: string = "python") {
         let conanHome = this.getConanHomePath(python = python);
 
-        if (conanHome != undefined) { // Start processing the data if the conan home folder exists
+        if (conanHome !== undefined) { // Start processing the data if the conan home folder exists
             let conanDataPath = path.join(conanHome, "data");
             let recipeName: string = "";
             let recipeVersion: string = "";
@@ -95,7 +95,7 @@ export class ConanAPI {
             return (fs.existsSync(recipePath) ? recipePath : undefined);
         }
         else {
-            return undefined
+            return undefined;
         }
     }
 
@@ -113,7 +113,7 @@ export class ConanAPI {
     public static getPackagePath(recipe: string, packageId: string, python: string = "python") {
         let recipePath = this.getRecipePath(recipe, python);
 
-        if (recipePath != undefined) {
+        if (recipePath !== undefined) {
             let packageFolder = path.join(recipePath, "package", packageId);
 
             let conanLinkFile = path.join(packageFolder, ".conan_link");
@@ -136,7 +136,7 @@ export class ConanAPI {
 
         let arrayRecipeList: Array<string> = [];
 
-        let jsonName: string = "recipe.json"
+        let jsonName: string = "recipe.json";
 
         let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
@@ -203,7 +203,7 @@ export class ConanAPI {
 
         let arrayProfileList: Array<string> = [];
 
-        let jsonName: string = "profile.json"
+        let jsonName: string = "profile.json";
 
         let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
@@ -235,11 +235,11 @@ export class ConanAPI {
      */
     public static getPackages(python: string, recipe: string): Array<any> {
         let arrayPackageList: Array<any> = [];
-        if (recipe == "") {
+        if (recipe === "") {
             return arrayPackageList;
         }
         else {
-            let jsonName: string = "package.json"
+            let jsonName: string = "package.json";
 
             let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
@@ -305,7 +305,7 @@ export class ConanAPI {
 
         let conanHomePath = this.getConanHomePath(python);
 
-        if (conanHomePath == undefined) {
+        if (conanHomePath === undefined) {
             throw new Error("Unable to locate Conan home folder.");
         }
 
@@ -318,21 +318,21 @@ export class ConanAPI {
             // The result in the JSON file from contains an error flag
             // If this contains error, the file will not be processed
 
-            let remoteItemList = remoteJson.remotes
+            let remoteItemList = remoteJson.remotes;
 
             for (let remote of remoteItemList) {
                 arrayRemoteList.push(remote);
             }
         }
 
-        return arrayRemoteList
+        return arrayRemoteList;
     }
 
     public static getPackageInformation(python: string, recipe: string, packageId: string) {
         let packageList = this.getPackages(python, recipe);
 
         for (let pkg of packageList) {
-            if (pkg.id == packageId) {
+            if (pkg.id === packageId) {
                 return pkg;
             }
         }
@@ -351,7 +351,7 @@ export class ConanAPI {
     public static removeProfile(profile: string, python: string = "python") {
         let conanProfilesPath = this.getConanProfilesPath(python);
         
-        if (conanProfilesPath == undefined) {
+        if (conanProfilesPath === undefined) {
             throw new Error("Unable to locate Conan profiles folder.");
         }
 
@@ -403,7 +403,7 @@ export class ConanAPI {
             fs.copyFileSync(oldProfilePath!, path.join(this.getConanProfilesPath(python)!, newProfileName));
         }
         else {
-            throw new Error(`Unable to duplicate profile ${oldProfileName}`)
+            throw new Error(`Unable to duplicate profile ${oldProfileName}`);
         }
     }
 

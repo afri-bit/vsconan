@@ -27,8 +27,9 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
 
         let profileList: string[] = [];
 
-        if (python)
+        if (python) {
             profileList = ConanAPI.getProfiles(python!);
+        }
 
         let profileItemList: Array<ConanProfileItem> = [];
 
@@ -46,7 +47,7 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
             childStringList.push(child.label);
         }
 
-        return childStringList
+        return childStringList;
     }
 }
 
@@ -63,7 +64,7 @@ export class ConanProfileItem extends vscode.TreeItem {
         this.command = {
             "title": "Conan Profile Selected",
             "command": "vsconan.profile.selected",
-        }
+        };
     }
 
     iconPath = {

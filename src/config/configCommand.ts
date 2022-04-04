@@ -27,7 +27,7 @@ export class ConfigCommandCreate extends ConfigCommand {
         channel: string = "",
         args: Array<string> = []) {
 
-        super(name, description, detail)
+        super(name, description, detail);
         this.profile = profile;
         this.user = user;
         this.channel = channel;

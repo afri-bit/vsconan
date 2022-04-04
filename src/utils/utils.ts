@@ -45,7 +45,9 @@ export namespace json {
     export function writeToJson(object: any, filename: string, indent: number = 4) {
         let jsonString = JSON.stringify(object, null, indent);
         fs.writeFile(filename, jsonString, "utf8", function (err) {
-            if (err) throw err;
+            if (err) {
+                throw err;
+            }
         });
     }
 
@@ -72,10 +74,10 @@ export namespace config{
         // If workspace config is undefined or empty, the global config will be used
         // With this logic, user can define the python configuration locally in workspace
 
-        if (configWorkspace.python != undefined && configWorkspace.python != "") { // Returning workspace python
+        if (configWorkspace.python !== undefined && configWorkspace.python !== "") { // Returning workspace python
             return configWorkspace.python;
         }
-        else if (configGlobal.general.python != undefined && configGlobal.general.python != "") { // Returning global python
+        else if (configGlobal.general.python !== undefined && configGlobal.general.python !== "") { // Returning global python
             return configGlobal.general.python;
         }
         else { // No other option available
@@ -94,7 +96,7 @@ export namespace config{
             return configGlobal.explorer.python!;
         }
         else {
-            vscode.window.showErrorMessage("Unable to find configuration file")
+            vscode.window.showErrorMessage("Unable to find configuration file");
         }
     }
 }

@@ -18,12 +18,12 @@ import { ConfigGlobal, ConfigGlobalExplorer, ConfigGlobalGeneral } from "./confi
 import { ConanAPI } from "./api/conan/conanAPI";
 
 enum ConanCommand {
-    CREATE,
-    INSTALL,
-    BUILD,
-    SOURCE,
-    PACKAGE,
-    PACKAGE_EXPORT
+    create,
+    install,
+    build,
+    source,
+    package,
+    packageExport
 }
 
 // This method is called when the extension is activated
@@ -66,12 +66,12 @@ export function activate(context: vscode.ExtensionContext) {
     let wsList = vscode.workspace.workspaceFolders;
 
     // If it starts with workspace, there should be at least one element in the array of workspace folder
-    if (wsList != undefined) {
+    if (wsList !== undefined) {
 
         for (let i = 0; i < wsList.length; i++) {
 
             let wsPath = wsList[i].uri.fsPath;
-            let configPath = path.join(wsPath, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE)
+            let configPath = path.join(wsPath, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE);
 
             if (isFolderConanProject(wsPath) && !fs.existsSync(configPath!)) {
 
@@ -97,27 +97,27 @@ export function activate(context: vscode.ExtensionContext) {
     // ========== Extension Commands Registration Section 
     // ========== Conan Workflow Command Registration
     let commandConanCreate = vscode.commands.registerCommand("vsconan.conan.create", () => {
-        executeConanCommand(ConanCommand.CREATE, channelVSConan);
+        executeConanCommand(ConanCommand.create, channelVSConan);
     });
 
     let commandConanInstall = vscode.commands.registerCommand("vsconan.conan.install", (cmd) => {
-        executeConanCommand(ConanCommand.INSTALL, channelVSConan);
+        executeConanCommand(ConanCommand.install, channelVSConan);
     });
 
     let commandConanBuild = vscode.commands.registerCommand("vsconan.conan.build", () => {
-        executeConanCommand(ConanCommand.BUILD, channelVSConan);
+        executeConanCommand(ConanCommand.build, channelVSConan);
     });
 
     let commandConanSource = vscode.commands.registerCommand("vsconan.conan.source", () => {
-        executeConanCommand(ConanCommand.SOURCE, channelVSConan);
+        executeConanCommand(ConanCommand.source, channelVSConan);
     });
 
     let commandConanPackage = vscode.commands.registerCommand("vsconan.conan.package", () => {
-        executeConanCommand(ConanCommand.PACKAGE, channelVSConan);
+        executeConanCommand(ConanCommand.package, channelVSConan);
     });
 
     let commandConanExportPackage = vscode.commands.registerCommand("vsconan.conan.package.export", () => {
-        executeConanCommand(ConanCommand.PACKAGE_EXPORT, channelVSConan);
+        executeConanCommand(ConanCommand.packageExport, channelVSConan);
     });
 
     // ========== Global Configuration Command Registration
@@ -173,7 +173,7 @@ export function activate(context: vscode.ExtensionContext) {
         let ws = selectWorkspace();
 
         ws.then(async result => {
-            if ((result != undefined) && (result != "")) {
+            if ((result !== undefined) && (result !== "")) {
                 utils.editor.openFileInEditor(path.join(result!, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE));
             }
             else {
@@ -209,7 +209,7 @@ export function activate(context: vscode.ExtensionContext) {
         let python = utils.config.getExplorerPython();
 
         try {
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getRecipePath(node.label, python)!))
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getRecipePath(node.label, python)!));
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -242,10 +242,10 @@ export function activate(context: vscode.ExtensionContext) {
                     let python = utils.config.getExplorerPython();
 
                     ConanAPI.removeRecipe(node.label, python);
-                    conanRecipeNodeProvider.refresh()
+                    conanRecipeNodeProvider.refresh();
 
                     conanPackageNodeProvider.refresh(""); // Empty the binary package treeview
-                    treeViewConanPackage.title = "Conan - Package" // Reset the title of the binary package treeview panel
+                    treeViewConanPackage.title = "Conan - Package"; // Reset the title of the binary package treeview panel
                 }
             });
         }
@@ -277,7 +277,7 @@ export function activate(context: vscode.ExtensionContext) {
     let commandPackageOpenVSCode = vscode.commands.registerCommand("vsconan-explorer.item.package.option.open.vscode", (node: ConanPackageItem) => {
         let python = utils.config.getExplorerPython();
 
-        if (python != undefined) {
+        if (python !== undefined) {
             try {
                 let packagePath = ConanAPI.getPackagePath(conanRecipeNodeProvider.getSelectedRecipe(), node.label, python);
                 vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
@@ -324,7 +324,7 @@ export function activate(context: vscode.ExtensionContext) {
             utils.editor.openFileInEditor(ConanAPI.getProfileFilePath(node.label, python)!);
         }
         else {
-            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`)
+            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
         }
     });
 
@@ -346,7 +346,7 @@ export function activate(context: vscode.ExtensionContext) {
                 });
         }
         else {
-            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`)
+            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
         }
     });
 
@@ -361,7 +361,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getProfileFilePath(node.label, python)!));
         }
         else {
-            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`)
+            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
         }
     });
 
@@ -375,7 +375,7 @@ export function activate(context: vscode.ExtensionContext) {
                 title: `Renaming profile ${node.label}. Enter a new name for the profile...`,
                 placeHolder: node.label,
                 validateInput: text => {
-                    if ((text === node.label || conanProfileList.includes(text)) && text != "") {
+                    if ((text === node.label || conanProfileList.includes(text)) && text !== "") {
                         return 'Enter a different name';
                     }
                     else if (text === "") {
@@ -400,7 +400,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
         else {
-            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`)
+            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
         }
     });
 
@@ -414,7 +414,7 @@ export function activate(context: vscode.ExtensionContext) {
                 title: `Duplicating profile ${node.label}. Enter a new name for the profile...`,
                 placeHolder: node.label,
                 validateInput: text => {
-                    if ((text === node.label || conanProfileList.includes(text)) && text != "") {
+                    if ((text === node.label || conanProfileList.includes(text)) && text !== "") {
                         return 'Enter a different name';
                     }
                     else if (text === "") {
@@ -441,7 +441,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
         else {
-            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`)
+            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
         }
     });
 
@@ -452,7 +452,7 @@ export function activate(context: vscode.ExtensionContext) {
         const profileName = await vscode.window.showInputBox({
             title: "Create a new Profile. Enter the name of the profile...",
             validateInput: text => {
-                if (conanProfileList.includes(text) && text != "") {
+                if (conanProfileList.includes(text) && text !== "") {
                     return 'Profile with this name already exists.';
                 }
                 else if (text === "") {
@@ -482,7 +482,7 @@ export function activate(context: vscode.ExtensionContext) {
     // ========== Treeview REMOTE Command Registration
     let commandRemoteRefresh = vscode.commands.registerCommand("vsconan-explorer.treeview.remote.refresh", () => {
         conanRemoteNodeProvider.refresh();
-    })
+    });
 
     let commandRemoteEdit = vscode.commands.registerCommand("vsconan-explorer.treeview.remote.edit", () => {
         let python = utils.config.getExplorerPython();
@@ -495,7 +495,7 @@ export function activate(context: vscode.ExtensionContext) {
         else {
             vscode.window.showErrorMessage("Unable to find the file 'remotes.json'");
         }
-    })
+    });
 
     let commandRemoteRemove = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.remove", (node: ConanRemoteItem) => {
         conanRemoteNodeProvider.refresh();
@@ -515,7 +515,7 @@ export function activate(context: vscode.ExtensionContext) {
                 });
         }
         else {
-            vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`)
+            vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`);
         }
     });
 
@@ -526,7 +526,7 @@ export function activate(context: vscode.ExtensionContext) {
         const remoteName = await vscode.window.showInputBox({
             title: "Add a new remote. Enter the name of the remote...",
             validateInput: text => {
-                if (conanRemoteList.includes(text) && text != "") {
+                if (conanRemoteList.includes(text) && text !== "") {
                     return 'Remote with this name already exists.';
                 }
                 else if (text === "") {
@@ -603,7 +603,7 @@ export function activate(context: vscode.ExtensionContext) {
                 title: `Renaming remote ${node.label}. Enter a new name for the remote...`,
                 placeHolder: node.label,
                 validateInput: text => {
-                    if ((text === node.label || conanRemoteList.includes(text)) && text != "") {
+                    if ((text === node.label || conanRemoteList.includes(text)) && text !== "") {
                         return 'Enter a different name';
                     }
                     else if (text === "") {
@@ -628,7 +628,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
         else {
-            vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`)
+            vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`);
         }
     });
 
@@ -643,7 +643,7 @@ export function activate(context: vscode.ExtensionContext) {
                 title: `Update URL for remote ${node.label}. Enter a new URL for the remote...`,
                 placeHolder: remoteDetailInfo.url,
                 validateInput: text => {
-                    if (text === remoteDetailInfo.url && text != "") {
+                    if (text === remoteDetailInfo.url && text !== "") {
                         return 'Enter a differet URL';
                     }
                     else if (text === "") {
@@ -668,7 +668,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
         else {
-            vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`)
+            vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`);
         }
     });
 
@@ -744,27 +744,27 @@ function executeConanCommand(cmdType: ConanCommand, channelVSConan: any): void {
             let configText = fs.readFileSync(configPath, 'utf8');
             configWorkspace = JSON.parse(configText);
             switch (+cmdType) {
-                case ConanCommand.CREATE: {
+                case ConanCommand.create: {
                     CommandExecutor.executeCommandConanCreate(wsPath!, configWorkspace.python, configWorkspace.commandContainer.create, channelVSConan);
                     break;
                 }
-                case ConanCommand.INSTALL: {
+                case ConanCommand.install: {
                     CommandExecutor.executeCommandConanInstall(wsPath!, configWorkspace.python, configWorkspace.commandContainer.install, channelVSConan);
                     break;
                 }
-                case ConanCommand.BUILD: {
+                case ConanCommand.build: {
                     CommandExecutor.executeCommandConanBuild(wsPath!, configWorkspace.python, configWorkspace.commandContainer.build, channelVSConan);
                     break;
                 }
-                case ConanCommand.SOURCE: {
+                case ConanCommand.source: {
                     CommandExecutor.executeCommandConanSource(wsPath!, configWorkspace.python, configWorkspace.commandContainer.source, channelVSConan);
                     break;
                 }
-                case ConanCommand.PACKAGE: {
+                case ConanCommand.package: {
                     CommandExecutor.executeCommandConanPackage(wsPath!, configWorkspace.python, configWorkspace.commandContainer.pkg, channelVSConan);
                     break;
                 }
-                case ConanCommand.PACKAGE_EXPORT: {
+                case ConanCommand.packageExport: {
                     CommandExecutor.executeCommandConanPackageExport(wsPath!, configWorkspace.python, configWorkspace.commandContainer.pkgExport, channelVSConan);
                     break;
                 }
@@ -828,17 +828,17 @@ async function selectWorkspace(): Promise<string | undefined> {
     let wsList = vscode.workspace.workspaceFolders;
 
     return new Promise<string | undefined>(async (resolve, reject) => {
-        if (wsList != undefined) {
+        if (wsList !== undefined) {
             if (wsList!.length > 1) { // Workspace contains multiple folders
                 const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
-                let quickPickItems = []
+                let quickPickItems = [];
                 for (let i = 0; i < wsList!.length; i++) {
                     quickPickItems.push({
                         label: wsList![i].name,
                         description: wsList![i].uri.fsPath,
                         detail: "",
                         index: i
-                    })
+                    });
                 }
                 quickPickItems.map(label => ({ label }));
                 quickPick.items = quickPickItems;
@@ -853,7 +853,7 @@ async function selectWorkspace(): Promise<string | undefined> {
                     return resolve(undefined);
                 }
             }
-            else if (wsList!.length == 1) {
+            else if (wsList!.length === 1) {
                 // Choose the only path it has
                 return resolve(wsList![0].uri.fsPath);
             }

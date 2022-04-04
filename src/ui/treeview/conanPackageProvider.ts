@@ -30,8 +30,9 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
 
         let packageList = [];
         
-        if (python)
+        if (python) {
             packageList = ConanAPI.getPackages(python!, this.recipeName);
+        }
 
         let packageItemList: Array<ConanPackageItem> = [];
 
@@ -49,7 +50,7 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
             childStringList.push(child.label);
         }
 
-        return childStringList
+        return childStringList;
     }
 }
 
@@ -67,7 +68,7 @@ export class ConanPackageItem extends vscode.TreeItem {
         this.command = {
             "title": "Conan Package Selected",
             "command": "vsconan.package.selected",
-        }
+        };
     }
 
     iconPath = {
