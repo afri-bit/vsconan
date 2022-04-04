@@ -186,13 +186,17 @@ export function activate(context: vscode.ExtensionContext) {
     // Command on selecting a recipe. This will show list of the package binary
     let commandRecipeRefresh = vscode.commands.registerCommand("vsconan-explorer.treeview.recipe.refresh", () => {
         conanRecipeNodeProvider.refresh();
-        conanRecipeNodeProvider.selectedRecipe = undefined;
 
-        conanPackageNodeProvider.refresh("");
-        treeViewConanPackage.title = "Conan - Package";
+        // Refreshing the recipe tree explorer will reset the recipe tree explorer and package tree explorer
+        conanRecipeNodeProvider.setSelectedRecipe(undefined); // Reset the internal selected recipe from the recipeNodeProvider
+        conanPackageNodeProvider.refresh(""); // Empty the binary package tree explorer
+        treeViewConanPackage.title = "Conan - Package"; // Reset the title of the treeview
     });
 
     let commandRecipeSelected = vscode.commands.registerCommand("vsconan-explorer.item.recipe.selected", () => {
+        conanRecipeNodeProvider.setSelectedRecipe(treeViewConanRecipe.selection[0].label);
+
+        // Change the title of the treeview for package explorer to match the selected recipe
         treeViewConanPackage.title = treeViewConanRecipe.selection[0].label;
         conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
     });
@@ -252,7 +256,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // ========== Treeview PACKAGE Command Registration
     let commandPackageRefresh = vscode.commands.registerCommand("vsconan-explorer.treeview.package.refresh", () => {
-        conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
+        conanPackageNodeProvider.refresh(conanRecipeNodeProvider.getSelectedRecipe());
     });
 
     let commandPackageInformation = vscode.commands.registerCommand("vsconan-explorer.item.package.option.information", (packageNode: ConanPackageItem) => {
@@ -263,7 +267,7 @@ export function activate(context: vscode.ExtensionContext) {
         let python = utils.config.getExplorerPython();
 
         try {
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getPackagePath(treeViewConanRecipe.selection[0].label, node.label, python)!));
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getPackagePath(conanRecipeNodeProvider.getSelectedRecipe(), node.label, python)!));
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -275,7 +279,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (python != undefined) {
             try {
-                let packagePath = ConanAPI.getPackagePath(treeViewConanRecipe.selection[0].label, node.label, python);
+                let packagePath = ConanAPI.getPackagePath(conanRecipeNodeProvider.getSelectedRecipe(), node.label, python);
                 vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
             }
             catch (err) {
@@ -295,7 +299,7 @@ export function activate(context: vscode.ExtensionContext) {
                 if (answer === "Yes") {
                     let python = utils.config.getExplorerPython();
 
-                    ConanAPI.removePackage(treeViewConanRecipe.selection[0].label, node.label, python);
+                    ConanAPI.removePackage(conanRecipeNodeProvider.getSelectedRecipe(), node.label, python);
 
                     conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
                 }

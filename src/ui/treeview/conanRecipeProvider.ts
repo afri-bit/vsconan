@@ -9,7 +9,7 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
     private _onDidChangeTreeData: vscode.EventEmitter<ConanRecipeItem | undefined | void> = new vscode.EventEmitter<ConanRecipeItem | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<ConanRecipeItem | undefined | void> = this._onDidChangeTreeData.event;
 
-    public selectedRecipe: string | undefined = undefined;
+    private selectedRecipe: string | undefined = undefined;
 
     public constructor() {
     }
@@ -49,6 +49,14 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
         }
 
         return childStringList
+    }
+
+    public setSelectedRecipe(recipe: string | undefined) {
+        this.selectedRecipe = recipe;
+    }
+
+    public getSelectedRecipe(): string {
+        return this.selectedRecipe!;
     }
 }
 
