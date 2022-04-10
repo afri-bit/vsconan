@@ -145,18 +145,15 @@ export class ConanAPI {
         // Check if the file exists
         // With this check it validates if the conan command executed correctly without error
         // No JSON file will be written if the command is not executed correctly
-        if (fs.existsSync(jsonPath))
-        {
+        if (fs.existsSync(jsonPath)) {
             let tempFile = fs.readFileSync(jsonPath, 'utf8');
             let recipeJson = JSON.parse(tempFile);
 
             // The result in the JSON file from contains an error flag
             // If this contains error, the file will not be processed
-            if (!recipeJson.error)
-            {
+            if (!recipeJson.error) {
                 // Double check if there is data inside by checking the length of the array
-                if (recipeJson.results.length > 0)
-                {
+                if (recipeJson.results.length > 0) {
                     // Example of the JSON format looks as following
                     // {
                     //   "error": false,
@@ -185,8 +182,7 @@ export class ConanAPI {
                     }
                 }
             }
-            else
-            {
+            else {
                 // TODO: Write some log / pop up message box
             }
 
@@ -209,8 +205,7 @@ export class ConanAPI {
 
         this.commandToJsonExecutor(`${python} -m conans.conan profile list --json`, jsonPath);
 
-        if (fs.existsSync(jsonPath))
-        {
+        if (fs.existsSync(jsonPath)) {
             let tempFile = fs.readFileSync(jsonPath, 'utf8');
             let jsonData = JSON.parse(tempFile);
 
@@ -350,7 +345,7 @@ export class ConanAPI {
 
     public static removeProfile(profile: string, python: string = "python") {
         let conanProfilesPath = this.getConanProfilesPath(python);
-        
+
         if (conanProfilesPath === undefined) {
             throw new Error("Unable to locate Conan profiles folder.");
         }
@@ -364,11 +359,11 @@ export class ConanAPI {
         execSync(`${python} -m conans.conan remote add ${remote} ${url}`);
     }
 
-    public static removeRemote(remote: string, python: string="python") {
+    public static removeRemote(remote: string, python: string = "python") {
         execSync(`${python} -m conans.conan remote remove ${remote}`);
     }
 
-    public static enableRemote(remote: string, enable: boolean, python: string="python" ) {
+    public static enableRemote(remote: string, enable: boolean, python: string = "python") {
         if (enable) {
             execSync(`${python} -m conans.conan remote enable ${remote}`);
         }
@@ -409,5 +404,33 @@ export class ConanAPI {
 
     public static createNewProfile(profileName: string, python: string = "python") {
         execSync(`${python} -m conans.conan profile new  ${profileName}`);
+    }
+
+    public static getRecipeInformation(recipeName: string, python: string = "python") : string | undefined{
+        let recipeInfo: string | undefined = undefined;
+
+        // Temporary file name to store the result of command execution
+        let jsonName: string = "recipeInfo.json";
+
+        let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
+
+        execSync(`${python} -m conans.conan inspect ${recipeName} --json ${jsonPath}`);
+
+        // Check if the file exists
+        // With this check it validates if the conan command executed correctly without error
+        // No JSON file will be written if the command is not executed correctly
+        if (fs.existsSync(jsonPath)) {
+            let tempFile = fs.readFileSync(jsonPath, 'utf8');
+
+            // Convert string to json object first then to string again.
+            // This convert to JSON object is meant to beautify the json identation
+            let recipeInfoJson = JSON.parse(tempFile);
+            recipeInfo = JSON.stringify(recipeInfoJson, null, 4);
+
+            // Delete the temporary file after processing
+            fs.unlinkSync(jsonPath);
+        }
+
+        return recipeInfo;
     }
 }

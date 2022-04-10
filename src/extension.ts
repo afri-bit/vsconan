@@ -202,7 +202,24 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandRecipeInformation = vscode.commands.registerCommand("vsconan-explorer.item.recipe.option.information", (node: ConanRecipeItem) => {
-        // TODO: Show information from the selected recipe
+        let python = utils.config.getExplorerPython();
+
+        try {
+            let recipeInfo = ConanAPI.getRecipeInformation(node.label, python);
+            
+            // Create a web view panel
+            const panel = vscode.window.createWebviewPanel(
+                node.label,
+                node.label,
+                vscode.ViewColumn.One,
+                {}
+            );
+
+            panel.webview.html = getWebviewContent(recipeInfo!);
+        }
+        catch (err) {
+            vscode.window.showErrorMessage((err as Error).message);
+        }
     });
 
     let commandRecipeOpenFolder = vscode.commands.registerCommand("vsconan-explorer.item.recipe.option.open.explorer", (node: ConanRecipeItem) => {
@@ -885,3 +902,17 @@ function initializeGlobalArea() {
         fs.mkdirSync(utils.vsconan.getVSConanHomeDirTemp());
     }
 }
+
+function getWebviewContent(content: string) {
+    return `
+<html>
+<body>
+<pre>
+<code>
+${content}
+</code>
+</pre>
+</body>
+</html>
+    `;
+  }
