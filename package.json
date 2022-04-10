@@ -409,11 +409,6 @@
                     "group": "inline"
                 },
                 {
-                    "command": "vsconan-explorer.item.package.option.information",
-                    "when": "view == vsconan-explorer.treeview.package",
-                    "group": "inline"
-                },
-                {
                     "command": "vsconan-explorer.item.package.option.open.explorer",
                     "when": "view == vsconan-explorer.treeview.package",
                     "group": "inline"
