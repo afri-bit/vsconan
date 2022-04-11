@@ -10,23 +10,6 @@ import * as utils from "../../utils/utils";
  * writing and reading results of the command execution to and from JSON file.
  */
 export class ConanAPI {
-    /**
-     * This function executes conan command and write the result to a JSON file
-     * Conan API doesn't provide direct JSON output from the stdout. So to get a proper result
-     * of the command execution we will use JSON file access. Conan provides the API to write
-     * the result to JSON natively with parameter "-j / --json JSON_File"
-     * 
-     * @param cmd Command to be executed
-     * @param jsonPath JSON file path to store the result of the command execution
-     */
-    private static commandToJsonExecutor(cmd: string, jsonPath: string) {
-        try {
-            execSync(`${cmd} ${jsonPath}`).toString();
-        }
-        catch (err) {
-            console.log((err as Error).message);
-        }
-    }
 
     /**
      * Method to get the home folder of conan by using CLI
@@ -140,7 +123,7 @@ export class ConanAPI {
 
         let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
-        this.commandToJsonExecutor(`${python} -m conans.conan search --raw --json`, jsonPath);
+        execSync(`${python} -m conans.conan search --raw --json ${jsonPath}`);
 
         // Check if the file exists
         // With this check it validates if the conan command executed correctly without error
@@ -203,7 +186,7 @@ export class ConanAPI {
 
         let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
-        this.commandToJsonExecutor(`${python} -m conans.conan profile list --json`, jsonPath);
+        execSync(`${python} -m conans.conan profile list --json ${jsonPath}`);
 
         if (fs.existsSync(jsonPath)) {
             let tempFile = fs.readFileSync(jsonPath, 'utf8');
@@ -247,7 +230,7 @@ export class ConanAPI {
                 recipeName = recipe;
             }
 
-            this.commandToJsonExecutor(`${python} -m conans.conan search ${recipeName} --json`, jsonPath);
+            execSync(`${python} -m conans.conan search ${recipeName} --json ${jsonPath}`);
 
             // Check if the file exists
             // With this check it validates if the conan command executed correctly without error
