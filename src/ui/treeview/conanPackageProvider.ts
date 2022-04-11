@@ -26,7 +26,7 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
     public getChildren(element?: ConanPackageItem): ConanPackageItem[] {
         // Get the python interpreter from the explorer configuration file
         // If something goes wrong it will be an empty list
-        let python = utils.config.getExplorerPython();
+        let python = utils.vsconan.config.getExplorerPython();
 
         let packageList = [];
         

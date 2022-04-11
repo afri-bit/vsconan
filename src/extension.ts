@@ -3,18 +3,13 @@ import * as path from "path";
 import * as vscode from "vscode";
 import * as utils from "./utils/utils";
 import * as globals from "./globals";
+
 import { CommandExecutor } from "./cmd/exec/commandExecutor";
-import {
-    CommandContainer, ConfigCommandBuild, ConfigCommandCreate,
-    ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport,
-    ConfigCommandSource
-} from "./config/configCommand";
 import { ConfigWorkspace } from "./config/configWorkspace";
 import { ConanPackageItem, ConanPackageNodeProvider } from "./ui/treeview/conanPackageProvider";
 import { ConanProfileItem, ConanProfileNodeProvider } from "./ui/treeview/conanProfileProvider";
 import { ConanRecipeItem, ConanRecipeNodeProvider } from "./ui/treeview/conanRecipeProvider";
 import { ConanRemoteItem, ConanRemoteNodeProvider } from "./ui/treeview/conanRemoteProvider";
-import { ConfigGlobal, ConfigGlobalExplorer, ConfigGlobalGeneral } from "./config/configGlobal";
 import { ConanAPI } from "./api/conan/conanAPI";
 
 enum ConanCommand {
@@ -36,7 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Global Area - The global area is stored under home folder ($HOME/.vsconan)
     //               This area has lower priority then the workspace area
     // Global Area - To work for the API a extension folder will created in the home directory
-    initializeGlobalArea();
+    utils.vsconan.initializeGlobalArea();
 
     // ========== Registering the treeview for the extension
     const conanRecipeNodeProvider = new ConanRecipeNodeProvider();
@@ -73,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
             let wsPath = wsList[i].uri.fsPath;
             let configPath = path.join(wsPath, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE);
 
-            if (isFolderConanProject(wsPath) && !fs.existsSync(configPath!)) {
+            if (utils.conan.isFolderConanProject(wsPath) && !fs.existsSync(configPath!)) {
 
                 vscode.window
                     .showInformationMessage(`The workspace '${wsList[i].name}' is detected as a conan project. Do you want to configure this workspace?`, ...["Yes", "Not Now"])
@@ -87,7 +82,7 @@ export function activate(context: vscode.ExtensionContext) {
                             }
 
                             // Create a default config file
-                            createInitialWorkspaceConfig(vsconanPath);
+                            utils.vsconan.config.createInitialWorkspaceConfig(vsconanPath);
                         }
                     });
             }
@@ -124,7 +119,7 @@ export function activate(context: vscode.ExtensionContext) {
     let commandConfigGlobalCreate = vscode.commands.registerCommand("vsconan.config.global.create", () => {
         if (!fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
             // Initial the global area even it just needs to create the configuration file
-            initializeGlobalArea();
+            utils.vsconan.initializeGlobalArea();
             vscode.window.showInformationMessage("Global configuration file has been created.");
 
             // Opening the file after being created
@@ -146,7 +141,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // ========== Workspace Configuration Command Registration
     let commandConfigWorkspaceCreate = vscode.commands.registerCommand("vsconan.config.workspace.create", () => {
-        let ws = selectWorkspace();
+        let ws = utils.workspace.selectWorkspace();
 
         ws.then(result => {
             let vsconanPath = path.join(String(result), globals.constant.VSCONAN_FOLDER);
@@ -159,7 +154,7 @@ export function activate(context: vscode.ExtensionContext) {
                 vscode.window.showInformationMessage("Config file already exists in the workspace.");
             }
             else {
-                createInitialWorkspaceConfig(vsconanPath);
+                utils.vsconan.config.createInitialWorkspaceConfig(vsconanPath);
 
                 // Open configuration file after being created
                 utils.editor.openFileInEditor(configFilePath);
@@ -170,7 +165,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandConfigWorkspaceOpen = vscode.commands.registerCommand("vsconan.config.workspace.open", () => {
-        let ws = selectWorkspace();
+        let ws = utils.workspace.selectWorkspace();
 
         ws.then(async result => {
             if ((result !== undefined) && (result !== "")) {
@@ -202,11 +197,11 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandRecipeInformation = vscode.commands.registerCommand("vsconan-explorer.item.recipe.option.information", (node: ConanRecipeItem) => {
-        let python = utils.config.getExplorerPython();
+        let python = utils.vsconan.config.getExplorerPython();
 
         try {
             let recipeInfo = ConanAPI.getRecipeInformation(node.label, python);
-            
+
             // Create a web view panel
             const panel = vscode.window.createWebviewPanel(
                 node.label,
@@ -215,7 +210,7 @@ export function activate(context: vscode.ExtensionContext) {
                 {}
             );
 
-            panel.webview.html = getWebviewContent(recipeInfo!);
+            panel.webview.html = utils.vsconan.getWebviewContent(recipeInfo!);
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -223,7 +218,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandRecipeOpenFolder = vscode.commands.registerCommand("vsconan-explorer.item.recipe.option.open.explorer", (node: ConanRecipeItem) => {
-        let python = utils.config.getExplorerPython();
+        let python = utils.vsconan.config.getExplorerPython();
 
         try {
             vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getRecipePath(node.label, python)!));
@@ -234,7 +229,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandRecipeOpenVSCode = vscode.commands.registerCommand("vsconan-explorer.item.recipe.option.open.vscode", (node: ConanRecipeItem) => {
-        let python = utils.config.getExplorerPython();
+        let python = utils.vsconan.config.getExplorerPython();
 
         if (python) {
             try {
@@ -253,18 +248,18 @@ export function activate(context: vscode.ExtensionContext) {
     let commandRecipeRemove = vscode.commands.registerCommand("vsconan-explorer.item.recipe.option.remove", (node: ConanRecipeItem) => {
         try {
             vscode.window
-            .showWarningMessage(`Are you sure you want to remove the recipe '${node.label}'?` , ...["Yes", "No"])
-            .then((answer) => {
-                if (answer === "Yes") {
-                    let python = utils.config.getExplorerPython();
+                .showWarningMessage(`Are you sure you want to remove the recipe '${node.label}'?`, ...["Yes", "No"])
+                .then((answer) => {
+                    if (answer === "Yes") {
+                        let python = utils.vsconan.config.getExplorerPython();
 
-                    ConanAPI.removeRecipe(node.label, python);
-                    conanRecipeNodeProvider.refresh();
+                        ConanAPI.removeRecipe(node.label, python);
+                        conanRecipeNodeProvider.refresh();
 
-                    conanPackageNodeProvider.refresh(""); // Empty the binary package treeview
-                    treeViewConanPackage.title = "Conan - Package"; // Reset the title of the binary package treeview panel
-                }
-            });
+                        conanPackageNodeProvider.refresh(""); // Empty the binary package treeview
+                        treeViewConanPackage.title = "Conan - Package"; // Reset the title of the binary package treeview panel
+                    }
+                });
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -281,7 +276,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandPackageOpenFolder = vscode.commands.registerCommand("vsconan-explorer.item.package.option.open.explorer", (node: ConanPackageItem) => {
-        let python = utils.config.getExplorerPython();
+        let python = utils.vsconan.config.getExplorerPython();
 
         try {
             vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getPackagePath(conanRecipeNodeProvider.getSelectedRecipe(), node.label, python)!));
@@ -292,7 +287,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandPackageOpenVSCode = vscode.commands.registerCommand("vsconan-explorer.item.package.option.open.vscode", (node: ConanPackageItem) => {
-        let python = utils.config.getExplorerPython();
+        let python = utils.vsconan.config.getExplorerPython();
 
         if (python !== undefined) {
             try {
@@ -311,16 +306,16 @@ export function activate(context: vscode.ExtensionContext) {
     let commandPackageRemove = vscode.commands.registerCommand("vsconan-explorer.item.package.option.remove", (node: ConanPackageItem) => {
         try {
             vscode.window
-            .showWarningMessage(`Are you sure you want to remove the binary package '${node.label}' from '${treeViewConanPackage.title!}'?` , ...["Yes", "No"])
-            .then((answer) => {
-                if (answer === "Yes") {
-                    let python = utils.config.getExplorerPython();
+                .showWarningMessage(`Are you sure you want to remove the binary package '${node.label}' from '${treeViewConanPackage.title!}'?`, ...["Yes", "No"])
+                .then((answer) => {
+                    if (answer === "Yes") {
+                        let python = utils.vsconan.config.getExplorerPython();
 
-                    ConanAPI.removePackage(conanRecipeNodeProvider.getSelectedRecipe(), node.label, python);
+                        ConanAPI.removePackage(conanRecipeNodeProvider.getSelectedRecipe(), node.label, python);
 
-                    conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
-                }
-            });
+                        conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
+                    }
+                });
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -337,7 +332,7 @@ export function activate(context: vscode.ExtensionContext) {
         let conanProfileList = conanProfileNodeProvider.getChildrenString();
 
         if (conanProfileList.includes(node.label)) {
-            let python = utils.config.getExplorerPython();
+            let python = utils.vsconan.config.getExplorerPython();
             utils.editor.openFileInEditor(ConanAPI.getProfileFilePath(node.label, python)!);
         }
         else {
@@ -354,7 +349,7 @@ export function activate(context: vscode.ExtensionContext) {
                 .showWarningMessage(`Are you sure you want to remove the profile '${node.label}'?`, ...["Yes", "No"])
                 .then((answer) => {
                     if (answer === "Yes") {
-                        let python = utils.config.getExplorerPython();
+                        let python = utils.vsconan.config.getExplorerPython();
 
                         ConanAPI.removeProfile(node.label, python);
 
@@ -373,7 +368,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (conanProfileList.includes(node.label)) {
 
-            let python = utils.config.getExplorerPython();
+            let python = utils.vsconan.config.getExplorerPython();
 
             vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getProfileFilePath(node.label, python)!));
         }
@@ -405,7 +400,7 @@ export function activate(context: vscode.ExtensionContext) {
             });
 
             if (newProfileName) {
-                let python = utils.config.getExplorerPython();
+                let python = utils.vsconan.config.getExplorerPython();
 
                 try {
                     ConanAPI.renameProfile(node.label, newProfileName, python);
@@ -444,7 +439,7 @@ export function activate(context: vscode.ExtensionContext) {
             });
 
             if (newProfileName) {
-                let python = utils.config.getExplorerPython();
+                let python = utils.vsconan.config.getExplorerPython();
 
                 try {
                     ConanAPI.duplicateProfile(node.label, newProfileName, python);
@@ -482,7 +477,7 @@ export function activate(context: vscode.ExtensionContext) {
         });
 
         if (profileName) {
-            let python = utils.config.getExplorerPython();
+            let python = utils.vsconan.config.getExplorerPython();
 
             try {
                 ConanAPI.createNewProfile(profileName, python);
@@ -502,7 +497,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     let commandRemoteEdit = vscode.commands.registerCommand("vsconan-explorer.treeview.remote.edit", () => {
-        let python = utils.config.getExplorerPython();
+        let python = utils.vsconan.config.getExplorerPython();
 
         let remoteFile = ConanAPI.getRemoteFilePath(python);
 
@@ -523,7 +518,7 @@ export function activate(context: vscode.ExtensionContext) {
                 .showWarningMessage(`Are you sure you want to remove the remote '${node.label}'?`, ...["Yes", "No"])
                 .then((answer) => {
                     if (answer === "Yes") {
-                        let python = utils.config.getExplorerPython();
+                        let python = utils.vsconan.config.getExplorerPython();
 
                         ConanAPI.removeRemote(node.label, python);
 
@@ -570,7 +565,7 @@ export function activate(context: vscode.ExtensionContext) {
             });
 
             if (remoteURL) {
-                let python = utils.config.getExplorerPython();
+                let python = utils.vsconan.config.getExplorerPython();
 
                 try {
                     ConanAPI.addRemote(remoteName, remoteURL, python);
@@ -587,7 +582,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     let commandRemoteEnable = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.enable", (node: ConanRemoteItem) => {
         try {
-            let python = utils.config.getExplorerPython();
+            let python = utils.vsconan.config.getExplorerPython();
 
             ConanAPI.enableRemote(node.label, true, python);
 
@@ -600,7 +595,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     let commandRemoteDisable = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.disable", (node: ConanRemoteItem) => {
         try {
-            let python = utils.config.getExplorerPython();
+            let python = utils.vsconan.config.getExplorerPython();
 
             ConanAPI.enableRemote(node.label, false, python);
 
@@ -633,7 +628,7 @@ export function activate(context: vscode.ExtensionContext) {
             });
 
             if (newRemoteName) {
-                let python = utils.config.getExplorerPython();
+                let python = utils.vsconan.config.getExplorerPython();
 
                 try {
                     ConanAPI.renameRemote(node.label, newRemoteName, python);
@@ -673,7 +668,7 @@ export function activate(context: vscode.ExtensionContext) {
             });
 
             if (newURL) {
-                let python = utils.config.getExplorerPython();
+                let python = utils.vsconan.config.getExplorerPython();
 
                 try {
                     ConanAPI.updateRemoteURL(node.label, newURL, python);
@@ -750,7 +745,7 @@ export function deactivate() { }
 function executeConanCommand(cmdType: ConanCommand, channelVSConan: any): void {
     // The flow of following commands is the same by selecting the workspace first
     // Check the configuration and executed pre selected command based on this function argument
-    let ws = selectWorkspace();
+    let ws = utils.workspace.selectWorkspace();
 
     ws.then(wsPath => {
 
@@ -792,127 +787,3 @@ function executeConanCommand(cmdType: ConanCommand, channelVSConan: any): void {
         }
     });
 }
-
-/**
- * Function to create initial global configuration file at the home folder of VSConan
- * VSConan home folder is located at ~/.vsconan
- */
-function createInitialGlobalConfig() {
-    let configGlobal = new ConfigGlobal(new ConfigGlobalGeneral("python"), new ConfigGlobalExplorer("python"));
-    configGlobal.writeToFile(utils.vsconan.getGlobalConfigPath());
-}
-
-/**
- * Function to create initial workspace configuration file with all conan commands
- * registered in the config files
- * 
- * @param configPath Path where the config file is to be stored
- * 
- */
-function createInitialWorkspaceConfig(configPath: string) {
-    let configWorkspace = new ConfigWorkspace("python", new CommandContainer(
-        [new ConfigCommandCreate()],
-        [new ConfigCommandInstall()],
-        [new ConfigCommandBuild()],
-        [new ConfigCommandSource()],
-        [new ConfigCommandPackage()],
-        [new ConfigCommandPackageExport()]
-    ));
-
-    configWorkspace.writeToFile(path.join(configPath, globals.constant.CONFIG_FILE));
-}
-
-function isFolderConanProject(ws: string): boolean {
-    let ret: boolean = false;
-
-    let conanpy: string = path.join(ws, "conanfile.py");
-    let conantxt: string = path.join(ws, "conanfile.txt");
-
-    if (fs.existsSync(conanpy) || fs.existsSync(conantxt)) {
-        ret = true;
-    }
-
-    return ret;
-}
-
-/**
- * Function to show quick pick to get a workspace path.
- * This can list the multiple workspaces and user can select it using a quick pick menu. 
- * 
- * @returns Promise<string | undefined> Selected workspace path or undefined
- */
-async function selectWorkspace(): Promise<string | undefined> {
-    let wsList = vscode.workspace.workspaceFolders;
-
-    return new Promise<string | undefined>(async (resolve, reject) => {
-        if (wsList !== undefined) {
-            if (wsList!.length > 1) { // Workspace contains multiple folders
-                const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
-                let quickPickItems = [];
-                for (let i = 0; i < wsList!.length; i++) {
-                    quickPickItems.push({
-                        label: wsList![i].name,
-                        description: wsList![i].uri.fsPath,
-                        detail: "",
-                        index: i
-                    });
-                }
-                quickPickItems.map(label => ({ label }));
-                quickPick.items = quickPickItems;
-
-                const choice = await vscode.window.showQuickPick(quickPickItems);
-
-                if (choice) {
-                    // Returning the filesystem path
-                    return resolve(choice.description);
-                }
-                else {
-                    return resolve(undefined);
-                }
-            }
-            else if (wsList!.length === 1) {
-                // Choose the only path it has
-                return resolve(wsList![0].uri.fsPath);
-            }
-        }
-        else {
-            return reject(undefined);
-        }
-    });
-}
-
-/**
- * Function to initialize the global area such as creating .vsconan folder
- * in the HOME folder, creating a temporary folder and creating a default global
- * config file
- */
-function initializeGlobalArea() {
-    if (!fs.existsSync(utils.vsconan.getVSConanHomeDir())) {
-        fs.mkdirSync(utils.vsconan.getVSConanHomeDir());
-    }
-
-    // Check if global config file is available, otherwise create a new one with default parameters
-    if (!fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
-        let configGlobal = new ConfigGlobal(new ConfigGlobalGeneral("python"), new ConfigGlobalExplorer("python"));
-        configGlobal.writeToFile(utils.vsconan.getGlobalConfigPath());
-    }
-
-    //  Additionally the temp folder will created to store temporary files
-    if (!fs.existsSync(utils.vsconan.getVSConanHomeDirTemp())) {
-        fs.mkdirSync(utils.vsconan.getVSConanHomeDirTemp());
-    }
-}
-
-function getWebviewContent(content: string) {
-    return `
-<html>
-<body>
-<pre>
-<code>
-${content}
-</code>
-</pre>
-</body>
-</html>
-    `;
-  }
