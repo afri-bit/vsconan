@@ -1,5 +1,5 @@
 import { UriHandler } from "vscode";
-import * as utils from "../../utils/utils";
+import * as utils from "../../utils";
 import * as fs from "fs";
 import * as path from "path";
 import { ConfigCommandBuild, 

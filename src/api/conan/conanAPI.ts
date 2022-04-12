@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { exec, execSync } from "child_process";
-import * as utils from "../../utils/utils";
+import * as utils from "../../utils";
 
 /**
  * Currently the Conan API relies on the conan CLI.

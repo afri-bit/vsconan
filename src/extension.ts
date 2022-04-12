@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import * as utils from "./utils/utils";
+import * as utils from "./utils";
 import * as globals from "./globals";
 
 import { CommandExecutor } from "./cmd/exec/commandExecutor";

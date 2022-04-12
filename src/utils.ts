@@ -1,16 +1,16 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as os from "os";
-import * as global from "../globals";
+import * as global from "./globals";
 import * as fs from "fs";
-import { ConfigGlobal, ConfigGlobalGeneral, ConfigGlobalExplorer } from "../config/configGlobal";
-import { ConfigWorkspace } from "../config/configWorkspace";
+import { ConfigGlobal, ConfigGlobalGeneral, ConfigGlobalExplorer } from "./config/configGlobal";
+import { ConfigWorkspace } from "./config/configWorkspace";
 import {
     CommandContainer, ConfigCommandBuild, ConfigCommandCreate,
     ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport,
     ConfigCommandSource
-} from "../config/configCommand";
-import * as globals from "../globals";
+} from "./config/configCommand";
+import * as globals from "./globals";
 
 export namespace vsconan {
 
