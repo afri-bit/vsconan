@@ -11,7 +11,10 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
 
     private selectedRecipe: string | undefined = undefined;
 
-    public constructor() {
+    private conanApi: ConanAPI;
+
+    public constructor(conanApi: ConanAPI) {
+        this.conanApi = conanApi;
     }
 
     public refresh(): void {
@@ -30,7 +33,7 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
         let recipeList: string[] = [];
 
         if (python) {
-            recipeList = ConanAPI.getRecipes(python!);
+            recipeList = this.conanApi.getRecipes(python!);
         }
 
         let recipeItemList: Array<ConanRecipeItem> = [];

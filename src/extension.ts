@@ -33,23 +33,26 @@ export function activate(context: vscode.ExtensionContext) {
     // Global Area - To work for the API a extension folder will created in the home directory
     utils.vsconan.initializeGlobalArea();
 
+    // Initializing the Conan API
+    let conanApi = new ConanAPI();
+
     // ========== Registering the treeview for the extension
-    const conanRecipeNodeProvider = new ConanRecipeNodeProvider();
+    const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi);
     let treeViewConanRecipe = vscode.window.createTreeView('vsconan-explorer.treeview.recipe', {
         treeDataProvider: conanRecipeNodeProvider
     });
 
-    const conanProfileNodeProvider = new ConanProfileNodeProvider();
+    const conanProfileNodeProvider = new ConanProfileNodeProvider(conanApi);
     let treeViewConanProfile = vscode.window.createTreeView('vsconan-explorer.treeview.profile', {
         treeDataProvider: conanProfileNodeProvider
     });
 
-    const conanPackageNodeProvider = new ConanPackageNodeProvider();
+    const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApi);
     let treeViewConanPackage = vscode.window.createTreeView('vsconan-explorer.treeview.package', {
         treeDataProvider: conanPackageNodeProvider
     });
 
-    const conanRemoteNodeProvider = new ConanRemoteNodeProvider();
+    const conanRemoteNodeProvider = new ConanRemoteNodeProvider(conanApi);
     let treeViewConanRemote = vscode.window.createTreeView('vsconan-explorer.treeview.remote', {
         treeDataProvider: conanRemoteNodeProvider
     });
@@ -200,7 +203,7 @@ export function activate(context: vscode.ExtensionContext) {
         let python = utils.vsconan.config.getExplorerPython();
 
         try {
-            let recipeInfo = ConanAPI.getRecipeInformation(node.label, python);
+            let recipeInfo = conanApi.getRecipeInformation(node.label, python);
 
             // Create a web view panel
             const panel = vscode.window.createWebviewPanel(
@@ -221,7 +224,7 @@ export function activate(context: vscode.ExtensionContext) {
         let python = utils.vsconan.config.getExplorerPython();
 
         try {
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getRecipePath(node.label, python)!));
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(conanApi.getRecipePath(node.label, python)!));
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -233,7 +236,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (python) {
             try {
-                let packagePath = ConanAPI.getRecipePath(node.label, python);
+                let packagePath = conanApi.getRecipePath(node.label, python);
                 vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
             }
             catch (err) {
@@ -253,7 +256,7 @@ export function activate(context: vscode.ExtensionContext) {
                     if (answer === "Yes") {
                         let python = utils.vsconan.config.getExplorerPython();
 
-                        ConanAPI.removeRecipe(node.label, python);
+                        conanApi.removeRecipe(node.label, python);
                         conanRecipeNodeProvider.refresh();
 
                         conanPackageNodeProvider.refresh(""); // Empty the binary package treeview
@@ -279,7 +282,7 @@ export function activate(context: vscode.ExtensionContext) {
         let python = utils.vsconan.config.getExplorerPython();
 
         try {
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getPackagePath(conanRecipeNodeProvider.getSelectedRecipe(), node.label, python)!));
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(conanApi.getPackagePath(conanRecipeNodeProvider.getSelectedRecipe(), node.label, python)!));
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -291,7 +294,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (python !== undefined) {
             try {
-                let packagePath = ConanAPI.getPackagePath(conanRecipeNodeProvider.getSelectedRecipe(), node.label, python);
+                let packagePath = conanApi.getPackagePath(conanRecipeNodeProvider.getSelectedRecipe(), node.label, python);
                 vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
             }
             catch (err) {
@@ -311,7 +314,7 @@ export function activate(context: vscode.ExtensionContext) {
                     if (answer === "Yes") {
                         let python = utils.vsconan.config.getExplorerPython();
 
-                        ConanAPI.removePackage(conanRecipeNodeProvider.getSelectedRecipe(), node.label, python);
+                        conanApi.removePackage(conanRecipeNodeProvider.getSelectedRecipe(), node.label, python);
 
                         conanPackageNodeProvider.refresh(treeViewConanRecipe.selection[0].label);
                     }
@@ -333,7 +336,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (conanProfileList.includes(node.label)) {
             let python = utils.vsconan.config.getExplorerPython();
-            utils.editor.openFileInEditor(ConanAPI.getProfileFilePath(node.label, python)!);
+            utils.editor.openFileInEditor(conanApi.getProfileFilePath(node.label, python)!);
         }
         else {
             vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
@@ -351,7 +354,7 @@ export function activate(context: vscode.ExtensionContext) {
                     if (answer === "Yes") {
                         let python = utils.vsconan.config.getExplorerPython();
 
-                        ConanAPI.removeProfile(node.label, python);
+                        conanApi.removeProfile(node.label, python);
 
                         conanProfileNodeProvider.refresh();
                     }
@@ -370,7 +373,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             let python = utils.vsconan.config.getExplorerPython();
 
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(ConanAPI.getProfileFilePath(node.label, python)!));
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(conanApi.getProfileFilePath(node.label, python)!));
         }
         else {
             vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
@@ -403,7 +406,7 @@ export function activate(context: vscode.ExtensionContext) {
                 let python = utils.vsconan.config.getExplorerPython();
 
                 try {
-                    ConanAPI.renameProfile(node.label, newProfileName, python);
+                    conanApi.renameProfile(node.label, newProfileName, python);
                     conanProfileNodeProvider.refresh();
                 }
                 catch (err) {
@@ -442,7 +445,7 @@ export function activate(context: vscode.ExtensionContext) {
                 let python = utils.vsconan.config.getExplorerPython();
 
                 try {
-                    ConanAPI.duplicateProfile(node.label, newProfileName, python);
+                    conanApi.duplicateProfile(node.label, newProfileName, python);
 
                     // Refresh the treeview once again
                     conanProfileNodeProvider.refresh();
@@ -480,7 +483,7 @@ export function activate(context: vscode.ExtensionContext) {
             let python = utils.vsconan.config.getExplorerPython();
 
             try {
-                ConanAPI.createNewProfile(profileName, python);
+                conanApi.createNewProfile(profileName, python);
 
                 // Refresh the treeview once again
                 conanProfileNodeProvider.refresh();
@@ -499,7 +502,7 @@ export function activate(context: vscode.ExtensionContext) {
     let commandRemoteEdit = vscode.commands.registerCommand("vsconan-explorer.treeview.remote.edit", () => {
         let python = utils.vsconan.config.getExplorerPython();
 
-        let remoteFile = ConanAPI.getRemoteFilePath(python);
+        let remoteFile = conanApi.getRemoteFilePath(python);
 
         if (remoteFile) {
             utils.editor.openFileInEditor(remoteFile);
@@ -520,7 +523,7 @@ export function activate(context: vscode.ExtensionContext) {
                     if (answer === "Yes") {
                         let python = utils.vsconan.config.getExplorerPython();
 
-                        ConanAPI.removeRemote(node.label, python);
+                        conanApi.removeRemote(node.label, python);
 
                         conanRemoteNodeProvider.refresh();
                     }
@@ -568,7 +571,7 @@ export function activate(context: vscode.ExtensionContext) {
                 let python = utils.vsconan.config.getExplorerPython();
 
                 try {
-                    ConanAPI.addRemote(remoteName, remoteURL, python);
+                    conanApi.addRemote(remoteName, remoteURL, python);
 
                     // Refresh the treeview once again
                     conanRemoteNodeProvider.refresh();
@@ -584,7 +587,7 @@ export function activate(context: vscode.ExtensionContext) {
         try {
             let python = utils.vsconan.config.getExplorerPython();
 
-            ConanAPI.enableRemote(node.label, true, python);
+            conanApi.enableRemote(node.label, true, python);
 
             conanRemoteNodeProvider.refresh();
         }
@@ -597,7 +600,7 @@ export function activate(context: vscode.ExtensionContext) {
         try {
             let python = utils.vsconan.config.getExplorerPython();
 
-            ConanAPI.enableRemote(node.label, false, python);
+            conanApi.enableRemote(node.label, false, python);
 
             conanRemoteNodeProvider.refresh();
         }
@@ -631,7 +634,7 @@ export function activate(context: vscode.ExtensionContext) {
                 let python = utils.vsconan.config.getExplorerPython();
 
                 try {
-                    ConanAPI.renameRemote(node.label, newRemoteName, python);
+                    conanApi.renameRemote(node.label, newRemoteName, python);
                     conanRemoteNodeProvider.refresh();
                 }
                 catch (err) {
@@ -671,7 +674,7 @@ export function activate(context: vscode.ExtensionContext) {
                 let python = utils.vsconan.config.getExplorerPython();
 
                 try {
-                    ConanAPI.updateRemoteURL(node.label, newURL, python);
+                    conanApi.updateRemoteURL(node.label, newURL, python);
                     conanRemoteNodeProvider.refresh();
                 }
                 catch (err) {

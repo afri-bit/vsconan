@@ -9,9 +9,10 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
     private _onDidChangeTreeData: vscode.EventEmitter<ConanRemoteItem | undefined | void> = new vscode.EventEmitter<ConanRemoteItem | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<ConanRemoteItem | undefined | void> = this._onDidChangeTreeData.event;
 
-    private recipeName: string = "";
+    private conanApi: ConanAPI;
 
-    public constructor() {
+    public constructor(conanApi: ConanAPI) {
+        this.conanApi = conanApi;
     }
 
     public refresh(): void {
@@ -30,7 +31,7 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
         let remoteList = [];
 
         if (python) {
-            remoteList = ConanAPI.getRemotes(python!);
+            remoteList = this.conanApi.getRemotes(python!);
         }
 
         let remoteItemList: Array<ConanRemoteItem> = [];

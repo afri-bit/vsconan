@@ -11,6 +11,10 @@ import * as utils from "../../utils/utils";
  */
 export class ConanAPI {
 
+    public constructor () {
+
+    }
+
     /**
      * Method to get the home folder of conan by using CLI
      * 
@@ -19,7 +23,7 @@ export class ConanAPI {
      *      string - path is successful obtained
      *      undefined - on error
      */
-    public static getConanHomePath(python: string = "python"): string | undefined {
+    public getConanHomePath(python: string = "python"): string | undefined {
         try {
             let homePath = execSync(`${python} -m conans.conan config home`).toString();
             return homePath.trim(); // Remove whitespace and new lines
@@ -30,7 +34,7 @@ export class ConanAPI {
         }
     }
 
-    public static getConanProfilesPath(python: string = "python"): string | undefined {
+    public getConanProfilesPath(python: string = "python"): string | undefined {
         let conanHomePath = this.getConanHomePath(python);
 
         if (conanHomePath !== undefined) {
@@ -41,7 +45,7 @@ export class ConanAPI {
         }
     }
 
-    public static getProfileFilePath(profile: string, python: string = "python"): string | undefined {
+    public getProfileFilePath(profile: string, python: string = "python"): string | undefined {
         let conanProfilesPath = this.getConanProfilesPath(python);
 
         if (conanProfilesPath !== undefined) {
@@ -52,7 +56,7 @@ export class ConanAPI {
         }
     }
 
-    public static getRecipePath(recipe: string, python: string = "python") {
+    public getRecipePath(recipe: string, python: string = "python") {
         let conanHome = this.getConanHomePath(python = python);
 
         if (conanHome !== undefined) { // Start processing the data if the conan home folder exists
@@ -93,7 +97,7 @@ export class ConanAPI {
      * @param python 
      * @returns 
      */
-    public static getPackagePath(recipe: string, packageId: string, python: string = "python") {
+    public getPackagePath(recipe: string, packageId: string, python: string = "python") {
         let recipePath = this.getRecipePath(recipe, python);
 
         if (recipePath !== undefined) {
@@ -115,7 +119,7 @@ export class ConanAPI {
         }
     }
 
-    public static getRecipes(python: string): Array<string> {
+    public getRecipes(python: string): Array<string> {
 
         let arrayRecipeList: Array<string> = [];
 
@@ -178,7 +182,7 @@ export class ConanAPI {
         return arrayRecipeList;
     }
 
-    public static getProfiles(python: string): Array<string> {
+    public getProfiles(python: string): Array<string> {
 
         let arrayProfileList: Array<string> = [];
 
@@ -211,7 +215,7 @@ export class ConanAPI {
      * @param recipe Recipe ID to get the packages from
      * @returns Return will be an array of dictionary / map from JSON file
      */
-    public static getPackages(python: string, recipe: string): Array<any> {
+    public getPackages(python: string, recipe: string): Array<any> {
         let arrayPackageList: Array<any> = [];
         if (recipe === "") {
             return arrayPackageList;
@@ -266,7 +270,7 @@ export class ConanAPI {
         }
     }
 
-    public static getRemoteFilePath(python: string = "python"): string | undefined {
+    public getRemoteFilePath(python: string = "python"): string | undefined {
         let conanHomePath = this.getConanHomePath(python);
 
         let remotePath = undefined;
@@ -278,7 +282,7 @@ export class ConanAPI {
         return remotePath;
     }
 
-    public static getRemotes(python: string = "python"): Array<any> {
+    public getRemotes(python: string = "python"): Array<any> {
         let arrayRemoteList: Array<any> = [];
 
         let conanHomePath = this.getConanHomePath(python);
@@ -306,7 +310,7 @@ export class ConanAPI {
         return arrayRemoteList;
     }
 
-    public static getPackageInformation(python: string, recipe: string, packageId: string) {
+    public getPackageInformation(python: string, recipe: string, packageId: string) {
         let packageList = this.getPackages(python, recipe);
 
         for (let pkg of packageList) {
@@ -318,15 +322,15 @@ export class ConanAPI {
         return undefined;
     }
 
-    public static removePackage(recipe: string, packageId: string, python: string = "python") {
+    public removePackage(recipe: string, packageId: string, python: string = "python") {
         execSync(`${python} -m conans.conan remove ${recipe} -p ${packageId} -f`);
     }
 
-    public static removeRecipe(recipe: string, python: string = "python") {
+    public removeRecipe(recipe: string, python: string = "python") {
         execSync(`${python} -m conans.conan remove ${recipe} -f`);
     }
 
-    public static removeProfile(profile: string, python: string = "python") {
+    public removeProfile(profile: string, python: string = "python") {
         let conanProfilesPath = this.getConanProfilesPath(python);
 
         if (conanProfilesPath === undefined) {
@@ -338,15 +342,15 @@ export class ConanAPI {
         fs.unlinkSync(profileFilePath);
     }
 
-    public static addRemote(remote: string, url: string, python: string = "python") {
+    public addRemote(remote: string, url: string, python: string = "python") {
         execSync(`${python} -m conans.conan remote add ${remote} ${url}`);
     }
 
-    public static removeRemote(remote: string, python: string = "python") {
+    public removeRemote(remote: string, python: string = "python") {
         execSync(`${python} -m conans.conan remote remove ${remote}`);
     }
 
-    public static enableRemote(remote: string, enable: boolean, python: string = "python") {
+    public enableRemote(remote: string, enable: boolean, python: string = "python") {
         if (enable) {
             execSync(`${python} -m conans.conan remote enable ${remote}`);
         }
@@ -355,15 +359,15 @@ export class ConanAPI {
         }
     }
 
-    public static renameRemote(remoteName: string, newName: string, python: string = "python") {
+    public renameRemote(remoteName: string, newName: string, python: string = "python") {
         execSync(`${python} -m conans.conan remote rename ${remoteName} ${newName}`);
     }
 
-    public static updateRemoteURL(remoteName: string, url: string, python: string = "python") {
+    public updateRemoteURL(remoteName: string, url: string, python: string = "python") {
         execSync(`${python} -m conans.conan remote update ${remoteName} ${url}`);
     }
 
-    public static renameProfile(oldProfileName: string, newProfileName: string, python: string = "python") {
+    public renameProfile(oldProfileName: string, newProfileName: string, python: string = "python") {
         let oldProfilePath = this.getProfileFilePath(oldProfileName, python);
 
         if (oldProfilePath) {
@@ -374,7 +378,7 @@ export class ConanAPI {
         }
     }
 
-    public static duplicateProfile(oldProfileName: string, newProfileName: string, python: string = "python") {
+    public duplicateProfile(oldProfileName: string, newProfileName: string, python: string = "python") {
         let oldProfilePath = this.getProfileFilePath(oldProfileName, python);
 
         if (oldProfileName) {
@@ -385,11 +389,11 @@ export class ConanAPI {
         }
     }
 
-    public static createNewProfile(profileName: string, python: string = "python") {
+    public createNewProfile(profileName: string, python: string = "python") {
         execSync(`${python} -m conans.conan profile new  ${profileName}`);
     }
 
-    public static getRecipeInformation(recipeName: string, python: string = "python") : string | undefined{
+    public getRecipeInformation(recipeName: string, python: string = "python") : string | undefined{
         let recipeInfo: string | undefined = undefined;
 
         // Temporary file name to store the result of command execution
