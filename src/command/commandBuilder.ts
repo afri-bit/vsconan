@@ -1,5 +1,5 @@
 import { UriHandler } from "vscode";
-import * as utils from "../../utils";
+import * as utils from "../utils";
 import * as fs from "fs";
 import * as path from "path";
 import { ConfigCommandBuild, 
@@ -7,7 +7,7 @@ import { ConfigCommandBuild,
     ConfigCommandInstall, 
     ConfigCommandPackage, 
     ConfigCommandPackageExport, 
-    ConfigCommandSource } from "../../config/configCommand";
+    ConfigCommandSource } from "../config/configCommand";
 
 /**
  * Helper function to get absolute path in relative to workspace path

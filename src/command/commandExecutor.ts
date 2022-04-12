@@ -3,8 +3,8 @@ import * as vscode from "vscode";
 import {
     ConfigCommand, ConfigCommandBuild, ConfigCommandCreate,
     ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource
-} from "../../config/configCommand";
-import { CommandBuilder } from "../builder/commandBuilder";
+} from "../config/configCommand";
+import { CommandBuilder } from "./commandBuilder";
 
 interface ConfigCommandQuickPickItem extends vscode.QuickPickItem {
     index: number;

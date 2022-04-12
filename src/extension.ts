@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import * as utils from "./utils";
 import * as globals from "./globals";
 
-import { CommandExecutor } from "./cmd/exec/commandExecutor";
+import { CommandExecutor } from "./command/commandExecutor";
 import { ConfigWorkspace } from "./config/configWorkspace";
 import { ConanPackageItem, ConanPackageNodeProvider } from "./ui/treeview/conanPackageProvider";
 import { ConanProfileItem, ConanProfileNodeProvider } from "./ui/treeview/conanProfileProvider";
