@@ -13,6 +13,7 @@ import { ConanRemoteItem, ConanRemoteNodeProvider } from "./ui/treeview/conanRem
 import { ConanAPI } from "./api/conan/conanAPI";
 import { CommandManager } from "./manager/commandManager";
 import { ConanCacheExplorerManager } from "./manager/explorer/conanCache";
+import { ConanProfileExplorerManager } from "./manager/explorer/conanProfile";
 
 enum ConanCommand {
     create,
@@ -65,6 +66,13 @@ export function activate(context: vscode.ExtensionContext) {
         conanApi,
         conanRecipeNodeProvider,
         conanPackageNodeProvider
+    )
+
+    const conanProfileExplorerManager = new ConanProfileExplorerManager (
+        context,
+        channelVSConan,
+        conanApi,
+        conanProfileNodeProvider,
     )
 
     // Check if it starts with workspace
@@ -336,173 +344,173 @@ export function activate(context: vscode.ExtensionContext) {
     // });
 
     // ========== Treeview PROFILE Command Registration
-    let commandProfileRefresh = vscode.commands.registerCommand("vsconan-explorer.treeview.profile.refresh", () => {
-        conanProfileNodeProvider.refresh();
-    });
+    // let commandProfileRefresh = vscode.commands.registerCommand("vsconan-explorer.treeview.profile.refresh", () => {
+    //     conanProfileNodeProvider.refresh();
+    // });
 
-    let commandProfileEdit = vscode.commands.registerCommand("vsconan-explorer.item.profile.option.edit", (node: ConanProfileItem) => {
-        conanProfileNodeProvider.refresh();
-        let conanProfileList = conanProfileNodeProvider.getChildrenString();
+    // let commandProfileEdit = vscode.commands.registerCommand("vsconan-explorer.item.profile.option.edit", (node: ConanProfileItem) => {
+    //     conanProfileNodeProvider.refresh();
+    //     let conanProfileList = conanProfileNodeProvider.getChildrenString();
 
-        if (conanProfileList.includes(node.label)) {
-            let python = utils.vsconan.config.getExplorerPython();
-            utils.editor.openFileInEditor(conanApi.getProfileFilePath(node.label, python)!);
-        }
-        else {
-            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
-        }
-    });
+    //     if (conanProfileList.includes(node.label)) {
+    //         let python = utils.vsconan.config.getExplorerPython();
+    //         utils.editor.openFileInEditor(conanApi.getProfileFilePath(node.label, python)!);
+    //     }
+    //     else {
+    //         vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
+    //     }
+    // });
 
-    let commandProfileRemove = vscode.commands.registerCommand("vsconan-explorer.item.profile.option.remove", (node: ConanProfileItem) => {
-        conanProfileNodeProvider.refresh();
-        let conanProfileList = conanProfileNodeProvider.getChildrenString();
+    // let commandProfileRemove = vscode.commands.registerCommand("vsconan-explorer.item.profile.option.remove", (node: ConanProfileItem) => {
+    //     conanProfileNodeProvider.refresh();
+    //     let conanProfileList = conanProfileNodeProvider.getChildrenString();
 
-        if (conanProfileList.includes(node.label)) {
-            vscode.window
-                .showWarningMessage(`Are you sure you want to remove the profile '${node.label}'?`, ...["Yes", "No"])
-                .then((answer) => {
-                    if (answer === "Yes") {
-                        let python = utils.vsconan.config.getExplorerPython();
+    //     if (conanProfileList.includes(node.label)) {
+    //         vscode.window
+    //             .showWarningMessage(`Are you sure you want to remove the profile '${node.label}'?`, ...["Yes", "No"])
+    //             .then((answer) => {
+    //                 if (answer === "Yes") {
+    //                     let python = utils.vsconan.config.getExplorerPython();
 
-                        conanApi.removeProfile(node.label, python);
+    //                     conanApi.removeProfile(node.label, python);
 
-                        conanProfileNodeProvider.refresh();
-                    }
-                });
-        }
-        else {
-            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
-        }
-    });
+    //                     conanProfileNodeProvider.refresh();
+    //                 }
+    //             });
+    //     }
+    //     else {
+    //         vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
+    //     }
+    // });
 
-    let commandProfileOpenExplorer = vscode.commands.registerCommand("vsconan-explorer.item.profile.option.open.explorer", (node: ConanProfileItem) => {
-        conanProfileNodeProvider.refresh();
-        let conanProfileList = conanProfileNodeProvider.getChildrenString();
+    // let commandProfileOpenExplorer = vscode.commands.registerCommand("vsconan-explorer.item.profile.option.open.explorer", (node: ConanProfileItem) => {
+    //     conanProfileNodeProvider.refresh();
+    //     let conanProfileList = conanProfileNodeProvider.getChildrenString();
 
-        if (conanProfileList.includes(node.label)) {
+    //     if (conanProfileList.includes(node.label)) {
 
-            let python = utils.vsconan.config.getExplorerPython();
+    //         let python = utils.vsconan.config.getExplorerPython();
 
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(conanApi.getProfileFilePath(node.label, python)!));
-        }
-        else {
-            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
-        }
-    });
+    //         vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(conanApi.getProfileFilePath(node.label, python)!));
+    //     }
+    //     else {
+    //         vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
+    //     }
+    // });
 
-    let commandProfileRename = vscode.commands.registerCommand("vsconan-explorer.item.profile.option.rename", async (node: ConanProfileItem) => {
-        conanProfileNodeProvider.refresh();
-        let conanProfileList = conanProfileNodeProvider.getChildrenString();
+    // let commandProfileRename = vscode.commands.registerCommand("vsconan-explorer.item.profile.option.rename", async (node: ConanProfileItem) => {
+    //     conanProfileNodeProvider.refresh();
+    //     let conanProfileList = conanProfileNodeProvider.getChildrenString();
 
-        if (conanProfileList.includes(node.label)) {
+    //     if (conanProfileList.includes(node.label)) {
 
-            const newProfileName = await vscode.window.showInputBox({
-                title: `Renaming profile ${node.label}. Enter a new name for the profile...`,
-                placeHolder: node.label,
-                validateInput: text => {
-                    if ((text === node.label || conanProfileList.includes(text)) && text !== "") {
-                        return 'Enter a different name';
-                    }
-                    else if (text === "") {
-                        return "Enter a new name";
-                    }
-                    else {
-                        return null;
-                    }
-                }
-            });
+    //         const newProfileName = await vscode.window.showInputBox({
+    //             title: `Renaming profile ${node.label}. Enter a new name for the profile...`,
+    //             placeHolder: node.label,
+    //             validateInput: text => {
+    //                 if ((text === node.label || conanProfileList.includes(text)) && text !== "") {
+    //                     return 'Enter a different name';
+    //                 }
+    //                 else if (text === "") {
+    //                     return "Enter a new name";
+    //                 }
+    //                 else {
+    //                     return null;
+    //                 }
+    //             }
+    //         });
 
-            if (newProfileName) {
-                let python = utils.vsconan.config.getExplorerPython();
+    //         if (newProfileName) {
+    //             let python = utils.vsconan.config.getExplorerPython();
 
-                try {
-                    conanApi.renameProfile(node.label, newProfileName, python);
-                    conanProfileNodeProvider.refresh();
-                }
-                catch (err) {
-                    vscode.window.showErrorMessage((err as Error).message);
-                }
-            }
-        }
-        else {
-            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
-        }
-    });
+    //             try {
+    //                 conanApi.renameProfile(node.label, newProfileName, python);
+    //                 conanProfileNodeProvider.refresh();
+    //             }
+    //             catch (err) {
+    //                 vscode.window.showErrorMessage((err as Error).message);
+    //             }
+    //         }
+    //     }
+    //     else {
+    //         vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
+    //     }
+    // });
 
-    let commandProfileDuplicate = vscode.commands.registerCommand("vsconan-explorer.item.profile.option.duplicate", async (node: ConanProfileItem) => {
-        conanProfileNodeProvider.refresh();
-        let conanProfileList = conanProfileNodeProvider.getChildrenString();
+    // let commandProfileDuplicate = vscode.commands.registerCommand("vsconan-explorer.item.profile.option.duplicate", async (node: ConanProfileItem) => {
+    //     conanProfileNodeProvider.refresh();
+    //     let conanProfileList = conanProfileNodeProvider.getChildrenString();
 
-        if (conanProfileList.includes(node.label)) {
+    //     if (conanProfileList.includes(node.label)) {
 
-            const newProfileName = await vscode.window.showInputBox({
-                title: `Duplicating profile ${node.label}. Enter a new name for the profile...`,
-                placeHolder: node.label,
-                validateInput: text => {
-                    if ((text === node.label || conanProfileList.includes(text)) && text !== "") {
-                        return 'Enter a different name';
-                    }
-                    else if (text === "") {
-                        return "Enter a new name";
-                    }
-                    else {
-                        return null;
-                    }
-                }
-            });
+    //         const newProfileName = await vscode.window.showInputBox({
+    //             title: `Duplicating profile ${node.label}. Enter a new name for the profile...`,
+    //             placeHolder: node.label,
+    //             validateInput: text => {
+    //                 if ((text === node.label || conanProfileList.includes(text)) && text !== "") {
+    //                     return 'Enter a different name';
+    //                 }
+    //                 else if (text === "") {
+    //                     return "Enter a new name";
+    //                 }
+    //                 else {
+    //                     return null;
+    //                 }
+    //             }
+    //         });
 
-            if (newProfileName) {
-                let python = utils.vsconan.config.getExplorerPython();
+    //         if (newProfileName) {
+    //             let python = utils.vsconan.config.getExplorerPython();
 
-                try {
-                    conanApi.duplicateProfile(node.label, newProfileName, python);
+    //             try {
+    //                 conanApi.duplicateProfile(node.label, newProfileName, python);
 
-                    // Refresh the treeview once again
-                    conanProfileNodeProvider.refresh();
-                }
-                catch (err) {
-                    vscode.window.showErrorMessage((err as Error).message);
-                }
-            }
-        }
-        else {
-            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
-        }
-    });
+    //                 // Refresh the treeview once again
+    //                 conanProfileNodeProvider.refresh();
+    //             }
+    //             catch (err) {
+    //                 vscode.window.showErrorMessage((err as Error).message);
+    //             }
+    //         }
+    //     }
+    //     else {
+    //         vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
+    //     }
+    // });
 
-    let commandProfileAdd = vscode.commands.registerCommand("vsconan-explorer.treeview.profile.add", async () => {
-        conanProfileNodeProvider.refresh();
-        let conanProfileList = conanProfileNodeProvider.getChildrenString();
+    // let commandProfileAdd = vscode.commands.registerCommand("vsconan-explorer.treeview.profile.add", async () => {
+    //     conanProfileNodeProvider.refresh();
+    //     let conanProfileList = conanProfileNodeProvider.getChildrenString();
 
-        const profileName = await vscode.window.showInputBox({
-            title: "Create a new Profile. Enter the name of the profile...",
-            validateInput: text => {
-                if (conanProfileList.includes(text) && text !== "") {
-                    return 'Profile with this name already exists.';
-                }
-                else if (text === "") {
-                    return "Enter a name for the profile...";
-                }
-                else {
-                    return null;
-                }
-            }
-        });
+    //     const profileName = await vscode.window.showInputBox({
+    //         title: "Create a new Profile. Enter the name of the profile...",
+    //         validateInput: text => {
+    //             if (conanProfileList.includes(text) && text !== "") {
+    //                 return 'Profile with this name already exists.';
+    //             }
+    //             else if (text === "") {
+    //                 return "Enter a name for the profile...";
+    //             }
+    //             else {
+    //                 return null;
+    //             }
+    //         }
+    //     });
 
-        if (profileName) {
-            let python = utils.vsconan.config.getExplorerPython();
+    //     if (profileName) {
+    //         let python = utils.vsconan.config.getExplorerPython();
 
-            try {
-                conanApi.createNewProfile(profileName, python);
+    //         try {
+    //             conanApi.createNewProfile(profileName, python);
 
-                // Refresh the treeview once again
-                conanProfileNodeProvider.refresh();
-            }
-            catch (err) {
-                vscode.window.showErrorMessage((err as Error).message);
-            }
-        }
-    });
+    //             // Refresh the treeview once again
+    //             conanProfileNodeProvider.refresh();
+    //         }
+    //         catch (err) {
+    //             vscode.window.showErrorMessage((err as Error).message);
+    //         }
+    //     }
+    // });
 
     // ========== Treeview REMOTE Command Registration
     let commandRemoteRefresh = vscode.commands.registerCommand("vsconan-explorer.treeview.remote.refresh", () => {
@@ -708,7 +716,10 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(commandConfigWorkspaceCreate);
     context.subscriptions.push(commandConfigWorkspaceOpen);
 
-    context.subscriptions.push(conanCacheExplorerManager);
+    context.subscriptions.push(
+        conanCacheExplorerManager,
+        conanProfileExplorerManager
+    );
 
     // // Recipe
     // context.subscriptions.push(commandRecipeRefresh);
@@ -726,13 +737,13 @@ export function activate(context: vscode.ExtensionContext) {
     // context.subscriptions.push(commandPackageRemove);
 
     // Profile
-    context.subscriptions.push(commandProfileRefresh);
-    context.subscriptions.push(commandProfileEdit);
-    context.subscriptions.push(commandProfileRemove);
-    context.subscriptions.push(commandProfileDuplicate);
-    context.subscriptions.push(commandProfileAdd);
-    context.subscriptions.push(commandProfileRename);
-    context.subscriptions.push(commandProfileOpenExplorer);
+    // context.subscriptions.push(commandProfileRefresh);
+    // context.subscriptions.push(commandProfileEdit);
+    // context.subscriptions.push(commandProfileRemove);
+    // context.subscriptions.push(commandProfileDuplicate);
+    // context.subscriptions.push(commandProfileAdd);
+    // context.subscriptions.push(commandProfileRename);
+    // context.subscriptions.push(commandProfileOpenExplorer);
 
     // Remote
     context.subscriptions.push(commandRemoteRefresh);
