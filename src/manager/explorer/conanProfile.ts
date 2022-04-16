@@ -2,9 +2,9 @@ import * as vscode from 'vscode';
 import * as utils from '../../utils'
 import { ConanAPI } from '../../api/conan/conanAPI';
 import { ConanProfileItem, ConanProfileNodeProvider } from '../../ui/treeview/conanProfileProvider';
-import { CommandManager } from "../commandManager";
+import {  ExtensionManager } from "../extensionManager";
 
-export class ConanProfileExplorerManager extends CommandManager {
+export class ConanProfileExplorerManager extends ExtensionManager {
 
     private context: vscode.ExtensionContext;
     private outputChannel: vscode.OutputChannel;
@@ -30,7 +30,6 @@ export class ConanProfileExplorerManager extends CommandManager {
         this.registerCommand("vsconan-explorer.item.profile.option.rename", (node: ConanProfileItem) => this.renameProfile(node));
         this.registerCommand("vsconan-explorer.item.profile.option.duplicate", (node: ConanProfileItem) => this.duplicateProfile(node));
         this.registerCommand("vsconan-explorer.treeview.profile.add", () => this.addProfile());
-
     }
 
     private refreshProfileTreeview() {

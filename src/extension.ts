@@ -11,10 +11,11 @@ import { ConanProfileItem, ConanProfileNodeProvider } from "./ui/treeview/conanP
 import { ConanRecipeItem, ConanRecipeNodeProvider } from "./ui/treeview/conanRecipeProvider";
 import { ConanRemoteItem, ConanRemoteNodeProvider } from "./ui/treeview/conanRemoteProvider";
 import { ConanAPI } from "./api/conan/conanAPI";
-import { CommandManager } from "./manager/commandManager";
+import { ExtensionManager } from "./manager/extensionManager";
 import { ConanCacheExplorerManager } from "./manager/explorer/conanCache";
 import { ConanProfileExplorerManager } from "./manager/explorer/conanProfile";
 import { ConanRemoteExplorerManager } from "./manager/explorer/conanRemote";
+import { VSConanWorkspaceManager } from "./manager/vsconanWorkspace";
 
 enum ConanCommand {
     create,
@@ -61,27 +62,10 @@ export function activate(context: vscode.ExtensionContext) {
     //     treeDataProvider: conanRemoteNodeProvider
     // });
 
-    const conanCacheExplorerManager = new ConanCacheExplorerManager (
-        context,
-        channelVSConan,
-        conanApi,
-        conanRecipeNodeProvider,
-        conanPackageNodeProvider
-    )
-
-    const conanProfileExplorerManager = new ConanProfileExplorerManager (
-        context,
-        channelVSConan,
-        conanApi,
-        conanProfileNodeProvider,
-    )
-
-    const conanRemoteExplorerManager = new ConanRemoteExplorerManager (
-        context,
-        channelVSConan,
-        conanApi,
-        conanRemoteNodeProvider,
-    )
+    const conanCacheExplorerManager = new ConanCacheExplorerManager(context, channelVSConan, conanApi, conanRecipeNodeProvider, conanPackageNodeProvider);
+    const conanProfileExplorerManager = new ConanProfileExplorerManager(context, channelVSConan, conanApi, conanProfileNodeProvider);
+    const conanRemoteExplorerManager = new ConanRemoteExplorerManager(context, channelVSConan, conanApi, conanRemoteNodeProvider);
+    const conanWorkspaceManager = new VSConanWorkspaceManager(context, channelVSConan, conanApi);
 
     // Check if it starts with workspace
     // To check whether its workspace or not is to determine if the function "getWorkspaceFolder" returns undefined or a path
@@ -120,91 +104,91 @@ export function activate(context: vscode.ExtensionContext) {
 
     // ========== Extension Commands Registration Section 
     // ========== Conan Workflow Command Registration
-    let commandConanCreate = vscode.commands.registerCommand("vsconan.conan.create", () => {
-        executeConanCommand(ConanCommand.create, channelVSConan);
-    });
+    // let commandConanCreate = vscode.commands.registerCommand("vsconan.conan.create", () => {
+    //     executeConanCommand(ConanCommand.create, channelVSConan);
+    // });
 
-    let commandConanInstall = vscode.commands.registerCommand("vsconan.conan.install", (cmd) => {
-        executeConanCommand(ConanCommand.install, channelVSConan);
-    });
+    // let commandConanInstall = vscode.commands.registerCommand("vsconan.conan.install", (cmd) => {
+    //     executeConanCommand(ConanCommand.install, channelVSConan);
+    // });
 
-    let commandConanBuild = vscode.commands.registerCommand("vsconan.conan.build", () => {
-        executeConanCommand(ConanCommand.build, channelVSConan);
-    });
+    // let commandConanBuild = vscode.commands.registerCommand("vsconan.conan.build", () => {
+    //     executeConanCommand(ConanCommand.build, channelVSConan);
+    // });
 
-    let commandConanSource = vscode.commands.registerCommand("vsconan.conan.source", () => {
-        executeConanCommand(ConanCommand.source, channelVSConan);
-    });
+    // let commandConanSource = vscode.commands.registerCommand("vsconan.conan.source", () => {
+    //     executeConanCommand(ConanCommand.source, channelVSConan);
+    // });
 
-    let commandConanPackage = vscode.commands.registerCommand("vsconan.conan.package", () => {
-        executeConanCommand(ConanCommand.package, channelVSConan);
-    });
+    // let commandConanPackage = vscode.commands.registerCommand("vsconan.conan.package", () => {
+    //     executeConanCommand(ConanCommand.package, channelVSConan);
+    // });
 
-    let commandConanExportPackage = vscode.commands.registerCommand("vsconan.conan.package.export", () => {
-        executeConanCommand(ConanCommand.packageExport, channelVSConan);
-    });
+    // let commandConanExportPackage = vscode.commands.registerCommand("vsconan.conan.package.export", () => {
+    //     executeConanCommand(ConanCommand.packageExport, channelVSConan);
+    // });
 
-    // ========== Global Configuration Command Registration
-    let commandConfigGlobalCreate = vscode.commands.registerCommand("vsconan.config.global.create", () => {
-        if (!fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
-            // Initial the global area even it just needs to create the configuration file
-            utils.vsconan.initializeGlobalArea();
-            vscode.window.showInformationMessage("Global configuration file has been created.");
+    // // ========== Global Configuration Command Registration
+    // let commandConfigGlobalCreate = vscode.commands.registerCommand("vsconan.config.global.create", () => {
+    //     if (!fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
+    //         // Initial the global area even it just needs to create the configuration file
+    //         utils.vsconan.initializeGlobalArea();
+    //         vscode.window.showInformationMessage("Global configuration file has been created.");
 
-            // Opening the file after being created
-            utils.editor.openFileInEditor(utils.vsconan.getGlobalConfigPath());
-        }
-        else {
-            vscode.window.showInformationMessage("Global configuration file already exists.");
-        }
-    });
+    //         // Opening the file after being created
+    //         utils.editor.openFileInEditor(utils.vsconan.getGlobalConfigPath());
+    //     }
+    //     else {
+    //         vscode.window.showInformationMessage("Global configuration file already exists.");
+    //     }
+    // });
 
-    let commandConfigGlobalOpen = vscode.commands.registerCommand("vsconan.config.global.open", () => {
-        if (fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
-            utils.editor.openFileInEditor(utils.vsconan.getGlobalConfigPath());
-        }
-        else {
-            vscode.window.showErrorMessage("Unable to find the GLOBAL config file.");
-        }
-    });
+    // let commandConfigGlobalOpen = vscode.commands.registerCommand("vsconan.config.global.open", () => {
+    //     if (fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
+    //         utils.editor.openFileInEditor(utils.vsconan.getGlobalConfigPath());
+    //     }
+    //     else {
+    //         vscode.window.showErrorMessage("Unable to find the GLOBAL config file.");
+    //     }
+    // });
 
-    // ========== Workspace Configuration Command Registration
-    let commandConfigWorkspaceCreate = vscode.commands.registerCommand("vsconan.config.workspace.create", () => {
-        let ws = utils.workspace.selectWorkspace();
+    // // ========== Workspace Configuration Command Registration
+    // let commandConfigWorkspaceCreate = vscode.commands.registerCommand("vsconan.config.workspace.create", () => {
+    //     let ws = utils.workspace.selectWorkspace();
 
-        ws.then(result => {
-            let vsconanPath = path.join(String(result), globals.constant.VSCONAN_FOLDER);
-            if (!fs.existsSync(vsconanPath)) {
-                fs.mkdirSync(vsconanPath);
-            }
+    //     ws.then(result => {
+    //         let vsconanPath = path.join(String(result), globals.constant.VSCONAN_FOLDER);
+    //         if (!fs.existsSync(vsconanPath)) {
+    //             fs.mkdirSync(vsconanPath);
+    //         }
 
-            let configFilePath = path.join(vsconanPath, globals.constant.CONFIG_FILE);
-            if (fs.existsSync(configFilePath)) {
-                vscode.window.showInformationMessage("Config file already exists in the workspace.");
-            }
-            else {
-                utils.vsconan.config.createInitialWorkspaceConfig(vsconanPath);
+    //         let configFilePath = path.join(vsconanPath, globals.constant.CONFIG_FILE);
+    //         if (fs.existsSync(configFilePath)) {
+    //             vscode.window.showInformationMessage("Config file already exists in the workspace.");
+    //         }
+    //         else {
+    //             utils.vsconan.config.createInitialWorkspaceConfig(vsconanPath);
 
-                // Open configuration file after being created
-                utils.editor.openFileInEditor(configFilePath);
-            }
-        }).catch(reject => {
-            vscode.window.showInformationMessage("Cannot create config file. No workspace detected.");
-        });
-    });
+    //             // Open configuration file after being created
+    //             utils.editor.openFileInEditor(configFilePath);
+    //         }
+    //     }).catch(reject => {
+    //         vscode.window.showInformationMessage("Cannot create config file. No workspace detected.");
+    //     });
+    // });
 
-    let commandConfigWorkspaceOpen = vscode.commands.registerCommand("vsconan.config.workspace.open", () => {
-        let ws = utils.workspace.selectWorkspace();
+    // let commandConfigWorkspaceOpen = vscode.commands.registerCommand("vsconan.config.workspace.open", () => {
+    //     let ws = utils.workspace.selectWorkspace();
 
-        ws.then(async result => {
-            if ((result !== undefined) && (result !== "")) {
-                utils.editor.openFileInEditor(path.join(result!, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE));
-            }
-            else {
-                vscode.window.showErrorMessage("Unable to find the config file.");
-            }
-        });
-    });
+    //     ws.then(async result => {
+    //         if ((result !== undefined) && (result !== "")) {
+    //             utils.editor.openFileInEditor(path.join(result!, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE));
+    //         }
+    //         else {
+    //             vscode.window.showErrorMessage("Unable to find the config file.");
+    //         }
+    //     });
+    // });
 
     // ========== Treeview RECIPE Command Registration
     // // Command on selecting a recipe. This will show list of the package binary
@@ -713,21 +697,22 @@ export function activate(context: vscode.ExtensionContext) {
     //     }
     // });
 
-    context.subscriptions.push(commandConanCreate);
-    context.subscriptions.push(commandConanInstall);
-    context.subscriptions.push(commandConanBuild);
-    context.subscriptions.push(commandConanSource);
-    context.subscriptions.push(commandConanPackage);
-    context.subscriptions.push(commandConanExportPackage);
-    context.subscriptions.push(commandConfigGlobalCreate);
-    context.subscriptions.push(commandConfigGlobalOpen);
-    context.subscriptions.push(commandConfigWorkspaceCreate);
-    context.subscriptions.push(commandConfigWorkspaceOpen);
+    // context.subscriptions.push(commandConanCreate);
+    // context.subscriptions.push(commandConanInstall);
+    // context.subscriptions.push(commandConanBuild);
+    // context.subscriptions.push(commandConanSource);
+    // context.subscriptions.push(commandConanPackage);
+    // context.subscriptions.push(commandConanExportPackage);
+    // context.subscriptions.push(commandConfigGlobalCreate);
+    // context.subscriptions.push(commandConfigGlobalOpen);
+    // context.subscriptions.push(commandConfigWorkspaceCreate);
+    // context.subscriptions.push(commandConfigWorkspaceOpen);
 
     context.subscriptions.push(
         conanCacheExplorerManager,
         conanProfileExplorerManager,
-        conanRemoteExplorerManager
+        conanRemoteExplorerManager,
+        conanWorkspaceManager
     );
 
     // // Recipe
@@ -768,57 +753,57 @@ export function activate(context: vscode.ExtensionContext) {
 // this method is called when your extension is deactivated
 export function deactivate() { }
 
-/**
- * Function to execute the selected Conan command
- * Since the flow of conan commands is similar, the flow of execution will be grouped within this function
- * Which command needs to be executed is determined using ENUM ConanCommand
- * 
- * @param cmdType Enumeration type to determine which command to be executed
- * @param channelVSConan VS Code channel to print the output of command
- * @returns <void>
- */
-function executeConanCommand(cmdType: ConanCommand, channelVSConan: any): void {
-    // The flow of following commands is the same by selecting the workspace first
-    // Check the configuration and executed pre selected command based on this function argument
-    let ws = utils.workspace.selectWorkspace();
+// /**
+//  * Function to execute the selected Conan command
+//  * Since the flow of conan commands is similar, the flow of execution will be grouped within this function
+//  * Which command needs to be executed is determined using ENUM ConanCommand
+//  * 
+//  * @param cmdType Enumeration type to determine which command to be executed
+//  * @param channelVSConan VS Code channel to print the output of command
+//  * @returns <void>
+//  */
+// function executeConanCommand(cmdType: ConanCommand, channelVSConan: any): void {
+//     // The flow of following commands is the same by selecting the workspace first
+//     // Check the configuration and executed pre selected command based on this function argument
+//     let ws = utils.workspace.selectWorkspace();
 
-    ws.then(wsPath => {
+//     ws.then(wsPath => {
 
-        let configPath = path.join(wsPath!, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE);
+//         let configPath = path.join(wsPath!, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE);
 
-        if (fs.existsSync(configPath)) {
-            let configWorkspace = new ConfigWorkspace();
-            let configText = fs.readFileSync(configPath, 'utf8');
-            configWorkspace = JSON.parse(configText);
-            switch (+cmdType) {
-                case ConanCommand.create: {
-                    CommandExecutor.executeCommandConanCreate(wsPath!, configWorkspace.python, configWorkspace.commandContainer.create, channelVSConan);
-                    break;
-                }
-                case ConanCommand.install: {
-                    CommandExecutor.executeCommandConanInstall(wsPath!, configWorkspace.python, configWorkspace.commandContainer.install, channelVSConan);
-                    break;
-                }
-                case ConanCommand.build: {
-                    CommandExecutor.executeCommandConanBuild(wsPath!, configWorkspace.python, configWorkspace.commandContainer.build, channelVSConan);
-                    break;
-                }
-                case ConanCommand.source: {
-                    CommandExecutor.executeCommandConanSource(wsPath!, configWorkspace.python, configWorkspace.commandContainer.source, channelVSConan);
-                    break;
-                }
-                case ConanCommand.package: {
-                    CommandExecutor.executeCommandConanPackage(wsPath!, configWorkspace.python, configWorkspace.commandContainer.pkg, channelVSConan);
-                    break;
-                }
-                case ConanCommand.packageExport: {
-                    CommandExecutor.executeCommandConanPackageExport(wsPath!, configWorkspace.python, configWorkspace.commandContainer.pkgExport, channelVSConan);
-                    break;
-                }
-            }
-        }
-        else {
-            vscode.window.showWarningMessage(`Unable to find configuration file in the workspace '${wsPath}'`);
-        }
-    });
-}
+//         if (fs.existsSync(configPath)) {
+//             let configWorkspace = new ConfigWorkspace();
+//             let configText = fs.readFileSync(configPath, 'utf8');
+//             configWorkspace = JSON.parse(configText);
+//             switch (+cmdType) {
+//                 case ConanCommand.create: {
+//                     CommandExecutor.executeCommandConanCreate(wsPath!, configWorkspace.python, configWorkspace.commandContainer.create, channelVSConan);
+//                     break;
+//                 }
+//                 case ConanCommand.install: {
+//                     CommandExecutor.executeCommandConanInstall(wsPath!, configWorkspace.python, configWorkspace.commandContainer.install, channelVSConan);
+//                     break;
+//                 }
+//                 case ConanCommand.build: {
+//                     CommandExecutor.executeCommandConanBuild(wsPath!, configWorkspace.python, configWorkspace.commandContainer.build, channelVSConan);
+//                     break;
+//                 }
+//                 case ConanCommand.source: {
+//                     CommandExecutor.executeCommandConanSource(wsPath!, configWorkspace.python, configWorkspace.commandContainer.source, channelVSConan);
+//                     break;
+//                 }
+//                 case ConanCommand.package: {
+//                     CommandExecutor.executeCommandConanPackage(wsPath!, configWorkspace.python, configWorkspace.commandContainer.pkg, channelVSConan);
+//                     break;
+//                 }
+//                 case ConanCommand.packageExport: {
+//                     CommandExecutor.executeCommandConanPackageExport(wsPath!, configWorkspace.python, configWorkspace.commandContainer.pkgExport, channelVSConan);
+//                     break;
+//                 }
+//             }
+//         }
+//         else {
+//             vscode.window.showWarningMessage(`Unable to find configuration file in the workspace '${wsPath}'`);
+//         }
+//     });
+// }

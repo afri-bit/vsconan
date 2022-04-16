@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Disposable } from "../utils/disposable";
 
-export abstract class CommandManager extends Disposable {
+export abstract class ExtensionManager extends Disposable {
     /**
 	 * Register VS Code extension commands that are defined in the package.json
 	 * @param command A unique identifier for the command.

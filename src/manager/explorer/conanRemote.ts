@@ -2,9 +2,9 @@ import * as vscode from 'vscode';
 import { ConanAPI } from '../../api/conan/conanAPI';
 import { ConanRemoteItem, ConanRemoteNodeProvider } from '../../ui/treeview/conanRemoteProvider';
 import * as utils from '../../utils'
-import { CommandManager } from "../commandManager";
+import { ExtensionManager } from "../extensionManager";
 
-export class ConanRemoteExplorerManager extends CommandManager {
+export class ConanRemoteExplorerManager extends ExtensionManager {
 
     private context: vscode.ExtensionContext;
     private outputChannel: vscode.OutputChannel;

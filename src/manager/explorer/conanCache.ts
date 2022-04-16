@@ -3,12 +3,12 @@ import * as vscode from 'vscode';
 import { ConanAPI } from '../../api/conan/conanAPI';
 import { ConanPackageNodeProvider } from '../../ui/treeview/conanPackageProvider';
 import { ConanRecipeItem, ConanRecipeNodeProvider } from '../../ui/treeview/conanRecipeProvider';
-import { CommandManager } from '../commandManager';
+import { ExtensionManager } from '../extensionManager';
 
 /**
  * Class to manage the treeview explorer of the recipe and binary package
  */
-export class ConanCacheExplorerManager extends CommandManager {
+export class ConanCacheExplorerManager extends ExtensionManager {
 
     private context: vscode.ExtensionContext;
     private outputChannel: vscode.OutputChannel;
