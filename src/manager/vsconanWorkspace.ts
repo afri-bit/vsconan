@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as utils from '../utils';
 import * as fs from "fs";
 import * as path from "path";
-import * as globals from "../globals";
+import * as constants from "../constants";
 import { ConanAPI } from '../api/conan/conanAPI';
 import { ExtensionManager } from "./extensionManager";
 import { ConfigWorkspace } from '../config/configWorkspace';
@@ -73,12 +73,12 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         let ws = utils.workspace.selectWorkspace();
 
         ws.then(result => {
-            let vsconanPath = path.join(String(result), globals.constant.VSCONAN_FOLDER);
+            let vsconanPath = path.join(String(result), constants.VSCONAN_FOLDER);
             if (!fs.existsSync(vsconanPath)) {
                 fs.mkdirSync(vsconanPath);
             }
 
-            let configFilePath = path.join(vsconanPath, globals.constant.CONFIG_FILE);
+            let configFilePath = path.join(vsconanPath, constants.CONFIG_FILE);
             if (fs.existsSync(configFilePath)) {
                 vscode.window.showInformationMessage("Config file already exists in the workspace.");
             }
@@ -98,7 +98,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
         ws.then(async result => {
             if ((result !== undefined) && (result !== "")) {
-                utils.editor.openFileInEditor(path.join(result!, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE));
+                utils.editor.openFileInEditor(path.join(result!, constants.VSCONAN_FOLDER, constants.CONFIG_FILE));
             }
             else {
                 vscode.window.showErrorMessage("Unable to find the config file.");
@@ -122,7 +122,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
         ws.then(wsPath => {
 
-            let configPath = path.join(wsPath!, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE);
+            let configPath = path.join(wsPath!, constants.VSCONAN_FOLDER, constants.CONFIG_FILE);
 
             if (fs.existsSync(configPath)) {
                 let configWorkspace = new ConfigWorkspace();

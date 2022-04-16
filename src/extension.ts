@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import * as utils from "./utils";
-import * as globals from "./globals";
+import * as constants from "./constants";
 
 import { ConanPackageNodeProvider } from "./ui/treeview/conanPackageProvider";
 import { ConanProfileNodeProvider } from "./ui/treeview/conanProfileProvider";
@@ -52,7 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
         for (let i = 0; i < wsList.length; i++) {
 
             let wsPath = wsList[i].uri.fsPath;
-            let configPath = path.join(wsPath, globals.constant.VSCONAN_FOLDER, globals.constant.CONFIG_FILE);
+            let configPath = path.join(wsPath, constants.VSCONAN_FOLDER, constants.CONFIG_FILE);
 
             if (utils.conan.isFolderConanProject(wsPath) && !fs.existsSync(configPath!)) {
 
@@ -62,7 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
                         if (answer === "Yes") {
 
                             // .vsconan path in the workspace
-                            let vsconanPath = path.join(wsPath, globals.constant.VSCONAN_FOLDER);
+                            let vsconanPath = path.join(wsPath, constants.VSCONAN_FOLDER);
                             if (!fs.existsSync(vsconanPath)) {
                                 fs.mkdirSync(vsconanPath!);
                             }

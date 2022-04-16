@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as os from "os";
-import * as global from "./globals";
+import * as constants from "./constants";
 import * as fs from "fs";
 import { ConfigGlobal, ConfigGlobalGeneral, ConfigGlobalExplorer } from "./config/configGlobal";
 import { ConfigWorkspace } from "./config/configWorkspace";
@@ -10,21 +10,20 @@ import {
     ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport,
     ConfigCommandSource
 } from "./config/configCommand";
-import * as globals from "./globals";
 import { spawn } from "child_process";
 
 export namespace vsconan {
 
     export function getVSConanHomeDir(): string {
-        return path.join(os.homedir(), global.constant.VSCONAN_FOLDER);
+        return path.join(os.homedir(), constants.VSCONAN_FOLDER);
     }
 
     export function getVSConanHomeDirTemp(): string {
-        return path.join(getVSConanHomeDir(), global.constant.TEMP_FOLDER);
+        return path.join(getVSConanHomeDir(), constants.TEMP_FOLDER);
     }
 
     export function getGlobalConfigPath(): string {
-        return path.join(getVSConanHomeDir(), global.constant.CONFIG_FILE);
+        return path.join(getVSConanHomeDir(), constants.CONFIG_FILE);
     }
 
     /**
@@ -149,7 +148,7 @@ export namespace vsconan {
                 [new ConfigCommandPackageExport()]
             ));
     
-            configWorkspace.writeToFile(path.join(configPath, globals.constant.CONFIG_FILE));
+            configWorkspace.writeToFile(path.join(configPath, constants.CONFIG_FILE));
         }
     }
 }
