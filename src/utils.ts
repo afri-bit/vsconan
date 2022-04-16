@@ -11,6 +11,7 @@ import {
     ConfigCommandSource
 } from "./config/configCommand";
 import * as globals from "./globals";
+import { spawn } from "child_process";
 
 export namespace vsconan {
 
@@ -59,6 +60,33 @@ export namespace vsconan {
     </pre>
     </body>
     </html>`;
+    }
+
+    export namespace cmd {
+        export async function executeCommand(cmd: string, channel: vscode.OutputChannel) {
+            // const exec = util.promisify(require('child_process').exec);
+            // const { stdout, stderr } = await spawn(cmd);
+            channel.show();
+        
+            const ls = spawn(cmd, [], { shell: true });
+        
+            ls.stdout.on("data", data => {
+                channel.append(`${data}`);
+            });
+        
+            ls.stderr.on("data", data => {
+                channel.append(`${data}`);
+            });
+        
+            ls.on('error', (error) => {
+                channel.append(`ERROR: ${error.message}`);
+            });
+        
+            ls.on("close", code => {
+                channel.append(`\nProcess exited with code ${code}\n`);
+            });
+        }
+
     }
     
 

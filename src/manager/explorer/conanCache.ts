@@ -1,4 +1,4 @@
-import * as utils from '../../utils'
+import * as utils from '../../utils';
 import * as vscode from 'vscode';
 import { ConanAPI } from '../../api/conan/conanAPI';
 import { ConanPackageNodeProvider } from '../../ui/treeview/conanPackageProvider';

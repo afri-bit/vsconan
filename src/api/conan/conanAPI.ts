@@ -1,7 +1,6 @@
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
-import { exec, execSync } from "child_process";
+import { execSync } from "child_process";
 import * as utils from "../../utils";
 
 /**

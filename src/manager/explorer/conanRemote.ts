@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ConanAPI } from '../../api/conan/conanAPI';
 import { ConanRemoteItem, ConanRemoteNodeProvider } from '../../ui/treeview/conanRemoteProvider';
-import * as utils from '../../utils'
+import * as utils from '../../utils';
 import { ExtensionManager } from "../extensionManager";
 
 export class ConanRemoteExplorerManager extends ExtensionManager {

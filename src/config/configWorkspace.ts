@@ -1,7 +1,5 @@
 import * as fs from "fs";
-import * as vscode from "vscode";
 import { CommandContainer } from "./configCommand";
-import * as utils from "../utils";
 
 export class ConfigWorkspace {
     public python: string;
