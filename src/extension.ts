@@ -14,6 +14,7 @@ import { ConanAPI } from "./api/conan/conanAPI";
 import { CommandManager } from "./manager/commandManager";
 import { ConanCacheExplorerManager } from "./manager/explorer/conanCache";
 import { ConanProfileExplorerManager } from "./manager/explorer/conanProfile";
+import { ConanRemoteExplorerManager } from "./manager/explorer/conanRemote";
 
 enum ConanCommand {
     create,
@@ -73,6 +74,13 @@ export function activate(context: vscode.ExtensionContext) {
         channelVSConan,
         conanApi,
         conanProfileNodeProvider,
+    )
+
+    const conanRemoteExplorerManager = new ConanRemoteExplorerManager (
+        context,
+        channelVSConan,
+        conanApi,
+        conanRemoteNodeProvider,
     )
 
     // Check if it starts with workspace
@@ -513,197 +521,197 @@ export function activate(context: vscode.ExtensionContext) {
     // });
 
     // ========== Treeview REMOTE Command Registration
-    let commandRemoteRefresh = vscode.commands.registerCommand("vsconan-explorer.treeview.remote.refresh", () => {
-        conanRemoteNodeProvider.refresh();
-    });
+    // let commandRemoteRefresh = vscode.commands.registerCommand("vsconan-explorer.treeview.remote.refresh", () => {
+    //     conanRemoteNodeProvider.refresh();
+    // });
 
-    let commandRemoteEdit = vscode.commands.registerCommand("vsconan-explorer.treeview.remote.edit", () => {
-        let python = utils.vsconan.config.getExplorerPython();
+    // let commandRemoteEdit = vscode.commands.registerCommand("vsconan-explorer.treeview.remote.edit", () => {
+    //     let python = utils.vsconan.config.getExplorerPython();
 
-        let remoteFile = conanApi.getRemoteFilePath(python);
+    //     let remoteFile = conanApi.getRemoteFilePath(python);
 
-        if (remoteFile) {
-            utils.editor.openFileInEditor(remoteFile);
-        }
-        else {
-            vscode.window.showErrorMessage("Unable to find the file 'remotes.json'");
-        }
-    });
+    //     if (remoteFile) {
+    //         utils.editor.openFileInEditor(remoteFile);
+    //     }
+    //     else {
+    //         vscode.window.showErrorMessage("Unable to find the file 'remotes.json'");
+    //     }
+    // });
 
-    let commandRemoteRemove = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.remove", (node: ConanRemoteItem) => {
-        conanRemoteNodeProvider.refresh();
-        let conanRemoteList = conanRemoteNodeProvider.getChildrenString();
+    // let commandRemoteRemove = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.remove", (node: ConanRemoteItem) => {
+    //     conanRemoteNodeProvider.refresh();
+    //     let conanRemoteList = conanRemoteNodeProvider.getChildrenString();
 
-        if (conanRemoteList.includes(node.label)) {
-            vscode.window
-                .showWarningMessage(`Are you sure you want to remove the remote '${node.label}'?`, ...["Yes", "No"])
-                .then((answer) => {
-                    if (answer === "Yes") {
-                        let python = utils.vsconan.config.getExplorerPython();
+    //     if (conanRemoteList.includes(node.label)) {
+    //         vscode.window
+    //             .showWarningMessage(`Are you sure you want to remove the remote '${node.label}'?`, ...["Yes", "No"])
+    //             .then((answer) => {
+    //                 if (answer === "Yes") {
+    //                     let python = utils.vsconan.config.getExplorerPython();
 
-                        conanApi.removeRemote(node.label, python);
+    //                     conanApi.removeRemote(node.label, python);
 
-                        conanRemoteNodeProvider.refresh();
-                    }
-                });
-        }
-        else {
-            vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`);
-        }
-    });
+    //                     conanRemoteNodeProvider.refresh();
+    //                 }
+    //             });
+    //     }
+    //     else {
+    //         vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`);
+    //     }
+    // });
 
-    let commandRemoteAdd = vscode.commands.registerCommand("vsconan-explorer.treeview.remote.add", async () => {
-        conanRemoteNodeProvider.refresh();
-        let conanRemoteList = conanRemoteNodeProvider.getChildrenString();
+    // let commandRemoteAdd = vscode.commands.registerCommand("vsconan-explorer.treeview.remote.add", async () => {
+    //     conanRemoteNodeProvider.refresh();
+    //     let conanRemoteList = conanRemoteNodeProvider.getChildrenString();
 
-        const remoteName = await vscode.window.showInputBox({
-            title: "Add a new remote. Enter the name of the remote...",
-            validateInput: text => {
-                if (conanRemoteList.includes(text) && text !== "") {
-                    return 'Remote with this name already exists.';
-                }
-                else if (text === "") {
-                    return "Enter a name for the remote...";
-                }
-                else {
-                    return null;
-                }
-            }
-        });
+    //     const remoteName = await vscode.window.showInputBox({
+    //         title: "Add a new remote. Enter the name of the remote...",
+    //         validateInput: text => {
+    //             if (conanRemoteList.includes(text) && text !== "") {
+    //                 return 'Remote with this name already exists.';
+    //             }
+    //             else if (text === "") {
+    //                 return "Enter a name for the remote...";
+    //             }
+    //             else {
+    //                 return null;
+    //             }
+    //         }
+    //     });
 
-        if (remoteName) {
+    //     if (remoteName) {
 
-            const remoteURL = await vscode.window.showInputBox({
-                title: `Add a new remote. Enter the URL for remote '${remoteName}'...`,
-                validateInput: text => {
-                    if (text === "") {
-                        return "Enter a url for the remote...";
-                    }
-                    else {
-                        return null;
-                    }
-                }
-            });
+    //         const remoteURL = await vscode.window.showInputBox({
+    //             title: `Add a new remote. Enter the URL for remote '${remoteName}'...`,
+    //             validateInput: text => {
+    //                 if (text === "") {
+    //                     return "Enter a url for the remote...";
+    //                 }
+    //                 else {
+    //                     return null;
+    //                 }
+    //             }
+    //         });
 
-            if (remoteURL) {
-                let python = utils.vsconan.config.getExplorerPython();
+    //         if (remoteURL) {
+    //             let python = utils.vsconan.config.getExplorerPython();
 
-                try {
-                    conanApi.addRemote(remoteName, remoteURL, python);
+    //             try {
+    //                 conanApi.addRemote(remoteName, remoteURL, python);
 
-                    // Refresh the treeview once again
-                    conanRemoteNodeProvider.refresh();
-                }
-                catch (err) {
-                    vscode.window.showErrorMessage((err as Error).message);
-                }
-            }
-        }
-    });
+    //                 // Refresh the treeview once again
+    //                 conanRemoteNodeProvider.refresh();
+    //             }
+    //             catch (err) {
+    //                 vscode.window.showErrorMessage((err as Error).message);
+    //             }
+    //         }
+    //     }
+    // });
 
-    let commandRemoteEnable = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.enable", (node: ConanRemoteItem) => {
-        try {
-            let python = utils.vsconan.config.getExplorerPython();
+    // let commandRemoteEnable = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.enable", (node: ConanRemoteItem) => {
+    //     try {
+    //         let python = utils.vsconan.config.getExplorerPython();
 
-            conanApi.enableRemote(node.label, true, python);
+    //         conanApi.enableRemote(node.label, true, python);
 
-            conanRemoteNodeProvider.refresh();
-        }
-        catch (err) {
-            vscode.window.showErrorMessage((err as Error).message);
-        }
-    });
+    //         conanRemoteNodeProvider.refresh();
+    //     }
+    //     catch (err) {
+    //         vscode.window.showErrorMessage((err as Error).message);
+    //     }
+    // });
 
-    let commandRemoteDisable = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.disable", (node: ConanRemoteItem) => {
-        try {
-            let python = utils.vsconan.config.getExplorerPython();
+    // let commandRemoteDisable = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.disable", (node: ConanRemoteItem) => {
+    //     try {
+    //         let python = utils.vsconan.config.getExplorerPython();
 
-            conanApi.enableRemote(node.label, false, python);
+    //         conanApi.enableRemote(node.label, false, python);
 
-            conanRemoteNodeProvider.refresh();
-        }
-        catch (err) {
-            vscode.window.showErrorMessage((err as Error).message);
-        }
-    });
+    //         conanRemoteNodeProvider.refresh();
+    //     }
+    //     catch (err) {
+    //         vscode.window.showErrorMessage((err as Error).message);
+    //     }
+    // });
 
-    let commandRemoteRename = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.rename", async (node: ConanRemoteItem) => {
-        let conanRemoteList = conanRemoteNodeProvider.getChildrenString();
+    // let commandRemoteRename = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.rename", async (node: ConanRemoteItem) => {
+    //     let conanRemoteList = conanRemoteNodeProvider.getChildrenString();
 
-        if (conanRemoteList.includes(node.label)) {
+    //     if (conanRemoteList.includes(node.label)) {
 
-            const newRemoteName = await vscode.window.showInputBox({
-                title: `Renaming remote ${node.label}. Enter a new name for the remote...`,
-                placeHolder: node.label,
-                validateInput: text => {
-                    if ((text === node.label || conanRemoteList.includes(text)) && text !== "") {
-                        return 'Enter a different name';
-                    }
-                    else if (text === "") {
-                        return "Enter a new name";
-                    }
-                    else {
-                        return null;
-                    }
-                }
-            });
+    //         const newRemoteName = await vscode.window.showInputBox({
+    //             title: `Renaming remote ${node.label}. Enter a new name for the remote...`,
+    //             placeHolder: node.label,
+    //             validateInput: text => {
+    //                 if ((text === node.label || conanRemoteList.includes(text)) && text !== "") {
+    //                     return 'Enter a different name';
+    //                 }
+    //                 else if (text === "") {
+    //                     return "Enter a new name";
+    //                 }
+    //                 else {
+    //                     return null;
+    //                 }
+    //             }
+    //         });
 
-            if (newRemoteName) {
-                let python = utils.vsconan.config.getExplorerPython();
+    //         if (newRemoteName) {
+    //             let python = utils.vsconan.config.getExplorerPython();
 
-                try {
-                    conanApi.renameRemote(node.label, newRemoteName, python);
-                    conanRemoteNodeProvider.refresh();
-                }
-                catch (err) {
-                    vscode.window.showErrorMessage((err as Error).message);
-                }
-            }
-        }
-        else {
-            vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`);
-        }
-    });
+    //             try {
+    //                 conanApi.renameRemote(node.label, newRemoteName, python);
+    //                 conanRemoteNodeProvider.refresh();
+    //             }
+    //             catch (err) {
+    //                 vscode.window.showErrorMessage((err as Error).message);
+    //             }
+    //         }
+    //     }
+    //     else {
+    //         vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`);
+    //     }
+    // });
 
-    let commandRemoteUpdateURL = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.update-url", async (node: ConanRemoteItem) => {
-        let conanRemoteList = conanRemoteNodeProvider.getChildrenString();
+    // let commandRemoteUpdateURL = vscode.commands.registerCommand("vsconan-explorer.item.remote.option.update-url", async (node: ConanRemoteItem) => {
+    //     let conanRemoteList = conanRemoteNodeProvider.getChildrenString();
 
-        if (conanRemoteList.includes(node.label)) {
+    //     if (conanRemoteList.includes(node.label)) {
 
-            let remoteDetailInfo = JSON.parse(node.detailInfo);
+    //         let remoteDetailInfo = JSON.parse(node.detailInfo);
 
-            const newURL = await vscode.window.showInputBox({
-                title: `Update URL for remote ${node.label}. Enter a new URL for the remote...`,
-                placeHolder: remoteDetailInfo.url,
-                validateInput: text => {
-                    if (text === remoteDetailInfo.url && text !== "") {
-                        return 'Enter a differet URL';
-                    }
-                    else if (text === "") {
-                        return "Enter a URL";
-                    }
-                    else {
-                        return null;
-                    }
-                }
-            });
+    //         const newURL = await vscode.window.showInputBox({
+    //             title: `Update URL for remote ${node.label}. Enter a new URL for the remote...`,
+    //             placeHolder: remoteDetailInfo.url,
+    //             validateInput: text => {
+    //                 if (text === remoteDetailInfo.url && text !== "") {
+    //                     return 'Enter a differet URL';
+    //                 }
+    //                 else if (text === "") {
+    //                     return "Enter a URL";
+    //                 }
+    //                 else {
+    //                     return null;
+    //                 }
+    //             }
+    //         });
 
-            if (newURL) {
-                let python = utils.vsconan.config.getExplorerPython();
+    //         if (newURL) {
+    //             let python = utils.vsconan.config.getExplorerPython();
 
-                try {
-                    conanApi.updateRemoteURL(node.label, newURL, python);
-                    conanRemoteNodeProvider.refresh();
-                }
-                catch (err) {
-                    vscode.window.showErrorMessage((err as Error).message);
-                }
-            }
-        }
-        else {
-            vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`);
-        }
-    });
+    //             try {
+    //                 conanApi.updateRemoteURL(node.label, newURL, python);
+    //                 conanRemoteNodeProvider.refresh();
+    //             }
+    //             catch (err) {
+    //                 vscode.window.showErrorMessage((err as Error).message);
+    //             }
+    //         }
+    //     }
+    //     else {
+    //         vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`);
+    //     }
+    // });
 
     context.subscriptions.push(commandConanCreate);
     context.subscriptions.push(commandConanInstall);
@@ -718,7 +726,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         conanCacheExplorerManager,
-        conanProfileExplorerManager
+        conanProfileExplorerManager,
+        conanRemoteExplorerManager
     );
 
     // // Recipe
@@ -746,14 +755,14 @@ export function activate(context: vscode.ExtensionContext) {
     // context.subscriptions.push(commandProfileOpenExplorer);
 
     // Remote
-    context.subscriptions.push(commandRemoteRefresh);
-    context.subscriptions.push(commandRemoteRemove);
-    context.subscriptions.push(commandRemoteAdd);
-    context.subscriptions.push(commandRemoteEdit);
-    context.subscriptions.push(commandRemoteEnable);
-    context.subscriptions.push(commandRemoteDisable);
-    context.subscriptions.push(commandRemoteRename);
-    context.subscriptions.push(commandRemoteUpdateURL);
+    // context.subscriptions.push(commandRemoteRefresh);
+    // context.subscriptions.push(commandRemoteRemove);
+    // context.subscriptions.push(commandRemoteAdd);
+    // context.subscriptions.push(commandRemoteEdit);
+    // context.subscriptions.push(commandRemoteEnable);
+    // context.subscriptions.push(commandRemoteDisable);
+    // context.subscriptions.push(commandRemoteRename);
+    // context.subscriptions.push(commandRemoteUpdateURL);
 }
 
 // this method is called when your extension is deactivated
