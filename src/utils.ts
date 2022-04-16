@@ -229,4 +229,22 @@ export namespace workspace {
             }
         });
     }
+
+    /**
+     * Helper function to get absolute path in relative to workspace path
+     * If the path to be merged with workspace path is absolute it will return that path itself.
+     * If the path is not absolute, it will return absolute path which is merge with workspace path.
+     * 
+     * @param wsPath Absolute path from workspace
+     * @param pathName Path to be merged with workspace
+     * @returns 
+     */
+    export function getAbsolutePathFromWorkspace(wsPath: string, pathName: string): string {
+        if (path.isAbsolute(pathName)) { // Absolute path from the path itself
+            return pathName;
+        }
+        else { // Absolute path in relative to workspace
+            return path.join(wsPath, pathName);
+        }
+    }
 }

@@ -1,28 +1,10 @@
-import * as path from "path";
+import * as utils from "../utils";
 import { ConfigCommandBuild, 
     ConfigCommandCreate, 
     ConfigCommandInstall, 
     ConfigCommandPackage, 
     ConfigCommandPackageExport, 
     ConfigCommandSource } from "../config/configCommand";
-
-/**
- * Helper function to get absolute path in relative to workspace path
- * If the path to be merged with workspace path is absolute it will return that path itself.
- * If the path is not absolute, it will return absolute path which is merge with workspace path.
- * 
- * @param wsPath Absolute path from workspace
- * @param pathName Path to be merged with workspace
- * @returns 
- */
-function getAbsolutePathFromWorkspace(wsPath: string, pathName: string): string {
-    if (path.isAbsolute(pathName)) { // Absolute path from the path itself
-        return pathName;
-    }
-    else { // Absolute path in relative to workspace
-        return path.join(wsPath, pathName);
-    }
-}
 
 export class CommandBuilder {
     public static buildCommandConan(python: string): string | undefined{
@@ -50,7 +32,7 @@ export class CommandBuilder {
         }
 
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
-            cmd.push(getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
+            cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
         }
         else {
             return undefined;
@@ -81,7 +63,7 @@ export class CommandBuilder {
         }
 
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
-            cmd.push(getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
+            cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
         }
         else {
             return undefined;
@@ -96,7 +78,7 @@ export class CommandBuilder {
         }
 
         if (cfg.installFolder !== "" && cfg.installFolder !== undefined) {
-            cmd.push.apply(cmd, ["-if", getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
+            cmd.push.apply(cmd, ["-if", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
         }
 
         cmd.push.apply(cmd, cfg.args);
@@ -116,26 +98,26 @@ export class CommandBuilder {
         }
 
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
-            cmd.push(getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
+            cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
         }
         else {
             return undefined;
         }
 
         if (cfg.installFolder !== "" && cfg.installFolder !== undefined) {
-            cmd.push.apply(cmd, ["-if", getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
+            cmd.push.apply(cmd, ["-if", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
         }
 
         if (cfg.buildFolder !== "" && cfg.buildFolder !== undefined) {
-            cmd.push.apply(cmd, ["-bf", getAbsolutePathFromWorkspace(wsPath, cfg.buildFolder)]);
+            cmd.push.apply(cmd, ["-bf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.buildFolder)]);
         }
 
         if (cfg.packageFolder !== "" && cfg.packageFolder !== undefined) {
-            cmd.push.apply(cmd, ["-pf", getAbsolutePathFromWorkspace(wsPath, cfg.packageFolder)]);
+            cmd.push.apply(cmd, ["-pf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.packageFolder)]);
         }
 
         if (cfg.sourceFolder !== "" && cfg.sourceFolder !== undefined) {
-            cmd.push.apply(cmd, ["-sf", getAbsolutePathFromWorkspace(wsPath, cfg.sourceFolder)]);
+            cmd.push.apply(cmd, ["-sf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.sourceFolder)]);
         }
 
         cmd.push.apply(cmd, cfg.args);
@@ -157,18 +139,18 @@ export class CommandBuilder {
         }
 
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
-            cmd.push(getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
+            cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
         }
         else {
             return undefined;
         }
 
         if (cfg.installFolder !== "" && cfg.installFolder !== undefined) {
-            cmd.push.apply(cmd, ["-if", getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
+            cmd.push.apply(cmd, ["-if", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
         }
 
         if (cfg.sourceFolder !== "" && cfg.sourceFolder !== undefined) {
-            cmd.push.apply(cmd, ["-sf", getAbsolutePathFromWorkspace(wsPath, cfg.sourceFolder)]);
+            cmd.push.apply(cmd, ["-sf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.sourceFolder)]);
         }
 
         return cmd.join(" ");
@@ -186,26 +168,26 @@ export class CommandBuilder {
         }
 
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
-            cmd.push(getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
+            cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
         }
         else {
             return undefined;
         }
 
         if (cfg.installFolder !== "" && cfg.installFolder !== undefined) {
-            cmd.push.apply(cmd, ["-if", getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
+            cmd.push.apply(cmd, ["-if", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
         }
 
         if (cfg.buildFolder !== "" && cfg.buildFolder !== undefined) {
-            cmd.push.apply(cmd, ["-bf", getAbsolutePathFromWorkspace(wsPath, cfg.buildFolder)]);
+            cmd.push.apply(cmd, ["-bf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.buildFolder)]);
         }
 
         if (cfg.packageFolder !== "" && cfg.packageFolder !== undefined) {
-            cmd.push.apply(cmd, ["-pf", getAbsolutePathFromWorkspace(wsPath, cfg.packageFolder)]);
+            cmd.push.apply(cmd, ["-pf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.packageFolder)]);
         }
 
         if (cfg.sourceFolder !== "" && cfg.sourceFolder !== undefined) {
-            cmd.push.apply(cmd, ["-sf", getAbsolutePathFromWorkspace(wsPath, cfg.sourceFolder)]);
+            cmd.push.apply(cmd, ["-sf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.sourceFolder)]);
         }
 
         return cmd.join(" ");
@@ -223,26 +205,26 @@ export class CommandBuilder {
         }
 
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
-            cmd.push(getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
+            cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
         }
         else {
             return undefined;
         }
 
         if (cfg.installFolder !== "" && cfg.installFolder !== undefined) {
-            cmd.push.apply(cmd, ["-if", getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
+            cmd.push.apply(cmd, ["-if", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
         }
 
         if (cfg.buildFolder !== "" && cfg.buildFolder !== undefined) {
-            cmd.push.apply(cmd, ["-bf", getAbsolutePathFromWorkspace(wsPath, cfg.buildFolder)]);
+            cmd.push.apply(cmd, ["-bf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.buildFolder)]);
         }
 
         if (cfg.packageFolder !== "" && cfg.packageFolder !== undefined) {
-            cmd.push.apply(cmd, ["-pf", getAbsolutePathFromWorkspace(wsPath, cfg.packageFolder)]);
+            cmd.push.apply(cmd, ["-pf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.packageFolder)]);
         }
 
         if (cfg.sourceFolder !== "" && cfg.sourceFolder !== undefined) {
-            cmd.push.apply(cmd, ["-sf", getAbsolutePathFromWorkspace(wsPath, cfg.sourceFolder)]);
+            cmd.push.apply(cmd, ["-sf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.sourceFolder)]);
         }
 
         cmd.push.apply(cmd, cfg.args);
