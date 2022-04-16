@@ -69,7 +69,7 @@ export class ConanPackageItem extends vscode.TreeItem {
         
         this.command = {
             "title": "Conan Package Selected",
-            "command": "vsconan.package.selected",
+            "command": "vsconan.explorer.treeview.package.item.selected",
         };
     }
 

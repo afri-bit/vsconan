@@ -42,19 +42,19 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         });
 
         // Register command for recipe treeview
-        this.registerCommand("vsconan-explorer.treeview.recipe.refresh", () => this.recipeRefreshTreeview());
-        this.registerCommand("vsconan-explorer.item.recipe.selected", () => this.recipeItemSelected());
-        this.registerCommand("vsconan-explorer.item.recipe.option.information", (node: ConanRecipeItem) => this.recipeShowInformation(node));
-        this.registerCommand("vsconan-explorer.item.recipe.option.open.explorer", (node: ConanRecipeItem) => this.recipeOpenExplorer(node));
-        this.registerCommand("vsconan-explorer.item.recipe.option.open.vscode", (node: ConanRecipeItem) => this.recipeOpenVSCode(node));
-        this.registerCommand("vsconan-explorer.item.recipe.option.remove", (node: ConanRecipeItem) => this.recipeRemove(node));
+        this.registerCommand("vsconan.explorer.treeview.recipe.refresh", () => this.recipeRefreshTreeview());
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.selected", () => this.recipeItemSelected());
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.information", (node: ConanRecipeItem) => this.recipeShowInformation(node));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open-explorer", (node: ConanRecipeItem) => this.recipeOpenExplorer(node));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open-vscode", (node: ConanRecipeItem) => this.recipeOpenVSCode(node));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.remove", (node: ConanRecipeItem) => this.recipeRemove(node));
 
         // Register command for binary package treeview
-        this.registerCommand("vsconan-explorer.treeview.package.refresh", () => this.packageRefreshTreeview());
-        this.registerCommand("vsconan-explorer.item.package.option.information", (node: ConanRecipeItem) => this.packageShowInformation(node));
-        this.registerCommand("vsconan-explorer.item.package.option.open.explorer", (node: ConanRecipeItem) => this.packageOpenExplorer(node));
-        this.registerCommand("vsconan-explorer.item.package.option.open.vscode", (node: ConanRecipeItem) => this.packageOpenVSCode(node));
-        this.registerCommand("vsconan-explorer.item.package.option.remove", (node: ConanRecipeItem) => this.packageRemove(node));
+        this.registerCommand("vsconan.explorer.treeview.package.refresh", () => this.packageRefreshTreeview());
+        this.registerCommand("vsconan.explorer.treeview.package.item.information", (node: ConanRecipeItem) => this.packageShowInformation(node));
+        this.registerCommand("vsconan.explorer.treeview.package.item.open-explorer", (node: ConanRecipeItem) => this.packageOpenExplorer(node));
+        this.registerCommand("vsconan.explorer.treeview.package.item.open-vscode", (node: ConanRecipeItem) => this.packageOpenVSCode(node));
+        this.registerCommand("vsconan.explorer.treeview.package.item.remove", (node: ConanRecipeItem) => this.packageRemove(node));
     }
 
     // ========== RECIPE TREEVIEW COMMANDS

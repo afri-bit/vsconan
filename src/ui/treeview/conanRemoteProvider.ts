@@ -69,7 +69,7 @@ export class ConanRemoteItem extends vscode.TreeItem {
 
         this.command = {
             "title": "Conan Remote Selected",
-            "command": "vsconan.remote.selected",
+            "command": "vsconan.explorer.treeview.remote.item.selected",
         };
 
         this.setRemoteEnableIcon(this.isEnabled()!);

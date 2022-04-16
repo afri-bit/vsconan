@@ -25,14 +25,14 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
             treeDataProvider: this.nodeProviderConanRemote
         });
 
-        this.registerCommand("vsconan-explorer.treeview.remote.refresh", () => this.refreshRemoteTreeview());
-        this.registerCommand("vsconan-explorer.treeview.remote.edit", () => this.editRemote());
-        this.registerCommand("vsconan-explorer.item.remote.option.remove", (node: ConanRemoteItem) => this.removeRemote(node));
-        this.registerCommand("vsconan-explorer.item.remote.option.add", () => this.addRemote());
-        this.registerCommand("vsconan-explorer.item.remote.option.enable", (node: ConanRemoteItem) => this.enableRemote(node));
-        this.registerCommand("vsconan-explorer.item.remote.option.disable", (node: ConanRemoteItem) => this.disableRemote(node));
-        this.registerCommand("vsconan-explorer.item.remote.option.rename", (node: ConanRemoteItem) => this.renameRemote(node));
-        this.registerCommand("vsconan-explorer.item.remote.option.update-url", (node: ConanRemoteItem) => this.updateRemoteURL(node));
+        this.registerCommand("vsconan.explorer.treeview.remote.refresh", () => this.refreshRemoteTreeview());
+        this.registerCommand("vsconan.explorer.treeview.remote.edit", () => this.editRemote());
+        this.registerCommand("vsconan.explorer.treeview.remote.add", () => this.addRemote());
+        this.registerCommand("vsconan.explorer.treeview.remote.item.remove", (node: ConanRemoteItem) => this.removeRemote(node));
+        this.registerCommand("vsconan.explorer.treeview.remote.item.enable", (node: ConanRemoteItem) => this.enableRemote(node));
+        this.registerCommand("vsconan.explorer.treeview.remote.item.disable", (node: ConanRemoteItem) => this.disableRemote(node));
+        this.registerCommand("vsconan.explorer.treeview.remote.item.rename", (node: ConanRemoteItem) => this.renameRemote(node));
+        this.registerCommand("vsconan.explorer.treeview.remote.item.update-url", (node: ConanRemoteItem) => this.updateRemoteURL(node));
     }
 
     private refreshRemoteTreeview() {

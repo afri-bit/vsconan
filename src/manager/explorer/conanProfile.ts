@@ -23,13 +23,13 @@ export class ConanProfileExplorerManager extends ExtensionManager {
             treeDataProvider: this.nodeProviderConanProfile
         });
 
-        this.registerCommand("vsconan-explorer.treeview.profile.refresh", () => this.refreshProfileTreeview());
-        this.registerCommand("vsconan-explorer.item.profile.option.edit", (node: ConanProfileItem) => this.editProfile(node));
-        this.registerCommand("vsconan-explorer.item.profile.option.remove", (node: ConanProfileItem) => this.removeProfile(node));
-        this.registerCommand("vsconan-explorer.item.profile.option.open.explorer", (node: ConanProfileItem) => this.openProfileInExplorer(node));
-        this.registerCommand("vsconan-explorer.item.profile.option.rename", (node: ConanProfileItem) => this.renameProfile(node));
-        this.registerCommand("vsconan-explorer.item.profile.option.duplicate", (node: ConanProfileItem) => this.duplicateProfile(node));
-        this.registerCommand("vsconan-explorer.treeview.profile.add", () => this.addProfile());
+        this.registerCommand("vsconan.explorer.treeview.profile.refresh", () => this.refreshProfileTreeview());
+        this.registerCommand("vsconan.explorer.treeview.profile.add", () => this.addProfile());
+        this.registerCommand("vsconan.explorer.treeview.profile.item.edit", (node: ConanProfileItem) => this.editProfile(node));
+        this.registerCommand("vsconan.explorer.treeview.profile.item.remove", (node: ConanProfileItem) => this.removeProfile(node));
+        this.registerCommand("vsconan.explorer.treeview.profile.item.open-explorer", (node: ConanProfileItem) => this.openProfileInExplorer(node));
+        this.registerCommand("vsconan.explorer.treeview.profile.item.rename", (node: ConanProfileItem) => this.renameProfile(node));
+        this.registerCommand("vsconan.explorer.treeview.profile.item.duplicate", (node: ConanProfileItem) => this.duplicateProfile(node));
     }
 
     private refreshProfileTreeview() {

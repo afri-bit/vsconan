@@ -66,7 +66,7 @@ export class ConanProfileItem extends vscode.TreeItem {
 
         this.command = {
             "title": "Conan Profile Selected",
-            "command": "vsconan.profile.selected",
+            "command": "vsconan.explorer.treeview.profile.item.selected",
         };
     }
 
