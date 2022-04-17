@@ -22,11 +22,20 @@ interface ConfigCommandQuickPickItem extends vscode.QuickPickItem {
     index: number;
 }
 
+/**
+ * Class to manage conan workspace extension
+ */
 export class VSConanWorkspaceManager extends ExtensionManager {
     private context: vscode.ExtensionContext;
     private outputChannel: vscode.OutputChannel;
     private conanApi: ConanAPI;
 
+    /**
+     * Create the conan workspace manager
+     * @param context The context of the extension
+     * @param outputChannel Output channel of the extension
+     * @param conanApi Conan API
+     */
     public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel, conanApi: ConanAPI) {
         super();
 
@@ -46,6 +55,9 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         this.registerCommand("vsconan.config.workspace.open", () => this.openWorkspaceConfig());
     }
 
+    /**
+     * Callback method to create a global configuration for VSConan Extension
+     */
     private createGlobalConfig() {
         if (!fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
             // Initial the global area even it just needs to create the configuration file
@@ -60,6 +72,9 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         }
     }
 
+    /**
+     * Open the global config file in the VS Code
+     */
     private openGlobalConfig() {
         if (fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
             utils.editor.openFileInEditor(utils.vsconan.getGlobalConfigPath());
@@ -69,6 +84,9 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         }
     }
 
+    /**
+     * Create a config file in the selected workspace
+     */
     private createWorkspaceConfig() {
         let ws = utils.workspace.selectWorkspace();
 
@@ -93,6 +111,9 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         });
     }
 
+    /**
+     * Open configuration file for selected workspace in the VS Code
+     */
     private openWorkspaceConfig() {
         let ws = utils.workspace.selectWorkspace();
 
@@ -112,8 +133,6 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * Which command needs to be executed is determined using ENUM ConanCommand
      * 
      * @param cmdType Enumeration type to determine which command to be executed
-     * @param channelVSConan VS Code channel to print the output of command
-     * @returns <void>
      */
     private executeConanCommand(cmdType: ConanCommand): void {
         // The flow of following commands is the same by selecting the workspace first
@@ -161,6 +180,12 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         });
     }
 
+    /**
+     * Helper method to get the index of selected command.
+     * This method basically will pop up quick pick window to select configuration where the user has to choose.
+     * @param configList List of configuration 
+     * @returns Index of selected configuration | undefined on error or no selection
+     */
     private getCommandConfigIndex(configList: Array<ConfigCommand>): Promise<number | undefined> {
         return new Promise<number | undefined>(async (resolve, reject) => {
             if (configList !== undefined) {
@@ -181,7 +206,6 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 const choice = await vscode.window.showQuickPick(quickPickItems);
 
                 if (choice) {
-                    // Returning the filesystem path
                     return resolve(choice.index);
                 }
                 else {
@@ -194,6 +218,12 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         });
     }
 
+    /**
+     * Execute the 'conan create' command
+     * @param wsPath Absolute path of the workspace
+     * @param python Python interpreter (absolute path or predefined in the environment variables)
+     * @param configList List of possible configurations
+     */
     private executeCommandConanCreate(wsPath: string, python: string, configList: Array<ConfigCommandCreate>) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
@@ -217,6 +247,12 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         });
     }
 
+    /**
+     * Execute the 'conan install' command
+     * @param wsPath Absolute path of the workspace
+     * @param python Python interpreter (absolute path or predefined in the environment variables)
+     * @param configList List of possible configurations
+     */
     private executeCommandConanInstall(wsPath: string, python: string, configList: Array<ConfigCommandInstall>) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
@@ -240,6 +276,12 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         });
     }
 
+    /**
+     * Execute the 'conan build' command
+     * @param wsPath Absolute path of the workspace
+     * @param python Python interpreter (absolute path or predefined in the environment variables)
+     * @param configList List of possible configurations
+     */
     private executeCommandConanBuild(wsPath: string, python: string, configList: Array<ConfigCommandBuild>) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
@@ -263,6 +305,12 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         });
     }
 
+    /**
+     * Execute the 'conan source' command
+     * @param wsPath Absolute path of the workspace
+     * @param python Python interpreter (absolute path or predefined in the environment variables)
+     * @param configList List of possible configurations
+     */
     private executeCommandConanSource(wsPath: string, python: string, configList: Array<ConfigCommandSource>) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
@@ -286,6 +334,12 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         });
     }
 
+    /**
+     * Execute the 'conan package' command
+     * @param wsPath Absolute path of the workspace
+     * @param python Python interpreter (absolute path or predefined in the environment variables)
+     * @param configList List of possible configurations
+     */
     private executeCommandConanPackage(wsPath: string, python: string, configList: Array<ConfigCommandPackage>) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
@@ -309,6 +363,12 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         });
     }
 
+    /**
+     * Execute the 'conan export-pkg' command
+     * @param wsPath Absolute path of the workspace
+     * @param python Python interpreter (absolute path or predefined in the environment variables)
+     * @param configList List of possible configurations
+     */
     private executeCommandConanPackageExport(wsPath: string, python: string, configList: Array<ConfigCommandPackageExport>) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 

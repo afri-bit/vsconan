@@ -1,3 +1,9 @@
+/**
+ * This piece of code is a copy of solution from 'vscode-git-graph' project by Michael Hutchison
+ * Link to repository https://github.com/mhutchie/vscode-git-graph
+ * Link to the file https://github.com/mhutchie/vscode-git-graph/blob/develop/src/utils/disposable.ts
+ */
+
 import * as vscode from 'vscode';
 
 export class Disposable implements vscode.Disposable {

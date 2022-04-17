@@ -18,12 +18,16 @@ export class ConanCacheExplorerManager extends ExtensionManager {
     private treeViewConanRecipe: vscode.TreeView<any>;
     private treeViewConanPackage: vscode.TreeView<any>;
 
-    public constructor(
-        context: vscode.ExtensionContext,
-        outputChannel: vscode.OutputChannel,
-        conanApi: ConanAPI,
-        nodeProviderConanRecipe: ConanRecipeNodeProvider,
-        nodeProviderConanPackage: ConanPackageNodeProvider) {
+    /**
+     * Create the conan cache explorer manager
+     * @param context The context of the extension
+     * @param outputChannel Output channel of the extension
+     * @param conanApi Conan API
+     * @param nodeProviderConanRecipe Treedata provider for conan recipe
+     * @param nodeProviderConanPackage Treedata provider for conan binary package
+     */
+    public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel, 
+        conanApi: ConanAPI, nodeProviderConanRecipe: ConanRecipeNodeProvider, nodeProviderConanPackage: ConanPackageNodeProvider) {
         super();
 
         this.context = context;
@@ -59,6 +63,9 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
     // ========== RECIPE TREEVIEW COMMANDS
 
+    /**
+     * Refresh the recipe treeview
+     */
     private recipeRefreshTreeview() {
         this.nodeProviderConanRecipe.refresh();
 
@@ -68,6 +75,9 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the treeview
     }
 
+    /**
+     * Callback method if a recipe item in the treeview in selected
+     */
     private recipeItemSelected() {
         this.nodeProviderConanRecipe.setSelectedRecipe(this.treeViewConanRecipe.selection[0].label);
 
@@ -76,6 +86,11 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         this.nodeProviderConanPackage.refresh(this.treeViewConanRecipe.selection[0].label);
     }
 
+    /**
+     * Method to show the information of a selected recipe.
+     * To view the information we will use a web view panel in this case
+     * @param node Selected recipe node item
+     */
     private recipeShowInformation(node: ConanRecipeItem) {
         let python = utils.vsconan.config.getExplorerPython();
 
@@ -90,14 +105,18 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                 {}
             );
 
-            panel.webview.html = utils.vsconan.getWebviewContent(recipeInfo!);
+            // Equipped the plain JSON text with HTML elements
+            panel.webview.html = this.getWebviewContent(recipeInfo!);
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
         }
-
     }
-
+    
+    /**
+     * Open the selected recipe in the file explorer
+     * @param node Selected recipe node item
+     */
     private recipeOpenExplorer(node: ConanRecipeItem) {
         let python = utils.vsconan.config.getExplorerPython();
 
@@ -109,6 +128,10 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         }
     }
 
+    /**
+     * Open the selected recipe in a new VSCode window
+     * @param node Selected recipe node item
+     */
     private recipeOpenVSCode(node: ConanRecipeItem) {
         let python = utils.vsconan.config.getExplorerPython();
 
@@ -126,6 +149,10 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         }
     }
 
+    /**
+     * Remove selected recipe
+     * @param node Selected recipe node item to be removed
+     */
     private recipeRemove(node: ConanRecipeItem) {
         try {
             vscode.window
@@ -149,14 +176,26 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
     // ========== BINARY PACKAGE TREEVIEW COMMANDS
 
+    /**
+     * Refresh binary package treeview
+     */
     private packageRefreshTreeview() {
         this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe());
     }
 
+    /**
+     * Show binary package information
+     * Still in the todo list. Need to figure out how to obtain this information
+     * @param node Selected binary package node item
+     */
     private packageShowInformation(node: ConanRecipeItem) {
         // TODO: Show information from the selected recipe
     }
 
+    /**
+     * Open selected binary package in the file explorer
+     * @param node Selected binary package node item
+     */
     private packageOpenExplorer(node: ConanRecipeItem) {
         let python = utils.vsconan.config.getExplorerPython();
 
@@ -168,6 +207,10 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         }
     }
 
+    /**
+     * Open selected binary package in VS Code
+     * @param node Selected binary package node item
+     */
     private packageOpenVSCode(node: ConanRecipeItem) {
         let python = utils.vsconan.config.getExplorerPython();
 
@@ -185,6 +228,10 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         }
     }
 
+    /**
+     * Remove selected binary package
+     * @param node Selected binary package node item to be removed
+     */
     private packageRemove(node: ConanRecipeItem) {
         try {
             vscode.window
@@ -202,5 +249,24 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
         }
+    }
+
+    /**
+     * Temporary utility function to get HTML structure.
+     * Currently this method is created for one specific reason, to view recipe information in the web view.
+     * @param content Content of the HTML to be written in
+     * @returns Complete HTML structure with the content in string format
+     */
+    private getWebviewContent(content: string) {
+        return `
+    <html>
+    <body>
+    <pre>
+    <code>
+    ${content}
+    </code>
+    </pre>
+    </body>
+    </html>`;
     }
 }

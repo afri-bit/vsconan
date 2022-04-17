@@ -13,15 +13,27 @@ import {
 import { spawn } from "child_process";
 
 export namespace vsconan {
-
+    /**
+     * Function to get the absolute path of VSConan home directory
+     * This directory is stored under user HOME directory
+     * @returns Absolute path to the VSConan home directory
+     */
     export function getVSConanHomeDir(): string {
         return path.join(os.homedir(), constants.VSCONAN_FOLDER);
     }
 
+    /**
+     * Get the absolute path of VSConan temporary directory
+     * @returns Absolute path of VSConan temporary directory
+     */
     export function getVSConanHomeDirTemp(): string {
         return path.join(getVSConanHomeDir(), constants.TEMP_FOLDER);
     }
 
+    /**
+     * Get abolute path of VSConan global config file
+     * @returns Abolute path of VSConan global config file
+     */
     export function getGlobalConfigPath(): string {
         return path.join(getVSConanHomeDir(), constants.CONFIG_FILE);
     }
@@ -48,20 +60,12 @@ export namespace vsconan {
         }
     }
 
-    export function getWebviewContent(content: string) {
-        return `
-    <html>
-    <body>
-    <pre>
-    <code>
-    ${content}
-    </code>
-    </pre>
-    </body>
-    </html>`;
-    }
-
     export namespace cmd {
+        /**
+         * Function to execute command and print the output to the output channel
+         * @param cmd Command in string format
+         * @param channel VS Code output channel
+         */
         export async function executeCommand(cmd: string, channel: vscode.OutputChannel) {
             // const exec = util.promisify(require('child_process').exec);
             // const { stdout, stderr } = await spawn(cmd);
@@ -87,7 +91,6 @@ export namespace vsconan {
         }
 
     }
-    
 
     export namespace config {
         /**
@@ -117,6 +120,10 @@ export namespace vsconan {
     
         }
     
+        /**
+         * Utility function to retrieve python interpreter for explorer manager from the config file 
+         * @returns String of python interpreter that is stored in the configuration file | undefined on error
+         */
         export function getExplorerPython(): string | undefined {
             if (fs.existsSync(vsconan.getGlobalConfigPath())) {
                 let configGlobal = new ConfigGlobal();
@@ -154,6 +161,12 @@ export namespace vsconan {
 }
 
 export namespace conan {
+    /**
+     * Utility function to determine whether a folder is a conan project 
+     * by checking if the folder contains conanfile.py or conanfile.txt
+     * @param ws Absolute path to workspace to be checked
+     * @returns 'true' the path contains conanfile.py or conanfile.txt, otherwise 'false'
+     */
     export function isFolderConanProject(ws: string): boolean {
         let ret: boolean = false;
 

@@ -31,7 +31,6 @@ export class ConfigGlobal {
 
     /**
      * Save current configuration to JSON file with give file name
-     * 
      * @param filename
      */
     public writeToFile(filename: string) {

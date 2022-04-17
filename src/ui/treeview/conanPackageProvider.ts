@@ -30,9 +30,9 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
         let python = utils.vsconan.config.getExplorerPython();
 
         let packageList = [];
-        
+
         if (python) {
-            packageList = this.conanApi.getPackages(python!, this.recipeName);
+            packageList = this.conanApi.getPackages(this.recipeName, python!);
         }
 
         let packageItemList: Array<ConanPackageItem> = [];
@@ -65,7 +65,7 @@ export class ConanPackageItem extends vscode.TreeItem {
         super(label, collapsibleState);
 
         this.detailInfo = JSON.stringify(this.detailInfo, null, 4);
-        
+
         this.command = {
             "title": "Conan Package Selected",
             "command": "vsconan.explorer.treeview.package.item.selected",
