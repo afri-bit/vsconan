@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import * as path from 'path';
-import * as utils from '../../utils/utils';
+import * as utils from '../../utils';
 import { ConanAPI } from "../../api/conan/conanAPI";
 
 export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanProfileItem> {
@@ -9,7 +8,10 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
     private _onDidChangeTreeData: vscode.EventEmitter<ConanProfileItem | undefined | void> = new vscode.EventEmitter<ConanProfileItem | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<ConanProfileItem | undefined | void> = this._onDidChangeTreeData.event;
 
-    public constructor() {
+    private conanApi: ConanAPI;
+
+    public constructor(conanApi: ConanAPI) {
+        this.conanApi = conanApi;
     }
 
     public refresh(): void {
@@ -23,12 +25,12 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
     public getChildren(element?: ConanProfileItem): ConanProfileItem[] {
         // Get the python interpreter from the explorer configuration file
         // If something goes wrong it will be an empty list
-        let python = utils.config.getExplorerPython();
+        let python = utils.vsconan.config.getExplorerPython();
 
         let profileList: string[] = [];
 
         if (python) {
-            profileList = ConanAPI.getProfiles(python!);
+            profileList = this.conanApi.getProfiles(python!);
         }
 
         let profileItemList: Array<ConanProfileItem> = [];
@@ -63,7 +65,7 @@ export class ConanProfileItem extends vscode.TreeItem {
 
         this.command = {
             "title": "Conan Profile Selected",
-            "command": "vsconan.profile.selected",
+            "command": "vsconan.explorer.treeview.profile.item.selected",
         };
     }
 

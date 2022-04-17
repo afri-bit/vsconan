@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import * as path from 'path';
-import * as utils from '../../utils/utils';
+import * as utils from '../../utils';
 import { ConanAPI } from "../../api/conan/conanAPI";
 
 export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRecipeItem> {
@@ -11,7 +10,10 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
 
     private selectedRecipe: string | undefined = undefined;
 
-    public constructor() {
+    private conanApi: ConanAPI;
+
+    public constructor(conanApi: ConanAPI) {
+        this.conanApi = conanApi;
     }
 
     public refresh(): void {
@@ -25,12 +27,12 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
     public getChildren(element?: ConanRecipeItem): ConanRecipeItem[] {
         // Get the python interpreter from the explorer configuration file
         // If something goes wrong it will be an empty list
-        let python = utils.config.getExplorerPython();
+        let python = utils.vsconan.config.getExplorerPython();
 
         let recipeList: string[] = [];
 
         if (python) {
-            recipeList = ConanAPI.getRecipes(python!);
+            recipeList = this.conanApi.getRecipes(python!);
         }
 
         let recipeItemList: Array<ConanRecipeItem> = [];
@@ -73,7 +75,7 @@ export class ConanRecipeItem extends vscode.TreeItem {
 
         this.command = {
             "title": "Conan Recipe Selected",
-            "command": "vsconan-explorer.item.recipe.selected",
+            "command": "vsconan.explorer.treeview.recipe.item.selected",
         };
     }
 

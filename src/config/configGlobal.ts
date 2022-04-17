@@ -1,6 +1,4 @@
 import * as fs from "fs";
-import * as vscode from "vscode";
-import * as utils from "../utils/utils";
 
 export class ConfigGlobalGeneral {
     public python: string | undefined;
@@ -33,7 +31,6 @@ export class ConfigGlobal {
 
     /**
      * Save current configuration to JSON file with give file name
-     * 
      * @param filename
      */
     public writeToFile(filename: string) {

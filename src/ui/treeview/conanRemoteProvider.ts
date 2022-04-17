@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import * as path from 'path';
-import * as utils from '../../utils/utils';
+import * as utils from '../../utils';
 import { ConanAPI } from "../../api/conan/conanAPI";
 
 export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRemoteItem> {
@@ -9,9 +8,10 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
     private _onDidChangeTreeData: vscode.EventEmitter<ConanRemoteItem | undefined | void> = new vscode.EventEmitter<ConanRemoteItem | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<ConanRemoteItem | undefined | void> = this._onDidChangeTreeData.event;
 
-    private recipeName: string = "";
+    private conanApi: ConanAPI;
 
-    public constructor() {
+    public constructor(conanApi: ConanAPI) {
+        this.conanApi = conanApi;
     }
 
     public refresh(): void {
@@ -25,12 +25,12 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
     public getChildren(element?: ConanRemoteItem): ConanRemoteItem[] {
         // Get the python interpreter from the explorer configuration file
         // If something goes wrong it will be an empty list
-        let python = utils.config.getExplorerPython();
+        let python = utils.vsconan.config.getExplorerPython();
 
         let remoteList = [];
 
         if (python) {
-            remoteList = ConanAPI.getRemotes(python!);
+            remoteList = this.conanApi.getRemotes(python!);
         }
 
         let remoteItemList: Array<ConanRemoteItem> = [];
@@ -68,7 +68,7 @@ export class ConanRemoteItem extends vscode.TreeItem {
 
         this.command = {
             "title": "Conan Remote Selected",
-            "command": "vsconan.remote.selected",
+            "command": "vsconan.explorer.treeview.remote.item.selected",
         };
 
         this.setRemoteEnableIcon(this.isEnabled()!);
