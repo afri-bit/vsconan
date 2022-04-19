@@ -9,8 +9,10 @@
 
 **VSConan** extension makes it easy to manage the conan local cache on your machine. It provides you an easy way to access your local cache and manage it by using integrated explorer in the VS Code without typing a single line of command in the terminal. **VSConan** contains several features such as quick overview of installed packages, rename and duplicate profiles, enable and disable remote and more. For further information see [Extension Features](#extension-features).
 
+![Recording of VSConan Explorer](resources/img/demo_explorer.gif)
+
 ## Prerequisites
-* [Python](https://www.python.org/) and [conan](https://pypi.org/project/conan/) installed on your machine.
+* [Python](https://www.python.org/) and [conan](https://pypi.org/project/conan/) are installed on your machine.
 
 ## How To Start
 **VSConan** extension will be activated, if the folder you open contains `conanfile.py` or `conanfile.txt`, we call this conan workspace or if you open the explorer tab on the left side. Once the extension is activated, it will create a default configuration file (if it doesn't exist) under the `.vsconan` directory in your home folder. 
@@ -37,6 +39,8 @@ You have to define the location of your python interpreter, where conan is also 
 The **VSConan** extension contains two major groups of features, one of them is the [Conan Exploer](#conan-explorer), where you can use to manage your local cache, and the other one is [Conan Workspace](#conan-workspace), where you can save your configuration of different conan flow commands in your VSCode workspace.
 
 ### Conan Explorer
+
+![Recording of VSConan Explorer](resources/img/demo_explorer.gif)
 
 The **VSConan** extension contributes a Conan Explorer view to VS Code. The Conan Explorer lets you examine and manage important assets of your conan local cache: recipe, binary packages, profile and remote.
 
@@ -111,6 +115,11 @@ As other treeview, each item is equipped with several options, that you can use 
   Remove the selected remote
 
 ### Conan Workspace
+
+The Conan Workspace feature provides you configuration file, that can be used to execute predefined conan flow command and its arguments. The configuration will be stored under `.vsconan` folder in your workspace.  
+If you work a lot with conan and use VS Code as your IDE, this feature can be really beneficial for you. It can spare you some seconds by avoiding to type same command, maybe with different arguments in your terminal over and over again. Instead you can save the command that you want to execute in a configuration and reuse in the next execution. In addition to that, the configuration is reusable, and can be distributed to other people, if you work in a team.
+
+![Recording of VSConan Workspace](resources/img/demo_workspace.gif)
 
 ## Release Notes
 Detailed Release Notes are available [here](CHANGELOG.md).
