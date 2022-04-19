@@ -75,7 +75,7 @@ Each item of this treeview has following options to offer:
 
 #### Conan Profile
 
-All the profiles that you saved on your machine will be listed in this explorer. By pressing `+` on top of the treeview, you can create a new empty profile.
+All the profiles that you saved on your machine will be listed in this explorer. By pressing `+` button on top right corner of the treeview, you can create a new empty profile.
 
 ![](resources/img/conan_profile_treeview.png)
 
@@ -117,18 +117,44 @@ As other treeview, each item is equipped with several options, that you can use 
 ### Conan Workspace
 
 The Conan Workspace feature provides you configuration file, that can be used to execute predefined conan flow command and its arguments. The configuration will be stored under `.vsconan` folder in your workspace.  
-If you work a lot with conan and use VS Code as your IDE, this feature can be really beneficial for you. It can spare you some seconds by avoiding to type same command, maybe with different arguments in your terminal over and over again. Instead you can save the command that you want to execute in a configuration and reuse in the next execution. In addition to that, the configuration is reusable, and can be distributed to other people, if you work in a team.
+If you work a lot with conan and use VS Code as your IDE, this feature can be really beneficial for you. It can spare you some seconds by avoiding to type same command, maybe with different arguments in your terminal over and over again. Instead you can save the command that you want to execute in the configuration and reuse in the next execution. In addition to that, the configuration file is reusable, and can be distributed to other people, if you work in a team.
 
 ![Recording of VSConan Workspace](resources/img/demo_workspace.gif)
 
+**VSConan** Extension will detect your workspace as conan workspace, if it contains a `conanfile.py` or `conanfile.txt`, and will a show dialog box as following
+
+![](resources/img/prompt_conan_project.png)
+
+If you choose yes, **VSConan** will generate a default configuration file in your workspace to start with.  
+If you want to configure your workspace manually, we also provide you possibility to create a default configuration file using VS Code command `VSConan: Create Workspace Configuration (JSON)`.
+
+Currently supported conan command for configuration file:
+* create
+* install
+* build
+* source
+* package
+* export-pkg
+
+### Additional Support Features
+
+* `VSConan: Create Global Configuration (JSON)`  
+  Command to create global configuration file in your home directory
+* `VSConan: Open Global Configuration (JSON)`  
+  Open the global configuration file in editor
+* `VSConan: Create Workspace Configuration (JSON)`  
+  Create workspace configuration file
+* `VSConan: Open Workspace Configuration (JSON)`  
+  Open the workspace configuration file in the editor
+
 ## Release Notes
-Detailed Release Notes are available [here](CHANGELOG.md).
+Detailed release notes are available [here](CHANGELOG.md).
 
 ## Contributing
 
 See [the contribution guidelines](CONTRIBUTING.md) for ideas and guidance on how to improve the extension.
 
-### Code of Conduct
+## Code of Conduct
 See [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
