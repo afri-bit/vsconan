@@ -1,7 +1,7 @@
 {
     "name": "vsconan",
     "displayName": "VSConan",
-    "description": "Conan package manager extension for Visual Studio  Code",
+    "description": "Conan local cache and workspace manager.",
     "version": "0.1.0",
     "publisher": "afri-bit",
     "repository": {
