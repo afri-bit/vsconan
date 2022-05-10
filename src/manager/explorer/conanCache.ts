@@ -55,6 +55,8 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         // Register command for binary package treeview
         this.registerCommand("vsconan.explorer.treeview.package.refresh", () => this.packageRefreshTreeview());
+        this.registerCommand("vsconan.explorer.treeview.package.dirty.show", () => this.showDirtyPackage());
+        this.registerCommand("vsconan.explorer.treeview.package.dirty.hide", () => this.hideDirtyPackage());
         this.registerCommand("vsconan.explorer.treeview.package.item.information", (node: ConanRecipeItem) => this.packageShowInformation(node));
         this.registerCommand("vsconan.explorer.treeview.package.item.open-explorer", (node: ConanRecipeItem) => this.packageOpenExplorer(node));
         this.registerCommand("vsconan.explorer.treeview.package.item.open-vscode", (node: ConanRecipeItem) => this.packageOpenVSCode(node));
@@ -71,7 +73,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         // Refreshing the recipe tree explorer will reset the recipe tree explorer and package tree explorer
         this.nodeProviderConanRecipe.setSelectedRecipe(undefined); // Reset the internal selected recipe from the recipeNodeProvider
-        this.nodeProviderConanPackage.refresh(""); // Empty the binary package tree explorer
+        this.nodeProviderConanPackage.refresh("", this.context.workspaceState.get("show-dirty")!); // Empty the binary package tree explorer
         this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the treeview
     }
 
@@ -83,7 +85,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         // Change the title of the treeview for package explorer to match the selected recipe
         this.treeViewConanPackage.title = this.treeViewConanRecipe.selection[0].label;
-        this.nodeProviderConanPackage.refresh(this.treeViewConanRecipe.selection[0].label);
+        this.nodeProviderConanPackage.refresh(this.treeViewConanRecipe.selection[0].label, this.context.workspaceState.get("show-dirty")!);
     }
 
     /**
@@ -164,7 +166,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                         this.conanApi.removeRecipe(node.label, python);
                         this.nodeProviderConanRecipe.refresh();
 
-                        this.nodeProviderConanPackage.refresh(""); // Empty the binary package treeview
+                        this.nodeProviderConanPackage.refresh("", this.context.workspaceState.get("show-dirty")!); // Empty the binary package treeview
                         this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the binary package treeview panel
                     }
                 });
@@ -180,7 +182,19 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * Refresh binary package treeview
      */
     private packageRefreshTreeview() {
-        this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe());
+        this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), this.context.workspaceState.get("show-dirty")!);
+    }
+
+    private showDirtyPackage() {
+        vscode.commands.executeCommand('setContext', 'show-dirty', true);
+        this.context.workspaceState.update("show-dirty", true);
+        this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), true);
+    }
+
+    private hideDirtyPackage() {
+        vscode.commands.executeCommand('setContext', 'show-dirty', false);
+        this.context.workspaceState.update("show-dirty", false);
+        this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), false);
     }
 
     /**
@@ -242,7 +256,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
                         this.conanApi.removePackage(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label, python);
 
-                        this.nodeProviderConanPackage.refresh(this.treeViewConanRecipe.selection[0].label);
+                        this.nodeProviderConanPackage.refresh(this.treeViewConanRecipe.selection[0].label, this.context.workspaceState.get("show-dirty")!);
                     }
                 });
         }

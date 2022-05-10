@@ -9,14 +9,16 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
     readonly onDidChangeTreeData: vscode.Event<ConanPackageItem | undefined | void> = this._onDidChangeTreeData.event;
 
     private recipeName: string = "";
+    private showDirtyPackage: boolean = false;
     private conanApi: ConanAPI;
 
     public constructor(conanApi: ConanAPI) {
         this.conanApi = conanApi;
     }
 
-    public refresh(recipeName: string): void {
+    public refresh(recipeName: string, showDirtyPackage: boolean): void {
         this.recipeName = recipeName;
+        this.showDirtyPackage = showDirtyPackage;
         this._onDidChangeTreeData.fire();
     }
 
@@ -30,15 +32,32 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
         let python = utils.vsconan.config.getExplorerPython();
 
         let packageList = [];
+        let dirtyPackageList: string[] = [];
 
         if (python) {
             packageList = this.conanApi.getPackages(this.recipeName, python!);
+
+            if (this.showDirtyPackage){
+                dirtyPackageList = this.conanApi.getDirtyPackage(this.recipeName, python!);
+            }
         }
 
         let packageItemList: Array<ConanPackageItem> = [];
 
         for (let pkg of packageList) {
             packageItemList.push(new ConanPackageItem(pkg.id, vscode.TreeItemCollapsibleState.None, pkg));
+        }
+
+        for (let pkg of dirtyPackageList) {
+            let dirtyPackageitem = new ConanPackageItem(pkg, vscode.TreeItemCollapsibleState.None, "");
+
+            // TODO: Setup the class separately instead of changing the icon path manually
+            dirtyPackageitem.iconPath = {
+                light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dirty_package.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dirty_package.png')
+            }
+
+            packageItemList.push(dirtyPackageitem);
         }
 
         return packageItemList;
