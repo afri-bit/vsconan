@@ -2,7 +2,7 @@
     "name": "vsconan",
     "displayName": "VSConan",
     "description": "Conan local cache and workspace manager.",
-    "version": "0.1.0",
+    "version": "0.2.0-beta",
     "publisher": "afri-bit",
     "repository": {
         "type": "git",
