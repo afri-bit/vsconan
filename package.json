@@ -2,7 +2,7 @@
     "name": "vsconan",
     "displayName": "VSConan",
     "description": "Conan local cache and workspace manager.",
-    "version": "0.1.0",
+    "version": "0.2.0-beta",
     "publisher": "afri-bit",
     "repository": {
         "type": "git",
@@ -136,6 +136,14 @@
                     "light": "resources/icon/light/refresh.png",
                     "dark": "resources/icon/dark/refresh.png"
                 }
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.dirty.show",
+                "title": "Show Dirty Package"
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.dirty.hide",
+                "title": "Hide Dirty Package"
             },
             {
                 "command": "vsconan.explorer.treeview.profile.refresh",
@@ -335,6 +343,14 @@
                     "group": "navigation"
                 },
                 {
+                    "command": "vsconan.explorer.treeview.package.dirty.show",
+                    "when": "view == vsconan-explorer.treeview.package && show-dirty == false"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.package.dirty.hide",
+                    "when": "view == vsconan-explorer.treeview.package && show-dirty == true"
+                },
+                {
                     "command": "vsconan.explorer.treeview.profile.refresh",
                     "when": "view == vsconan-explorer.treeview.profile",
                     "group": "navigation"
@@ -447,7 +463,25 @@
                     "group": "inline@4"
                 }
             ]
-        }
+        },
+        "configuration":[
+            {
+                "title": "General",
+                "order": 1,
+                "properties": {}
+            },
+            {
+                "title": "Explorer",
+                "order": 2,
+                "properties": {
+                    "vsconan.explorer.treeview.package.showDirtyPackage": {
+                        "default": false,
+                        "markdownDescription": "Flag to show dirty binary package from a recipe",
+                        "type": "boolean"
+                    }
+                }
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",

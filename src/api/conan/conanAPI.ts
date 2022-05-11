@@ -533,4 +533,30 @@ export class ConanAPI {
 
         return recipeInfo;
     }
+
+    /**
+     * Function to obtain dirty packages from a recipe
+     * To search for a dirty package conan CLI cannot be used directly, therefore
+     * we need to go through the file system to find files with '.dirty' extension
+     * @param recipeName Recipe name to get the dirty packages from
+     * @param python 
+     */
+    public getDirtyPackage(recipeName: string, python: string): Array<string>{
+
+        // Get the recipePath
+        let recipePath = this.getRecipePath(recipeName);
+
+        if (recipePath) {
+            let recipePackagePath = path.join(recipePath!, "package");
+
+            let listOfFiles = fs.readdirSync(recipePackagePath, { withFileTypes: true })
+                .filter(item => !item.isDirectory())
+                .map(item => item.name)
+
+            return listOfFiles.filter(el => path.extname(el) === ".dirty");
+        }
+        else {
+            throw new Error(`Unable to find data path for recipe '${recipeName}'`)
+        }
+    }
 }

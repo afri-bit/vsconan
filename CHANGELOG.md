@@ -1,5 +1,10 @@
 # Change Log
 
+## Unreleased
+
+### Added
+- [#10](https://github.com/afri-bit/vsconan/issues/10) Enable option to list dirty packages from a recipe
+
 ## [0.1.0]
 * Initial Release
 * Conan Explorer

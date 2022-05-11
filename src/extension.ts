@@ -26,6 +26,9 @@ export function activate(context: vscode.ExtensionContext) {
     // Global Area - To work for the API a extension folder will created in the home directory
     utils.vsconan.initializeGlobalArea();
 
+    vscode.commands.executeCommand('setContext', 'show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
+    context.workspaceState.update('show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
+
     // Initializing the Conan API
     let conanApi = new ConanAPI();
 
