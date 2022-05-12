@@ -48,6 +48,7 @@ export namespace vsconan {
             fs.mkdirSync(vsconan.getVSConanHomeDir());
         }
 
+        // TODO: Remove the config file generation, since configuration will be moved to vscode configuration
         // Check if global config file is available, otherwise create a new one with default parameters
         if (!fs.existsSync(vsconan.getGlobalConfigPath())) {
             let configGlobal = new ConfigGlobal(new ConfigGlobalGeneral("python"), new ConfigGlobalExplorer("python"));

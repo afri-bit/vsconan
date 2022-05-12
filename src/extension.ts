@@ -13,6 +13,7 @@ import { ConanCacheExplorerManager } from "./manager/explorer/conanCache";
 import { ConanProfileExplorerManager } from "./manager/explorer/conanProfile";
 import { ConanRemoteExplorerManager } from "./manager/explorer/conanRemote";
 import { VSConanWorkspaceManager } from "./manager/vsconanWorkspace";
+import { configChangeListener } from "./configChangeListener";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -42,6 +43,8 @@ export function activate(context: vscode.ExtensionContext) {
     const conanProfileExplorerManager = new ConanProfileExplorerManager(context, channelVSConan, conanApi, conanProfileNodeProvider);
     const conanRemoteExplorerManager = new ConanRemoteExplorerManager(context, channelVSConan, conanApi, conanRemoteNodeProvider);
     const conanWorkspaceManager = new VSConanWorkspaceManager(context, channelVSConan, conanApi);
+
+    const configListener = vscode.workspace.onDidChangeConfiguration((event) => configChangeListener(event, conanApi));
 
     // Check if it starts with workspace
     // To check whether its workspace or not is to determine if the function "getWorkspaceFolder" returns undefined or a path
@@ -82,7 +85,8 @@ export function activate(context: vscode.ExtensionContext) {
         conanCacheExplorerManager,
         conanProfileExplorerManager,
         conanRemoteExplorerManager,
-        conanWorkspaceManager
+        conanWorkspaceManager,
+        configListener
     );
 }
 
