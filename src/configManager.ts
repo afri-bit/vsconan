@@ -16,10 +16,6 @@ export class ConfigurationManager {
         return vscode.workspace.getConfiguration("vsconan").get("general.pythonInterpreter");
     }
     
-    public getPythonExplorer(): string | undefined {
-        return vscode.workspace.getConfiguration("vsconan").get("explorer.pythonInterpreter");
-    }
-
     public showDirtyPackage(): boolean | undefined {
         return vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage");
     }

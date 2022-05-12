@@ -470,7 +470,7 @@
                 "order": 1,
                 "properties": {
                     "vsconan.general.pythonInterpreter": {
-                        "markdownDescription": "Path to Python interpreter executable for general purpose.",
+                        "markdownDescription": "Python interpreter executable path.",
                         "type": "string",
                         "default": "python"
                     }
@@ -480,11 +480,6 @@
                 "title": "Explorer",
                 "order": 2,
                 "properties": {
-                    "vsconan.explorer.pythonInterpreter": {
-                        "markdownDescription": "Path to Python interpreter executable for explorer.",
-                        "type": "string",
-                        "default": "python"
-                    },
                     "vsconan.explorer.treeview.package.showDirtyPackage": {
                         "markdownDescription": "Show dirty binary package from a recipe.",
                         "type": "boolean",

@@ -31,7 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.workspaceState.update('show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
 
     // Initializing the Conan API
-    let conanApi = new ConanAPI(vscode.workspace.getConfiguration("vsconan").get("explorer.pythonInterpreter")!);
+    let conanApi = new ConanAPI(vscode.workspace.getConfiguration("vsconan").get("general.pythonInterpreter")!);
 
     // ========== Registering the treeview for the extension
     const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi);
