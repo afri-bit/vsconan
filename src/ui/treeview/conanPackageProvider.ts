@@ -27,19 +27,13 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
     }
 
     public getChildren(element?: ConanPackageItem): ConanPackageItem[] {
-        // Get the python interpreter from the explorer configuration file
-        // If something goes wrong it will be an empty list
-        let python = utils.vsconan.config.getExplorerPython();
-
         let packageList = [];
         let dirtyPackageList: string[] = [];
 
-        if (python) {
-            packageList = this.conanApi.getPackages(this.recipeName, python!);
+        packageList = this.conanApi.getPackages(this.recipeName);
 
-            if (this.showDirtyPackage){
-                dirtyPackageList = this.conanApi.getDirtyPackage(this.recipeName, python!);
-            }
+        if (this.showDirtyPackage){
+            dirtyPackageList = this.conanApi.getDirtyPackage(this.recipeName);
         }
 
         let packageItemList: Array<ConanPackageItem> = [];

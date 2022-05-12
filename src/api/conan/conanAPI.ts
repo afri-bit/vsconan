@@ -14,9 +14,14 @@ import * as utils from "../../utils";
  * This will be adapted in the future using file watcher instead.
  */
 export class ConanAPI {
+    private python: string;
 
-    public constructor() {
+    public constructor(python: string) {
+        this.python = python;
+    }
 
+    public setPythonInterpreter(python: string) {
+        this.python = python;
     }
 
     /**
@@ -24,9 +29,9 @@ export class ConanAPI {
      * @param python
      * @returns Path to conan home folder | undefined on error
      */
-    public getConanHomePath(python: string = "python"): string | undefined {
+    public getConanHomePath(): string | undefined {
         try {
-            let homePath = execSync(`${python} -m conans.conan config home`).toString();
+            let homePath = execSync(`${this.python} -m conans.conan config home`).toString();
             return homePath.trim(); // Remove whitespace and new lines
         }
         catch (err) {
@@ -41,10 +46,10 @@ export class ConanAPI {
      * @param python
      * @returns Full path to the conan profiles directory | undefined on error
      */
-    public getConanProfilesPath(python: string = "python"): string | undefined {
+    public getConanProfilesPath(): string | undefined {
         let returnValue: string | undefined = undefined;
 
-        let conanHomePath = this.getConanHomePath(python);
+        let conanHomePath = this.getConanHomePath();
 
         if (conanHomePath !== undefined) {
             returnValue = path.join(conanHomePath, "profiles");
@@ -59,10 +64,10 @@ export class ConanAPI {
      * @param python 
      * @returns Absolute path to the selected conan profile | undefined on error
      */
-    public getProfileFilePath(profileName: string, python: string = "python"): string | undefined {
+    public getProfileFilePath(profileName: string): string | undefined {
         let returnValue: string | undefined = undefined;
 
-        let conanProfilesPath = this.getConanProfilesPath(python);
+        let conanProfilesPath = this.getConanProfilesPath();
 
         if (conanProfilesPath !== undefined) {
             returnValue = path.join(conanProfilesPath, profileName);
@@ -79,8 +84,8 @@ export class ConanAPI {
      * @param python 
      * @returns Absolute path to the local cache of the recipe | undefined on error
      */
-    public getRecipePath(recipe: string, python: string = "python"): string | undefined {
-        let conanHome = this.getConanHomePath(python = python);
+    public getRecipePath(recipe: string): string | undefined {
+        let conanHome = this.getConanHomePath();
 
         let returnValue: string | undefined = undefined;
 
@@ -126,10 +131,10 @@ export class ConanAPI {
      * @param python 
      * @returns Absolute path to the binary package folder | undefined on error
      */
-    public getPackagePath(recipe: string, packageId: string, python: string = "python"): string | undefined {
+    public getPackagePath(recipe: string, packageId: string): string | undefined {
         let returnValue: string | undefined = undefined;
 
-        let recipePath = this.getRecipePath(recipe, python);
+        let recipePath = this.getRecipePath(recipe);
 
         if (recipePath !== undefined) {
             let packageFolder = path.join(recipePath, "package", packageId);
@@ -156,7 +161,7 @@ export class ConanAPI {
      * @param python 
      * @returns List of all recipes in the local cache
      */
-    public getRecipes(python: string): Array<string> {
+    public getRecipes(): Array<string> {
         // Initialize an empty array of string as default return value
         let arrayRecipeList: Array<string> = [];
 
@@ -167,7 +172,7 @@ export class ConanAPI {
         // We will use the VSConan home folder under user home folder
         let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
-        execSync(`${python} -m conans.conan search --raw --json ${jsonPath}`);
+        execSync(`${this.python} -m conans.conan search --raw --json ${jsonPath}`);
 
         // Check if the file exists
         // With this check it validates if the conan command executed correctly without error
@@ -226,7 +231,7 @@ export class ConanAPI {
      * @param python 
      * @returns List of all exisiting profiles
      */
-    public getProfiles(python: string): Array<string> {
+    public getProfiles(): Array<string> {
 
         let arrayProfileList: Array<string> = [];
 
@@ -234,7 +239,7 @@ export class ConanAPI {
 
         let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
-        execSync(`${python} -m conans.conan profile list --json ${jsonPath}`);
+        execSync(`${this.python} -m conans.conan profile list --json ${jsonPath}`);
 
         if (fs.existsSync(jsonPath)) {
             let tempFile = fs.readFileSync(jsonPath, 'utf8');
@@ -256,7 +261,7 @@ export class ConanAPI {
      * @param recipe Recipe ID to get the packages from
      * @returns Return will be an array of dictionary / map from JSON file
      */
-    public getPackages(recipe: string, python: string = "python"): Array<any> {
+    public getPackages(recipe: string): Array<any> {
         let arrayPackageList: Array<any> = [];
 
         // This if condition is meant to empty the list
@@ -278,7 +283,7 @@ export class ConanAPI {
                 recipeName = recipe;
             }
 
-            execSync(`${python} -m conans.conan search ${recipeName} --json ${jsonPath}`);
+            execSync(`${this.python} -m conans.conan search ${recipeName} --json ${jsonPath}`);
 
             // Check if the file exists
             // With this check it validates if the conan command executed correctly without error
@@ -318,8 +323,8 @@ export class ConanAPI {
      * @param python 
      * @returns Absolute path to the Conan remote json file | undefined on error
      */
-    public getRemoteFilePath(python: string = "python"): string | undefined {
-        let conanHomePath = this.getConanHomePath(python);
+    public getRemoteFilePath(): string | undefined {
+        let conanHomePath = this.getConanHomePath();
 
         let remotePath = undefined;
 
@@ -335,10 +340,10 @@ export class ConanAPI {
      * @param python 
      * @returns List of availabel remotes
      */
-    public getRemotes(python: string = "python"): Array<any> {
+    public getRemotes(): Array<any> {
         let arrayRemoteList: Array<any> = [];
 
-        let conanHomePath = this.getConanHomePath(python);
+        let conanHomePath = this.getConanHomePath();
 
         if (conanHomePath === undefined) {
             throw new Error("Unable to locate Conan home folder.");
@@ -366,8 +371,8 @@ export class ConanAPI {
      * @param packageId Selected package Id to be removed
      * @param python 
      */
-    public removePackage(recipe: string, packageId: string, python: string = "python") {
-        execSync(`${python} -m conans.conan remove ${recipe} -p ${packageId} -f`);
+    public removePackage(recipe: string, packageId: string) {
+        execSync(`${this.python} -m conans.conan remove ${recipe} -p ${packageId} -f`);
     }
 
     /**
@@ -375,8 +380,8 @@ export class ConanAPI {
      * @param recipe Conan recipe name to be removed
      * @param python 
      */
-    public removeRecipe(recipe: string, python: string = "python") {
-        execSync(`${python} -m conans.conan remove ${recipe} -f`);
+    public removeRecipe(recipe: string) {
+        execSync(`${this.python} -m conans.conan remove ${recipe} -f`);
     }
 
     /**
@@ -386,8 +391,8 @@ export class ConanAPI {
      * @param profile Conan profile name to be removed
      * @param python 
      */
-    public removeProfile(profile: string, python: string = "python") {
-        let conanProfilesPath = this.getConanProfilesPath(python);
+    public removeProfile(profile: string) {
+        let conanProfilesPath = this.getConanProfilesPath();
 
         if (conanProfilesPath === undefined) {
             throw new Error("Unable to locate Conan profiles folder.");
@@ -404,8 +409,8 @@ export class ConanAPI {
      * @param url URL that belongs to the remote
      * @param python 
      */
-    public addRemote(remote: string, url: string, python: string = "python") {
-        execSync(`${python} -m conans.conan remote add ${remote} ${url}`);
+    public addRemote(remote: string, url: string) {
+        execSync(`${this.python} -m conans.conan remote add ${remote} ${url}`);
     }
 
     /**
@@ -413,8 +418,8 @@ export class ConanAPI {
      * @param remote Remote name to be removed
      * @param python 
      */
-    public removeRemote(remote: string, python: string = "python") {
-        execSync(`${python} -m conans.conan remote remove ${remote}`);
+    public removeRemote(remote: string) {
+        execSync(`${this.python} -m conans.conan remote remove ${remote}`);
     }
 
     /**
@@ -423,12 +428,12 @@ export class ConanAPI {
      * @param enable State to enable or disable
      * @param python 
      */
-    public enableRemote(remote: string, enable: boolean, python: string = "python") {
+    public enableRemote(remote: string, enable: boolean) {
         if (enable) {
-            execSync(`${python} -m conans.conan remote enable ${remote}`);
+            execSync(`${this.python} -m conans.conan remote enable ${remote}`);
         }
         else {
-            execSync(`${python} -m conans.conan remote disable ${remote}`);
+            execSync(`${this.python} -m conans.conan remote disable ${remote}`);
         }
     }
 
@@ -438,8 +443,8 @@ export class ConanAPI {
      * @param newName New name for the remote
      * @param python 
      */
-    public renameRemote(remoteName: string, newName: string, python: string = "python") {
-        execSync(`${python} -m conans.conan remote rename ${remoteName} ${newName}`);
+    public renameRemote(remoteName: string, newName: string) {
+        execSync(`${this.python} -m conans.conan remote rename ${remoteName} ${newName}`);
     }
 
     /**
@@ -448,8 +453,8 @@ export class ConanAPI {
      * @param url New URL for the selected remote
      * @param python 
      */
-    public updateRemoteURL(remoteName: string, url: string, python: string = "python") {
-        execSync(`${python} -m conans.conan remote update ${remoteName} ${url}`);
+    public updateRemoteURL(remoteName: string, url: string) {
+        execSync(`${this.python} -m conans.conan remote update ${remoteName} ${url}`);
     }
 
     /**
@@ -459,12 +464,12 @@ export class ConanAPI {
      * @param newProfileName New profile name
      * @param python 
      */
-    public renameProfile(oldProfileName: string, newProfileName: string, python: string = "python") {
+    public renameProfile(oldProfileName: string, newProfileName: string) {
         // Get the absolute path to the selected profile
-        let oldProfilePath = this.getProfileFilePath(oldProfileName, python);
+        let oldProfilePath = this.getProfileFilePath(oldProfileName);
 
         if (oldProfilePath) {
-            fs.renameSync(oldProfilePath, path.join(this.getConanProfilesPath(python)!, newProfileName));
+            fs.renameSync(oldProfilePath, path.join(this.getConanProfilesPath()!, newProfileName));
         }
         else {
             throw new Error(`Unable to locate profile ${oldProfileName}`);
@@ -479,11 +484,11 @@ export class ConanAPI {
      * @param newProfileName New profile name
      * @param python 
      */
-    public duplicateProfile(oldProfileName: string, newProfileName: string, python: string = "python") {
-        let oldProfilePath = this.getProfileFilePath(oldProfileName, python);
+    public duplicateProfile(oldProfileName: string, newProfileName: string) {
+        let oldProfilePath = this.getProfileFilePath(oldProfileName);
 
         if (oldProfileName) {
-            fs.copyFileSync(oldProfilePath!, path.join(this.getConanProfilesPath(python)!, newProfileName));
+            fs.copyFileSync(oldProfilePath!, path.join(this.getConanProfilesPath()!, newProfileName));
         }
         else {
             throw new Error(`Unable to duplicate profile ${oldProfileName}`);
@@ -495,8 +500,8 @@ export class ConanAPI {
      * @param profileName Name for the new profile
      * @param python 
      */
-    public createNewProfile(profileName: string, python: string = "python") {
-        execSync(`${python} -m conans.conan profile new  ${profileName}`);
+    public createNewProfile(profileName: string) {
+        execSync(`${this.python} -m conans.conan profile new  ${profileName}`);
     }
 
     /**
@@ -506,7 +511,7 @@ export class ConanAPI {
      * @param python 
      * @returns Recipe general information in JSON string format | undefined on error
      */
-    public getRecipeInformation(recipeName: string, python: string = "python"): string | undefined {
+    public getRecipeInformation(recipeName: string): string | undefined {
         let recipeInfo: string | undefined = undefined;
 
         // Temporary file name to store the result of command execution
@@ -514,7 +519,7 @@ export class ConanAPI {
 
         let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
-        execSync(`${python} -m conans.conan inspect ${recipeName} --json ${jsonPath}`);
+        execSync(`${this.python} -m conans.conan inspect ${recipeName} --json ${jsonPath}`);
 
         // Check if the file exists
         // With this check it validates if the conan command executed correctly without error
@@ -541,7 +546,7 @@ export class ConanAPI {
      * @param recipeName Recipe name to get the dirty packages from
      * @param python 
      */
-    public getDirtyPackage(recipeName: string, python: string): Array<string>{
+    public getDirtyPackage(recipeName: string): Array<string>{
 
         // Get the recipePath
         let recipePath = this.getRecipePath(recipeName);

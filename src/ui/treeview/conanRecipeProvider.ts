@@ -25,15 +25,9 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
     }
 
     public getChildren(element?: ConanRecipeItem): ConanRecipeItem[] {
-        // Get the python interpreter from the explorer configuration file
-        // If something goes wrong it will be an empty list
-        let python = utils.vsconan.config.getExplorerPython();
-
         let recipeList: string[] = [];
 
-        if (python) {
-            recipeList = this.conanApi.getRecipes(python!);
-        }
+        recipeList = this.conanApi.getRecipes();
 
         let recipeItemList: Array<ConanRecipeItem> = [];
 

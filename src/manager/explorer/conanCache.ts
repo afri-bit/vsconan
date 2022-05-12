@@ -97,7 +97,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         let python = utils.vsconan.config.getExplorerPython();
 
         try {
-            let recipeInfo = this.conanApi.getRecipeInformation(node.label, python);
+            let recipeInfo = this.conanApi.getRecipeInformation(node.label);
 
             // Create a web view panel
             const panel = vscode.window.createWebviewPanel(
@@ -123,7 +123,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         let python = utils.vsconan.config.getExplorerPython();
 
         try {
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getRecipePath(node.label, python)!));
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getRecipePath(node.label)!));
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -139,7 +139,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         if (python) {
             try {
-                let packagePath = this.conanApi.getRecipePath(node.label, python);
+                let packagePath = this.conanApi.getRecipePath(node.label);
                 vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
             }
             catch (err) {
@@ -163,7 +163,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                     if (answer === "Yes") {
                         let python = utils.vsconan.config.getExplorerPython();
 
-                        this.conanApi.removeRecipe(node.label, python);
+                        this.conanApi.removeRecipe(node.label);
                         this.nodeProviderConanRecipe.refresh();
 
                         this.nodeProviderConanPackage.refresh("", this.context.workspaceState.get("show-dirty")!); // Empty the binary package treeview
@@ -214,7 +214,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         let python = utils.vsconan.config.getExplorerPython();
 
         try {
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label, python)!));
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label)!));
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -230,7 +230,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         if (python !== undefined) {
             try {
-                let packagePath = this.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label, python);
+                let packagePath = this.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
                 vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
             }
             catch (err) {
@@ -254,7 +254,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                     if (answer === "Yes") {
                         let python = utils.vsconan.config.getExplorerPython();
 
-                        this.conanApi.removePackage(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label, python);
+                        this.conanApi.removePackage(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
 
                         this.nodeProviderConanPackage.refresh(this.treeViewConanRecipe.selection[0].label, this.context.workspaceState.get("show-dirty")!);
                     }

@@ -23,15 +23,9 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
     }
 
     public getChildren(element?: ConanProfileItem): ConanProfileItem[] {
-        // Get the python interpreter from the explorer configuration file
-        // If something goes wrong it will be an empty list
-        let python = utils.vsconan.config.getExplorerPython();
-
         let profileList: string[] = [];
 
-        if (python) {
-            profileList = this.conanApi.getProfiles(python!);
-        }
+        profileList = this.conanApi.getProfiles();
 
         let profileItemList: Array<ConanProfileItem> = [];
 
