@@ -55,8 +55,6 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
      * Edit the remotes.json file in the VS Code
      */
     private editRemote() {
-        let python = utils.vsconan.config.getExplorerPython();
-
         let remoteFile = this.conanApi.getRemoteFilePath();
 
         if (remoteFile) {
@@ -79,8 +77,6 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
                 .showWarningMessage(`Are you sure you want to remove the remote '${node.label}'?`, ...["Yes", "No"])
                 .then((answer) => {
                     if (answer === "Yes") {
-                        let python = utils.vsconan.config.getExplorerPython();
-
                         this.conanApi.removeRemote(node.label);
 
                         this.nodeProviderConanRemote.refresh();
@@ -129,8 +125,6 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
             });
 
             if (remoteURL) {
-                let python = utils.vsconan.config.getExplorerPython();
-
                 try {
                     this.conanApi.addRemote(remoteName, remoteURL);
 
@@ -150,8 +144,6 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
      */
     private enableRemote(node: ConanRemoteItem) {
         try {
-            let python = utils.vsconan.config.getExplorerPython();
-
             this.conanApi.enableRemote(node.label, true);
 
             this.nodeProviderConanRemote.refresh();
@@ -167,8 +159,6 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
      */
     private disableRemote(node: ConanRemoteItem) {
         try {
-            let python = utils.vsconan.config.getExplorerPython();
-
             this.conanApi.enableRemote(node.label, false);
 
             this.nodeProviderConanRemote.refresh();
@@ -204,8 +194,6 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
             });
 
             if (newRemoteName) {
-                let python = utils.vsconan.config.getExplorerPython();
-
                 try {
                     this.conanApi.renameRemote(node.label, newRemoteName);
                     this.nodeProviderConanRemote.refresh();
@@ -248,8 +236,6 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
             });
 
             if (newURL) {
-                let python = utils.vsconan.config.getExplorerPython();
-
                 try {
                     this.conanApi.updateRemoteURL(node.label, newURL);
                     this.nodeProviderConanRemote.refresh();

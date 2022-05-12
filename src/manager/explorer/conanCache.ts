@@ -1,4 +1,3 @@
-import * as utils from '../../utils';
 import * as vscode from 'vscode';
 import { ConanAPI } from '../../api/conan/conanAPI';
 import { ConanPackageNodeProvider } from '../../ui/treeview/conanPackageProvider';
@@ -94,8 +93,6 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * @param node Selected recipe node item
      */
     private recipeShowInformation(node: ConanRecipeItem) {
-        let python = utils.vsconan.config.getExplorerPython();
-
         try {
             let recipeInfo = this.conanApi.getRecipeInformation(node.label);
 
@@ -120,8 +117,6 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * @param node Selected recipe node item
      */
     private recipeOpenExplorer(node: ConanRecipeItem) {
-        let python = utils.vsconan.config.getExplorerPython();
-
         try {
             vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getRecipePath(node.label)!));
         }
@@ -135,19 +130,12 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * @param node Selected recipe node item
      */
     private recipeOpenVSCode(node: ConanRecipeItem) {
-        let python = utils.vsconan.config.getExplorerPython();
-
-        if (python) {
-            try {
-                let packagePath = this.conanApi.getRecipePath(node.label);
-                vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
-            }
-            catch (err) {
-                vscode.window.showErrorMessage((err as Error).message);
-            }
+        try {
+            let packagePath = this.conanApi.getRecipePath(node.label);
+            vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
         }
-        else {
-            vscode.window.showErrorMessage("Python Interpreter not defined.");
+        catch (err) {
+            vscode.window.showErrorMessage((err as Error).message);
         }
     }
 
@@ -161,8 +149,6 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                 .showWarningMessage(`Are you sure you want to remove the recipe '${node.label}'?`, ...["Yes", "No"])
                 .then((answer) => {
                     if (answer === "Yes") {
-                        let python = utils.vsconan.config.getExplorerPython();
-
                         this.conanApi.removeRecipe(node.label);
                         this.nodeProviderConanRecipe.refresh();
 
@@ -211,8 +197,6 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * @param node Selected binary package node item
      */
     private packageOpenExplorer(node: ConanRecipeItem) {
-        let python = utils.vsconan.config.getExplorerPython();
-
         try {
             vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label)!));
         }
@@ -226,19 +210,12 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * @param node Selected binary package node item
      */
     private packageOpenVSCode(node: ConanRecipeItem) {
-        let python = utils.vsconan.config.getExplorerPython();
-
-        if (python !== undefined) {
-            try {
-                let packagePath = this.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
-                vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
-            }
-            catch (err) {
-                vscode.window.showErrorMessage((err as Error).message);
-            }
+        try {
+            let packagePath = this.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
+            vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
         }
-        else {
-            vscode.window.showErrorMessage("Python Interpreter not defined.");
+        catch (err) {
+            vscode.window.showErrorMessage((err as Error).message);
         }
     }
 
@@ -252,8 +229,6 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                 .showWarningMessage(`Are you sure you want to remove the binary package '${node.label}' from '${this.treeViewConanPackage.title!}'?`, ...["Yes", "No"])
                 .then((answer) => {
                     if (answer === "Yes") {
-                        let python = utils.vsconan.config.getExplorerPython();
-
                         this.conanApi.removePackage(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
 
                         this.nodeProviderConanPackage.refresh(this.treeViewConanRecipe.selection[0].label, this.context.workspaceState.get("show-dirty")!);
