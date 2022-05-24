@@ -49,7 +49,7 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
             dirtyPackageitem.iconPath = {
                 light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dirty_package.png'),
                 dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dirty_package.png')
-            }
+            };
 
             packageItemList.push(dirtyPackageitem);
         }

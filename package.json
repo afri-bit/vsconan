@@ -473,6 +473,20 @@
                         "markdownDescription": "Python interpreter executable path.",
                         "type": "string",
                         "default": "python"
+                    },
+                    "vsconan.general.conanExecutable": {
+                        "markdownDescription": "Conan executable path.",
+                        "type": "string",
+                        "default": "conan"
+                    },
+                    "vsconan.general.conanExecutionMode": {
+                        "markdownDescription": "Option to choose how to execute the Conan CLI",
+                        "type": "string",
+                        "enum": [
+                            "pythonInterpreter",
+                            "conanExecutable"
+                        ],
+                        "default": "conanExecutable"
                     }
                 }
             },

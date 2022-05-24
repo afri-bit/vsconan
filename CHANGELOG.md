@@ -4,6 +4,9 @@
 
 ### Added
 - [#10](https://github.com/afri-bit/vsconan/issues/10) Enable option to list dirty packages from a recipe
+- [#14](https://github.com/afri-bit/vsconan/issues/14) Support non-pip conan installation  
+  - Enable possibility for user to use the extension using alternative conan installation (e.g. conan executable)
+  - Provide mode switch between python interpreter and conan executable (User can still use the python interpreter to execute command CLI)
 
 ## [0.1.0]
 * Initial Release

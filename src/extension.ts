@@ -8,7 +8,7 @@ import { ConanPackageNodeProvider } from "./ui/treeview/conanPackageProvider";
 import { ConanProfileNodeProvider } from "./ui/treeview/conanProfileProvider";
 import { ConanRecipeNodeProvider } from "./ui/treeview/conanRecipeProvider";
 import { ConanRemoteNodeProvider } from "./ui/treeview/conanRemoteProvider";
-import { ConanAPI } from "./api/conan/conanAPI";
+import { ConanAPI, ConanExecutionMode } from "./api/conan/conanAPI";
 import { ConanCacheExplorerManager } from "./manager/explorer/conanCache";
 import { ConanProfileExplorerManager } from "./manager/explorer/conanProfile";
 import { ConanRemoteExplorerManager } from "./manager/explorer/conanRemote";
@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     // This channel is to show the command line outputs specifically for this extension
     var channelVSConan = vscode.window.createOutputChannel("VSConan");
 
-    // ----- Global Area Initialization -----
+    // ========== Global Area Initialization
     // Global Area - The global area is stored under home folder ($HOME/.vsconan)
     //               This area has lower priority then the workspace area
     // Global Area - To work for the API a extension folder will created in the home directory
@@ -30,8 +30,24 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.executeCommand('setContext', 'show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
     context.workspaceState.update('show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
 
-    // Initializing the Conan API
-    let conanApi = new ConanAPI(vscode.workspace.getConfiguration("vsconan").get("general.pythonInterpreter")!);
+    // ========== Initializing the Conan API
+    // Getting the setting for execution mode as requirements for ConanAPI
+    let mode = vscode.workspace.getConfiguration("vsconan").get("general.conanExecutionMode");
+
+    // Set default mode, in case undefined mode is written in the config
+    let conanExecutionMode: ConanExecutionMode = ConanExecutionMode.conan;
+
+    if (mode === "pythonInterpreter") {
+        conanExecutionMode = ConanExecutionMode.python;
+    }
+    else if (mode === "conanExecutable") {
+        conanExecutionMode = ConanExecutionMode.conan;
+    }
+
+    let conanApi = new ConanAPI(
+        vscode.workspace.getConfiguration("vsconan").get("general.pythonInterpreter")!,
+        vscode.workspace.getConfiguration("vsconan").get("general.conanExecutable")!,
+        conanExecutionMode);
 
     // ========== Registering the treeview for the extension
     const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi);
