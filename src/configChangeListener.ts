@@ -17,6 +17,6 @@ export function configChangeListener(event: vscode.ConfigurationChangeEvent, con
         conanApi.switchExecutionMode(ConanExecutionMode.conan);
     }
     else {
-        conanApi.switchExecutionMode(ConanExecutionMode.python);
+        conanApi.switchExecutionMode(ConanExecutionMode.conan);
     }
 }

@@ -486,7 +486,7 @@
                             "pythonInterpreter",
                             "conanExecutable"
                         ],
-                        "default": "pythonInterpreter"
+                        "default": "conanExecutable"
                     }
                 }
             },

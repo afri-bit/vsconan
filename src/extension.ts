@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
     let mode = vscode.workspace.getConfiguration("vsconan").get("general.conanExecutionMode");
 
     // Set default mode, in case undefined mode is written in the config
-    let conanExecutionMode: ConanExecutionMode = ConanExecutionMode.python;
+    let conanExecutionMode: ConanExecutionMode = ConanExecutionMode.conan;
 
     if (mode === "pythonInterpreter") {
         conanExecutionMode = ConanExecutionMode.python;
