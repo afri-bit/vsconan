@@ -3,6 +3,12 @@ import * as path from "path";
 import { execSync } from "child_process";
 import * as utils from "../../utils";
 
+
+export enum ConanExecutionMode {
+    python = 1,
+    conan
+}
+
 /**
  * Class to interact with the conan package manager
  * 
@@ -14,14 +20,48 @@ import * as utils from "../../utils";
  * This will be adapted in the future using file watcher instead.
  */
 export class ConanAPI {
-    private python: string;
+    private conanExecutor: string = "";
+    private pythonInterpreter: string;
+    private conanExecutable: string;
+    private conanExecutionMode: ConanExecutionMode;
 
-    public constructor(python: string) {
-        this.python = python;
+    public constructor(pythonInterpreter: string, conanExecutable: string, conanExecutionMode: ConanExecutionMode) {
+        this.pythonInterpreter = pythonInterpreter;
+        this.conanExecutable = conanExecutable;
+        this.conanExecutionMode = conanExecutionMode;
+
+        this.switchExecutionMode(this.conanExecutionMode);
+    }
+
+    public switchExecutionMode(mode: ConanExecutionMode) {
+        switch (this.conanExecutionMode) {
+            case ConanExecutionMode.python: {
+                this.conanExecutor = this.pythonInterpreter + " -m conans.conan";
+                break;
+            }
+            case ConanExecutionMode.conan: {
+                this.conanExecutor = this.conanExecutable;
+                break;
+            }
+        }
     }
 
     public setPythonInterpreter(python: string) {
-        this.python = python;
+        this.pythonInterpreter = python;
+    }
+    
+    public switchToPythonMode(pythonInterpreter: string) {
+        this.setPythonInterpreter(pythonInterpreter);
+        this.switchExecutionMode(ConanExecutionMode.python);
+    }
+
+    public setConanExecutable(conanExecutable: string) {
+        this.conanExecutable = conanExecutable;
+    }
+
+    public switchToConanExecutableMode(conanExecutable: string) {
+        this.setConanExecutable(conanExecutable);
+        this.switchExecutionMode(ConanExecutionMode.conan);
     }
 
     /**
@@ -31,7 +71,7 @@ export class ConanAPI {
      */
     public getConanHomePath(): string | undefined {
         try {
-            let homePath = execSync(`${this.python} -m conans.conan config home`).toString();
+            let homePath = execSync(`${this.conanExecutor} config home`).toString();
             return homePath.trim(); // Remove whitespace and new lines
         }
         catch (err) {
@@ -172,7 +212,7 @@ export class ConanAPI {
         // We will use the VSConan home folder under user home folder
         let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
-        execSync(`${this.python} -m conans.conan search --raw --json ${jsonPath}`);
+        execSync(`${this.conanExecutor} search --raw --json ${jsonPath}`);
 
         // Check if the file exists
         // With this check it validates if the conan command executed correctly without error
@@ -239,7 +279,7 @@ export class ConanAPI {
 
         let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
-        execSync(`${this.python} -m conans.conan profile list --json ${jsonPath}`);
+        execSync(`${this.conanExecutor} profile list --json ${jsonPath}`);
 
         if (fs.existsSync(jsonPath)) {
             let tempFile = fs.readFileSync(jsonPath, 'utf8');
@@ -283,7 +323,7 @@ export class ConanAPI {
                 recipeName = recipe;
             }
 
-            execSync(`${this.python} -m conans.conan search ${recipeName} --json ${jsonPath}`);
+            execSync(`${this.conanExecutor} search ${recipeName} --json ${jsonPath}`);
 
             // Check if the file exists
             // With this check it validates if the conan command executed correctly without error
@@ -372,7 +412,7 @@ export class ConanAPI {
      * @param python 
      */
     public removePackage(recipe: string, packageId: string) {
-        execSync(`${this.python} -m conans.conan remove ${recipe} -p ${packageId} -f`);
+        execSync(`${this.conanExecutor} remove ${recipe} -p ${packageId} -f`);
     }
 
     /**
@@ -381,7 +421,7 @@ export class ConanAPI {
      * @param python 
      */
     public removeRecipe(recipe: string) {
-        execSync(`${this.python} -m conans.conan remove ${recipe} -f`);
+        execSync(`${this.conanExecutor} remove ${recipe} -f`);
     }
 
     /**
@@ -410,7 +450,7 @@ export class ConanAPI {
      * @param python 
      */
     public addRemote(remote: string, url: string) {
-        execSync(`${this.python} -m conans.conan remote add ${remote} ${url}`);
+        execSync(`${this.conanExecutor} remote add ${remote} ${url}`);
     }
 
     /**
@@ -419,7 +459,7 @@ export class ConanAPI {
      * @param python 
      */
     public removeRemote(remote: string) {
-        execSync(`${this.python} -m conans.conan remote remove ${remote}`);
+        execSync(`${this.conanExecutor} remote remove ${remote}`);
     }
 
     /**
@@ -430,10 +470,10 @@ export class ConanAPI {
      */
     public enableRemote(remote: string, enable: boolean) {
         if (enable) {
-            execSync(`${this.python} -m conans.conan remote enable ${remote}`);
+            execSync(`${this.conanExecutor} remote enable ${remote}`);
         }
         else {
-            execSync(`${this.python} -m conans.conan remote disable ${remote}`);
+            execSync(`${this.conanExecutor} remote disable ${remote}`);
         }
     }
 
@@ -444,7 +484,7 @@ export class ConanAPI {
      * @param python 
      */
     public renameRemote(remoteName: string, newName: string) {
-        execSync(`${this.python} -m conans.conan remote rename ${remoteName} ${newName}`);
+        execSync(`${this.conanExecutor} remote rename ${remoteName} ${newName}`);
     }
 
     /**
@@ -454,7 +494,7 @@ export class ConanAPI {
      * @param python 
      */
     public updateRemoteURL(remoteName: string, url: string) {
-        execSync(`${this.python} -m conans.conan remote update ${remoteName} ${url}`);
+        execSync(`${this.conanExecutor} remote update ${remoteName} ${url}`);
     }
 
     /**
@@ -501,7 +541,7 @@ export class ConanAPI {
      * @param python 
      */
     public createNewProfile(profileName: string) {
-        execSync(`${this.python} -m conans.conan profile new  ${profileName}`);
+        execSync(`${this.conanExecutor} profile new  ${profileName}`);
     }
 
     /**
@@ -519,7 +559,7 @@ export class ConanAPI {
 
         let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
 
-        execSync(`${this.python} -m conans.conan inspect ${recipeName} --json ${jsonPath}`);
+        execSync(`${this.conanExecutor} inspect ${recipeName} --json ${jsonPath}`);
 
         // Check if the file exists
         // With this check it validates if the conan command executed correctly without error
@@ -556,12 +596,12 @@ export class ConanAPI {
 
             let listOfFiles = fs.readdirSync(recipePackagePath, { withFileTypes: true })
                 .filter(item => !item.isDirectory())
-                .map(item => item.name)
+                .map(item => item.name);
 
             return listOfFiles.filter(el => path.extname(el) === ".dirty");
         }
         else {
-            throw new Error(`Unable to find data path for recipe '${recipeName}'`)
+            throw new Error(`Unable to find data path for recipe '${recipeName}'`);
         }
     }
 }

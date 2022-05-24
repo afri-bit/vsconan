@@ -9,7 +9,7 @@ export class ConfigurationManager {
     private context: vscode.ExtensionContext;
 
     public constructor(context: vscode.ExtensionContext) {
-        this.context = context
+        this.context = context;
     }
 
     public getPythonGeneral(): string | undefined {
