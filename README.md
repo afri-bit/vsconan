@@ -1,5 +1,11 @@
 # VSConan - Conan Extension for Visual Studio Code
 
+[![Marketplace VSConan](https://img.shields.io/visual-studio-marketplace/v/afri-bit.vsconan)](https://marketplace.visualstudio.com/items?itemName=afri-bit.vsconan)
+![Rating](https://img.shields.io/visual-studio-marketplace/r/afri-bit.vsconan)
+![Downloads](https://img.shields.io/visual-studio-marketplace/d/afri-bit.vsconan)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/afribit)
+
 <p align="center">
 <img src="https://raw.githubusercontent.com/afri-bit/vsconan/main/resources/icon/vsconan-logo.png" width="50%">
 </p>
@@ -238,6 +244,12 @@ See [the contribution guidelines](CONTRIBUTING.md) for ideas and guidance on how
 
 ## Code of Conduct
 See [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Donation
+If this extension is useful and can save some of your time during your productive day, I would really appreciate [a cup of coffee](https://www.paypal.com/paypalme/afribit) to keep me awake to continue developing this extension.
+
+## Credits
+Demonstration video for GIF was recorded using [Chronicler](https://marketplace.visualstudio.com/items?itemName=arcsine.chronicler).
 
 ## License
 
