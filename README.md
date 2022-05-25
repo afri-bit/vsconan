@@ -17,28 +17,30 @@ The **VSConan** extension helps you manage the conan local cache on your machine
 ![Recording of VSConan Explorer](https://raw.githubusercontent.com/afri-bit/vsconan/main/resources/img/demo_explorer.gif)
 
 ## Prerequisites
-* [Python](https://www.python.org/) and [conan](https://pypi.org/project/conan/) are installed on your machine.
+1. [Python](https://www.python.org/) with [conan](https://pypi.org/project/conan/) installed using `pip`
+2. Conan installed on your system using [alternative installations](https://conan.io/downloads.html)
 
 ## How To Start
-**VSConan** extension will be activated, if you open the explorer tab on the left side, or if the folder you open contains `conanfile.py` or `conanfile.txt`, we call this conan workspace. Once the extension is activated, it will create a default configuration file (if it doesn't exist) under the `.vsconan` directory in your home folder. 
-* Windows - `C:\Users\<user>\.vsconan\config.json`
-* Linux - `/home/<user>/.vsconan/config.json`
 
-The `config.json` will have the format as following:
-``` json
-{
-    "general": {
-        "python": "python"
-    },
-    "explorer": {
-        "python": "python"
-    }
-}
-```
+**VSConan** contributes to official VS Code configurations (`settings.json`), where you can configure the environment to use this extension. To start you can configure following settings  in the `settings.json`:
+  * `vsconan.general.pythonInterpreter": "python"`  
+    Path to the python interpreter executable. It doesn't have to be a path but can be also an alias as you can see in the default value above, in case you already defined python in your environment variables.  
+    Default value: `python`
+  * `vsconan.general.conanExecutable": "conan"`  
+    Path to the conan executable, in case you install conan using [alternative installations](https://conan.io/downloads.html).  
+    Defautl value: `conan`
+  * `vsconan.general.conanExecutionMode": "conanExecutable"`  
+    Setting to switch the mode how the extension executes conan command, either using python oder directly conan executable. We leave the conanExecutable as default, because even if you install conan using `pip`, python will create an 'executable' called `conan`, that can be executed globally.  
+    Based on the option selected, the chosen path will be used to interact with conan.  
+    Default value: `conanExecutable`  
+    Possible options: [`conanExecutable`, `pythonInterpreter`]
 
-You have to define the location of your python interpreter, where conan is also installed. If you have defined it using environment variable / alias, simply put it directly there as you can see in the example config file above. Otherwise you have to give the full path, where the python interpreter is located.
+If your system is set according to the default values of the settings, then you can start using the extension without tweaking the configurations.
 
-**!!! NOTE !!!** Currently only the `explorer` python from the configuration file is used.
+If your prefer GUI solution to tweak this configuration, go to `File` > `Preferences` > `Settings` > `Extensions` > `VSConan`, and you will get the following view
+
+![VSConan GUI Settings](resources/img/vsconan_gui_settings.png)
+
 
 ## Extension Features
 The **VSConan** extension contains two major groups of features, one of them is the [Conan Explorer](#conan-explorer), where you can use to manage your local cache, and the other one is [Conan Workspace](#conan-workspace), where you can save your configuration of different conan flow commands in your VSCode workspace.
@@ -226,10 +228,6 @@ The default configuration file can be seen as following. You can extend the list
 
 ### Additional Support Features
 
-* `VSConan: Create Global Configuration (JSON)`  
-  Command to create global configuration file in your home directory
-* `VSConan: Open Global Configuration (JSON)`  
-  Open the global configuration file in editor
 * `VSConan: Create Workspace Configuration (JSON)`  
   Create workspace configuration file
 * `VSConan: Open Workspace Configuration (JSON)`  

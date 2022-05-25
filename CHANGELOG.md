@@ -3,10 +3,24 @@
 ## Unreleased
 
 ### Added
-- [#10](https://github.com/afri-bit/vsconan/issues/10) Enable option to list dirty packages from a recipe
-- [#14](https://github.com/afri-bit/vsconan/issues/14) Support non-pip conan installation  
-  - Enable possibility for user to use the extension using alternative conan installation (e.g. conan executable)
-  - Provide mode switch between python interpreter and conan executable (User can still use the python interpreter to execute command CLI)
+* [#10](https://github.com/afri-bit/vsconan/issues/10) Enable option to list dirty packages from a recipe  
+  * `vsconan.explorer.treeview.package.showDirtyPackage` is available to set the flag persistent
+* [#14](https://github.com/afri-bit/vsconan/issues/14) Support non-pip conan installation  
+  * Enable possibility for user to use the extension using alternative conan installation (e.g. conan executable)
+  * Provide mode switch between python interpreter and conan executable (User can still use the python interpreter to execute conan CLI)
+* Configuration for the extension in `settings.json`
+  * `vsconan.general.conanExecutable`
+  * `vsconan.general.conanExecutionMode`
+  * `vsconan.general.pythonInterpreter`
+
+### Changed
+* The configuration for extension is migrated to official VS Code `settings.json`. Custom global `config.json` under `~/.vsconan` is now **deprecated**.
+
+### Removed
+* `VSConan: Create Global Configuration (JSON)`  
+  Command to create global configuration file in your home directory
+* `VSConan: Open Global Configuration (JSON)`  
+  Open the global configuration file in editor
 
 ## [0.1.0]
 * Initial Release
