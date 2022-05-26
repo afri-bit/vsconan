@@ -218,6 +218,10 @@
                 }
             },
             {
+                "command": "vsconan.explorer.treeview.recipe.item.copy-clipboard",
+                "title": "Copy Path to Clipboard"
+            },
+            {
                 "command": "vsconan.explorer.treeview.package.item.information",
                 "title": "Information",
                 "icon": {
@@ -248,6 +252,10 @@
                     "light": "resources/icon/light/remove.png",
                     "dark": "resources/icon/dark/remove.png"
                 }
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.item.copy-clipboard",
+                "title": "Copy Path to Clipboard"
             },
             {
                 "command": "vsconan.explorer.treeview.profile.item.remove",
@@ -398,6 +406,10 @@
                     "group": "inline"
                 },
                 {
+                    "command": "vsconan.explorer.treeview.recipe.item.copy-clipboard",
+                    "when": "view == vsconan-explorer.treeview.recipe"
+                },
+                {
                     "command": "vsconan.explorer.treeview.package.item.open-explorer",
                     "when": "view == vsconan-explorer.treeview.package",
                     "group": "inline"
@@ -411,6 +423,10 @@
                     "command": "vsconan.explorer.treeview.package.item.remove",
                     "when": "view == vsconan-explorer.treeview.package",
                     "group": "inline"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.package.item.copy-clipboard",
+                    "when": "view == vsconan-explorer.treeview.package"
                 },
                 {
                     "command": "vsconan.explorer.treeview.profile.item.edit",

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { ConanAPI } from '../../api/conan/conanAPI';
-import { ConanPackageNodeProvider } from '../../ui/treeview/conanPackageProvider';
+import { ConanPackageItem, ConanPackageNodeProvider } from '../../ui/treeview/conanPackageProvider';
 import { ConanRecipeItem, ConanRecipeNodeProvider } from '../../ui/treeview/conanRecipeProvider';
 import { ExtensionManager } from '../extensionManager';
 
@@ -51,15 +51,17 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         this.registerCommand("vsconan.explorer.treeview.recipe.item.open-explorer", (node: ConanRecipeItem) => this.recipeOpenExplorer(node));
         this.registerCommand("vsconan.explorer.treeview.recipe.item.open-vscode", (node: ConanRecipeItem) => this.recipeOpenVSCode(node));
         this.registerCommand("vsconan.explorer.treeview.recipe.item.remove", (node: ConanRecipeItem) => this.recipeRemove(node));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.copy-clipboard", (node: ConanRecipeItem) => this.recipeCopyPathToClipboard(node));
 
         // Register command for binary package treeview
         this.registerCommand("vsconan.explorer.treeview.package.refresh", () => this.packageRefreshTreeview());
         this.registerCommand("vsconan.explorer.treeview.package.dirty.show", () => this.showDirtyPackage());
         this.registerCommand("vsconan.explorer.treeview.package.dirty.hide", () => this.hideDirtyPackage());
-        this.registerCommand("vsconan.explorer.treeview.package.item.information", (node: ConanRecipeItem) => this.packageShowInformation(node));
-        this.registerCommand("vsconan.explorer.treeview.package.item.open-explorer", (node: ConanRecipeItem) => this.packageOpenExplorer(node));
-        this.registerCommand("vsconan.explorer.treeview.package.item.open-vscode", (node: ConanRecipeItem) => this.packageOpenVSCode(node));
-        this.registerCommand("vsconan.explorer.treeview.package.item.remove", (node: ConanRecipeItem) => this.packageRemove(node));
+        this.registerCommand("vsconan.explorer.treeview.package.item.information", (node: ConanPackageItem) => this.packageShowInformation(node));
+        this.registerCommand("vsconan.explorer.treeview.package.item.open-explorer", (node: ConanPackageItem) => this.packageOpenExplorer(node));
+        this.registerCommand("vsconan.explorer.treeview.package.item.open-vscode", (node: ConanPackageItem) => this.packageOpenVSCode(node));
+        this.registerCommand("vsconan.explorer.treeview.package.item.remove", (node: ConanPackageItem) => this.packageRemove(node));
+        this.registerCommand("vsconan.explorer.treeview.package.item.copy-clipboard", (node: ConanPackageItem) => this.packageCopyPathToClipboard(node));
     }
 
     // ========== RECIPE TREEVIEW COMMANDS
@@ -162,6 +164,16 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         }
     }
 
+    private recipeCopyPathToClipboard(node: ConanRecipeItem) {
+        try {
+            let recipePath = this.conanApi.getRecipePath(node.label);
+            vscode.env.clipboard.writeText(recipePath!);
+        }
+        catch {
+            vscode.window.showErrorMessage("Unable to copy the path to clipboard");
+        }
+    }
+
     // ========== BINARY PACKAGE TREEVIEW COMMANDS
 
     /**
@@ -188,7 +200,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * Still in the todo list. Need to figure out how to obtain this information
      * @param node Selected binary package node item
      */
-    private packageShowInformation(node: ConanRecipeItem) {
+    private packageShowInformation(node: ConanPackageItem) {
         // TODO: Show information from the selected recipe
     }
 
@@ -196,7 +208,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * Open selected binary package in the file explorer
      * @param node Selected binary package node item
      */
-    private packageOpenExplorer(node: ConanRecipeItem) {
+    private packageOpenExplorer(node: ConanPackageItem) {
         try {
             vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label)!));
         }
@@ -209,7 +221,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * Open selected binary package in VS Code
      * @param node Selected binary package node item
      */
-    private packageOpenVSCode(node: ConanRecipeItem) {
+    private packageOpenVSCode(node: ConanPackageItem) {
         try {
             let packagePath = this.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
             vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
@@ -223,7 +235,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * Remove selected binary package
      * @param node Selected binary package node item to be removed
      */
-    private packageRemove(node: ConanRecipeItem) {
+    private packageRemove(node: ConanPackageItem) {
         try {
             vscode.window
                 .showWarningMessage(`Are you sure you want to remove the binary package '${node.label}' from '${this.treeViewConanPackage.title!}'?`, ...["Yes", "No"])
@@ -234,6 +246,16 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                         this.nodeProviderConanPackage.refresh(this.treeViewConanRecipe.selection[0].label, this.context.workspaceState.get("show-dirty")!);
                     }
                 });
+        }
+        catch (err) {
+            vscode.window.showErrorMessage((err as Error).message);
+        }
+    }
+
+    private packageCopyPathToClipboard(node: ConanPackageItem) {
+        try {
+            let packagePath = this.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
+            vscode.env.clipboard.writeText(packagePath!);
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);

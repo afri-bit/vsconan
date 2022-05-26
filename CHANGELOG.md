@@ -12,6 +12,7 @@
   * `vsconan.general.conanExecutable`
   * `vsconan.general.conanExecutionMode`
   * `vsconan.general.pythonInterpreter`
+* Right click option for recipe and package treeview item to copy its path
 
 ### Changed
 * The configuration for extension is migrated to official VS Code `settings.json`. Custom global `config.json` under `~/.vsconan` is now **deprecated**.
