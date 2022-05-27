@@ -9,6 +9,18 @@ export enum ConanExecutionMode {
     conan
 }
 
+export class ConanRecipeModel {
+    public name: string;
+    public editable: boolean;
+    public path: string; 
+
+    constructor(name: string, editable: boolean, path: string = "") {
+        this.name = name;
+        this.editable = editable;
+        this.path = path;
+    }
+}
+
 /**
  * Class to interact with the conan package manager
  * 
@@ -603,5 +615,56 @@ export class ConanAPI {
         else {
             throw new Error(`Unable to find data path for recipe '${recipeName}'`);
         }
+    }
+
+    /**
+     * Function to obtain list of recipe of editable packages
+     * This function is a workaround that parses a plain string to obtain the information about editable packages
+     * Conan only output its own text formatting for this purpose (not YAML, not JSON)
+     * We are currently doing this parsing by asuming that the text that we get is ideal (kinda brute force way)
+     * Fingers crossed!!!
+     * @returns List of editable list
+     */
+    public getEditablePackages(): Array<ConanRecipeModel> {
+        let conanEditableRecipeList: Array<ConanRecipeModel> = [];
+
+        let jsonName: string = "editable_package.txt";
+        
+        let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
+
+        execSync(`${this.conanExecutor} editable list > ${jsonPath}`);
+        // let foo = execSync(`${this.conanExecutor} editable list`).toString();
+
+        let tempFile = fs.readFileSync(jsonPath, 'utf8').toString();
+
+        let stringList = [];
+
+        if (tempFile.length > 0) {
+            stringList = tempFile.split("\n");
+            
+            // Removing unnecessary text from the conan command line output
+            // This output is written to the output if the settngs.yaml is updated
+            // We need to remove this to start parse the information we need
+            if (stringList[0].includes("cacert.pem")) {
+                stringList = stringList.splice(-1,1);
+            }
+            
+            // Remove empty line in the last element
+            stringList.pop();
+
+            // Start parsing the information
+            for (let i=0; i < stringList.length; i++) {
+                // Every third item is the header of the data (name of the recipe)
+                // Thats why we check it with modulo
+                if (i % 3 === 0) {
+                    let recipeName = stringList[i].trim();
+                    let recipePath = stringList[i+1].trim().replace("Path: ", "");
+                    conanEditableRecipeList.push(new ConanRecipeModel(recipeName, true, recipePath));
+                }
+            }
+            console.log(tempFile.length)
+        }
+
+        return conanEditableRecipeList;
     }
 }
