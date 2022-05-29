@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as utils from '../../utils';
-import { ConanAPI } from "../../api/conan/conanAPI";
+import { ConanAPI, ConanRecipeModel } from "../../api/conan/conanAPI";
 
 export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRecipeItem> {
 
@@ -25,14 +25,27 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
     }
 
     public getChildren(element?: ConanRecipeItem): ConanRecipeItem[] {
-        let recipeList: string[] = [];
+        let recipeList: Array<ConanRecipeModel> = [];
+        let recipeEditableList: Array<ConanRecipeModel> = [];
 
         recipeList = this.conanApi.getRecipes();
+        recipeEditableList = this.conanApi.getEditablePackageRecipes();
+
+        // Get the list of string from editable packages
+        let editableRecipeStringList: Array<string> = [];
 
         let recipeItemList: Array<ConanRecipeItem> = [];
+        for (let recipe of recipeEditableList) {
+            editableRecipeStringList.push(recipe.name);
+            recipeItemList.push(new ConanRecipeItem(recipe.name, vscode.TreeItemCollapsibleState.None, recipe));
+        }
 
         for (let recipe of recipeList) {
-            recipeItemList.push(new ConanRecipeItem(recipe, vscode.TreeItemCollapsibleState.None));
+            // Basically even the package is editable, it will appear in the 'conan search' command
+            // We dont want to have double name in the item list in the treeview, so we need to check if the package is already included in the editable list 
+            if (!editableRecipeStringList.includes(recipe.name)) {
+                recipeItemList.push(new ConanRecipeItem(recipe.name, vscode.TreeItemCollapsibleState.None, recipe));
+            }
         }
 
         return recipeItemList;
@@ -58,12 +71,16 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
 }
 
 export class ConanRecipeItem extends vscode.TreeItem {
+    public model: ConanRecipeModel;
 
     constructor(
         public readonly label: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState) {
-
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+        model: ConanRecipeModel) {
+        
         super(label, collapsibleState);
+
+        this.model = model;
 
         this.tooltip = `${this.label}`;
 
@@ -71,12 +88,26 @@ export class ConanRecipeItem extends vscode.TreeItem {
             "title": "Conan Recipe Selected",
             "command": "vsconan.explorer.treeview.recipe.item.selected",
         };
+
+        if (model.editable) {
+            this.iconPath = {
+                light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'recipe_editable.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'recipe_editable.png')
+            };
+
+            this.contextValue = 'recipeEditable';
+        }
+        else {
+            this.iconPath = {
+                light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'recipe.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'recipe.png')
+            };
+
+            this.contextValue = 'recipe';
+        }
     }
 
-    iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'recipe.png'),
-        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'recipe.png')
-    };
-
-    contextValue = 'recipe';
+    public isEditable(): boolean {
+        return this.model.editable;
+    }
 }

@@ -213,9 +213,9 @@ export class ConanAPI {
      * @param python 
      * @returns List of all recipes in the local cache
      */
-    public getRecipes(): Array<string> {
+    public getRecipes(): Array<ConanRecipeModel> {
         // Initialize an empty array of string as default return value
-        let arrayRecipeList: Array<string> = [];
+        let arrayRecipeList: Array<ConanRecipeModel> = [];
 
         // Initialize the temporary json file name
         let jsonName: string = "recipe.json";
@@ -262,7 +262,7 @@ export class ConanAPI {
                     let recipeItems = recipeJson.results[0].items;
 
                     for (let recipe of recipeItems) {
-                        arrayRecipeList.push(recipe.recipe.id);
+                        arrayRecipeList.push(new ConanRecipeModel(recipe.recipe.id, false, ""));
                     }
                 }
             }
@@ -625,7 +625,7 @@ export class ConanAPI {
      * Fingers crossed!!!
      * @returns List of editable list
      */
-    public getEditablePackages(): Array<ConanRecipeModel> {
+    public getEditablePackageRecipes(): Array<ConanRecipeModel> {
         let conanEditableRecipeList: Array<ConanRecipeModel> = [];
 
         let jsonName: string = "editable_package.txt";
@@ -666,5 +666,26 @@ export class ConanAPI {
         }
 
         return conanEditableRecipeList;
+    }
+
+    public removeEditablePackageRecipe(recipe: string) {
+        execSync(`${this.conanExecutor} editable remove ${recipe}`);
+    }
+
+    /**
+     * 
+     * @param recipePath Path to conan recipe
+     * @param name Name of the package in the recipe (must be the same name as in the recipe)
+     * @param user Conan user for the package
+     * @param channel Conan channel for the package
+     */
+    public addEditablePackage(recipePath: string, name: string, user: string, channel: string) {
+        let recipeName: string = name;
+
+        if (user != "" && channel != "") {
+            recipeName = recipeName + `@${user}/${channel}`;
+        }
+        
+        execSync(`${this.conanExecutor} editable add ${recipePath} ${recipeName}`);
     }
 }

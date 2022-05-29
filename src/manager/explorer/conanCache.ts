@@ -51,6 +51,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         this.registerCommand("vsconan.explorer.treeview.recipe.item.open-explorer", (node: ConanRecipeItem) => this.recipeOpenExplorer(node));
         this.registerCommand("vsconan.explorer.treeview.recipe.item.open-vscode", (node: ConanRecipeItem) => this.recipeOpenVSCode(node));
         this.registerCommand("vsconan.explorer.treeview.recipe.item.remove", (node: ConanRecipeItem) => this.recipeRemove(node));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.editable.remove", (node: ConanRecipeItem) => this.recipeRemoveEditabel(node));
         this.registerCommand("vsconan.explorer.treeview.recipe.item.copy-clipboard", (node: ConanRecipeItem) => this.recipeCopyPathToClipboard(node));
 
         // Register command for binary package treeview
@@ -120,7 +121,12 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      */
     private recipeOpenExplorer(node: ConanRecipeItem) {
         try {
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getRecipePath(node.label)!));
+            if (node.isEditable()) {
+                vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(node.model.path));
+            }
+            else {
+                vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getRecipePath(node.label)!));
+            }
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -133,8 +139,15 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      */
     private recipeOpenVSCode(node: ConanRecipeItem) {
         try {
-            let packagePath = this.conanApi.getRecipePath(node.label);
-            vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
+            if (node.isEditable()) {
+                // The path in the model is referring to the conanfile.py
+                // We want to open the parent path of the file
+                vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(node.model.path + "/.."), true);
+            }
+            else {
+                let packagePath = this.conanApi.getRecipePath(node.label);
+                vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
+            }
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -164,10 +177,25 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         }
     }
 
+    private recipeRemoveEditabel(node: ConanRecipeItem) {
+        try {
+            this.conanApi.removeEditablePackageRecipe(node.label);
+            this.nodeProviderConanRecipe.refresh();
+        }
+        catch (err) {
+            vscode.window.showErrorMessage((err as Error).message);
+        }
+    }
+
     private recipeCopyPathToClipboard(node: ConanRecipeItem) {
         try {
-            let recipePath = this.conanApi.getRecipePath(node.label);
-            vscode.env.clipboard.writeText(recipePath!);
+            if (node.isEditable()) {
+                vscode.env.clipboard.writeText(node.model.path);
+            }
+            else {
+                let recipePath = this.conanApi.getRecipePath(node.label);
+                vscode.env.clipboard.writeText(recipePath!);
+            }
         }
         catch {
             vscode.window.showErrorMessage("Unable to copy the path to clipboard");
