@@ -49,6 +49,8 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         this.registerCommand("vsconan.conan.source", () => this.executeConanCommand(ConanCommand.source));
         this.registerCommand("vsconan.conan.package", () => this.executeConanCommand(ConanCommand.package));
         this.registerCommand("vsconan.conan.package.export", () => this.executeConanCommand(ConanCommand.packageExport));
+        this.registerCommand("vsconan.conan.editable.add", () => this.addEditablePackage());
+        this.registerCommand("vsconan.conan.editable.remove", () => this.removeEditablePackage());
         this.registerCommand("vsconan.config.global.create", () => this.createGlobalConfig());
         this.registerCommand("vsconan.config.global.open", () => this.openGlobalConfig());
         this.registerCommand("vsconan.config.workspace.create", () => this.createWorkspaceConfig());
@@ -390,5 +392,55 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 }
             }
         });
+    }
+
+    private addEditablePackage() {
+
+        // TODO: List of workspace
+
+        // TODO: Get conan workspace
+        // Gather workspaces, which are a conan workspace and list only conan workspace!!!
+
+        // TODO: Get the selection 
+        // Gather information inside the package name inside the conan recipe
+        // Get the path
+        
+        // TODO: get user and channel
+        // if user is empty, skip channel
+        // if user is filled, channel must not be empty, show error message
+
+        // TODO: Optional - Get list of layout
+    }
+
+    private async removeEditablePackage() {
+        // TODO: Get list of editable packages
+        try {
+            let editablePackageRecipes = this.conanApi.getEditablePackageRecipes();
+
+            const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
+            let quickPickItems = [];
+            for (let i = 0; i < editablePackageRecipes.length; i++) {
+                quickPickItems.push({
+                    label: editablePackageRecipes![i].name,
+                    description: "",
+                    detail: editablePackageRecipes![i].path,
+                    index: i
+                });
+            }
+            quickPickItems.map(label => ({ label }));
+            quickPick.items = quickPickItems;
+
+            const choice = await vscode.window.showQuickPick(quickPickItems);
+
+            if (choice) {
+                this.conanApi.removeEditablePackageRecipe(choice.label);
+                vscode.window.showInformationMessage(`Editable package ${choice?.label} has been removed.`);
+            }
+        }
+        catch(err) {
+            vscode.window.showErrorMessage((err as Error).message);
+        }
+
+        // TODO: Remove selected
     }
 }
