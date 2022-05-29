@@ -668,12 +668,16 @@ export class ConanAPI {
         return conanEditableRecipeList;
     }
 
+    /**
+     * Method to remove a package from editable mode
+     * @param recipe Package recipe name
+     */
     public removeEditablePackageRecipe(recipe: string) {
         execSync(`${this.conanExecutor} editable remove ${recipe}`);
     }
 
     /**
-     * 
+     * Method to add an editable package
      * @param recipePath Path to conan recipe
      * @param name Name of the package in the recipe (must be the same name as in the recipe)
      * @param user Conan user for the package
