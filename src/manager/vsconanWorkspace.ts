@@ -394,26 +394,104 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         });
     }
 
-    private addEditablePackage() {
+    private async addEditablePackage() {
+        // List of workspace
+        let wsList = vscode.workspace.workspaceFolders;
 
-        // TODO: List of workspace
+        let conanWorkspaceList: Array<string> = [];
 
-        // TODO: Get conan workspace
-        // Gather workspaces, which are a conan workspace and list only conan workspace!!!
+        if (wsList != undefined) {
+            try {
+                // Filtering workspace into conan workspace
+                // Minimize options for the quickpick
+                for (let ws of wsList!) {
+                    if (utils.conan.isFolderConanProject(ws.uri.fsPath)) {
+                        conanWorkspaceList.push(ws.uri.fsPath);
+                    }
+                }
 
-        // TODO: Get the selection 
-        // Gather information inside the package name inside the conan recipe
-        // Get the path
-        
-        // TODO: get user and channel
-        // if user is empty, skip channel
-        // if user is filled, channel must not be empty, show error message
+                // Picking the conan workspace after filtering the workspace into conan workspace
+                const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
+                let quickPickItems = [];
+                for (let i = 0; i < conanWorkspaceList.length; i++) {
+                    quickPickItems.push({
+                        label: conanWorkspaceList[i],
+                        description: "",
+                        detail: "",
+                        index: i
+                    });
+                }
+                quickPickItems.map(label => ({ label }));
+                quickPick.items = quickPickItems;
 
-        // TODO: Optional - Get list of layout
+                const wsChoice = await vscode.window.showQuickPick(quickPickItems);
+
+                if (wsChoice) {
+                    // Get the name and version in the recipe
+                    let name = this.conanApi.getRecipeAttribute(wsChoice!.label, "name");
+                    let version = this.conanApi.getRecipeAttribute(wsChoice!.label, "version");
+                    let packageInformation = `${name}/${version}`;
+
+                    // Input for 'user' and 'channel'
+                    // Initial value is defined as 'undefined' to put the logic at the end.
+                    // Even there is no user and channel it should be at least an empty string, not 'undefined'
+                    let user = undefined;
+                    let channel = undefined;
+
+                    const userInput = await vscode.window.showInputBox({
+                        title: `Editable - Select 'user' for package '${packageInformation}'`,
+                        validateInput: text => {
+                            if (text.includes(" ")) {
+                                return 'Whitespace is not allowed.';
+                            }
+                            else {
+                                return null;
+                            }
+                        }
+                    });
+
+                    user = userInput;
+
+                    // Checking if user cancel the process
+                    // Undefined means that user cancels the process
+                    if (user != "" && user != undefined) {
+                        const channelInput = await vscode.window.showInputBox({
+                            title: `Editable - Select 'channel' for package '${packageInformation}'`,
+                            validateInput: text => {
+                                if (text.includes(" ")) {
+                                    return 'Whitespace is not allowed.';
+                                }
+                                else if (text === "") {
+                                    return "Enter a name for the channel";
+                                }
+                                else {
+                                    return null;
+                                }
+                            }
+                        });
+
+                        channel = channelInput!;
+                    }
+                    // Put channel to empty string if the user is not defined. Both of them have to be existing.
+                    else if (user == "" && user != undefined) {
+                        channel = ""
+                    }
+
+                    // Last step is to put the selected package to editable mode with all the given information
+                    // Make sure that user and channel are string, not 'undefined', and then we can execute the conan API command to add the editable package
+                    if (user != undefined && channel != undefined) {
+                        this.conanApi.addEditablePackage(wsChoice.label, packageInformation, user, channel);
+                        vscode.window.showInformationMessage(`Editable package '${packageInformation}' with user '${user}' and channel '${channel}' has been added.`);
+                    }
+                }
+            }
+            catch (err) {
+                vscode.window.showErrorMessage((err as Error).message);
+            }
+        }
     }
 
     private async removeEditablePackage() {
-        // TODO: Get list of editable packages
         try {
             let editablePackageRecipes = this.conanApi.getEditablePackageRecipes();
 
@@ -440,7 +518,5 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         catch(err) {
             vscode.window.showErrorMessage((err as Error).message);
         }
-
-        // TODO: Remove selected
     }
 }

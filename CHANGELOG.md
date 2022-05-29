@@ -20,6 +20,7 @@
   * Open editable package in Explorer
   * Copy editable path to clipboard
   * Remove editable package via command and quickpick (simple option)
+  * Add editable package from the workspace
 
 ### Changed
 * The configuration for extension is migrated to official VS Code `settings.json`. Custom global `config.json` under `~/.vsconan` is now **deprecated**.

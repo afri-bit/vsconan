@@ -692,4 +692,18 @@ export class ConanAPI {
         
         execSync(`${this.conanExecutor} editable add ${recipePath} ${recipeName}`);
     }
+
+    public getRecipeAttribute(recipePath: string, attribute: string) {
+        let res = execSync(`${this.conanExecutor} inspect ${recipePath} --raw ${attribute}`).toString();
+        
+        let stringList = [];
+
+        stringList = res.split("\n");
+
+        if (stringList[0].includes("cacert.pem")) {
+            stringList = stringList.splice(-1,1);
+        }
+        
+        return stringList[0];
+    }
 }
