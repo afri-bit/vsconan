@@ -9,6 +9,18 @@ export enum ConanExecutionMode {
     conan
 }
 
+export class ConanRecipeModel {
+    public name: string;
+    public editable: boolean;
+    public path: string; 
+
+    constructor(name: string, editable: boolean, path: string = "") {
+        this.name = name;
+        this.editable = editable;
+        this.path = path;
+    }
+}
+
 /**
  * Class to interact with the conan package manager
  * 
@@ -101,7 +113,6 @@ export class ConanAPI {
     /**
      * Method to get absolute path to selected conan profile.
      * @param profileName Conan profile name
-     * @param python 
      * @returns Absolute path to the selected conan profile | undefined on error
      */
     public getProfileFilePath(profileName: string): string | undefined {
@@ -121,7 +132,6 @@ export class ConanAPI {
      * To get the path in this method, we will create the path based on 
      * the folder structure pattern in the local cache, that is created by Conan.
      * @param recipe Conan recipe name
-     * @param python 
      * @returns Absolute path to the local cache of the recipe | undefined on error
      */
     public getRecipePath(recipe: string): string | undefined {
@@ -168,7 +178,6 @@ export class ConanAPI {
      * Required basic information is the Conan home folder. 
      * @param recipe Conan recipe name
      * @param packageId Binary package Id that belongs to the recipe
-     * @param python 
      * @returns Absolute path to the binary package folder | undefined on error
      */
     public getPackagePath(recipe: string, packageId: string): string | undefined {
@@ -198,12 +207,11 @@ export class ConanAPI {
      * Method to get list of existing recipe in the local cache.
      * This method uses combination of CLI and filesystem that is provided by Conan itself.
      * We will execute one of the conan commands and write the result into a JSON file.
-     * @param python 
      * @returns List of all recipes in the local cache
      */
-    public getRecipes(): Array<string> {
+    public getRecipes(): Array<ConanRecipeModel> {
         // Initialize an empty array of string as default return value
-        let arrayRecipeList: Array<string> = [];
+        let arrayRecipeList: Array<ConanRecipeModel> = [];
 
         // Initialize the temporary json file name
         let jsonName: string = "recipe.json";
@@ -250,7 +258,7 @@ export class ConanAPI {
                     let recipeItems = recipeJson.results[0].items;
 
                     for (let recipe of recipeItems) {
-                        arrayRecipeList.push(recipe.recipe.id);
+                        arrayRecipeList.push(new ConanRecipeModel(recipe.recipe.id, false, ""));
                     }
                 }
             }
@@ -268,7 +276,6 @@ export class ConanAPI {
     /**
      * Method to get list of existing profiles.
      * This method executes the Conan CLI and stores the result in a JSON file
-     * @param python 
      * @returns List of all exisiting profiles
      */
     public getProfiles(): Array<string> {
@@ -360,7 +367,6 @@ export class ConanAPI {
     /**
      * Method to get absolute path to the Conan remote json file.
      * This json file stores all the information about all the remotes information users configure
-     * @param python 
      * @returns Absolute path to the Conan remote json file | undefined on error
      */
     public getRemoteFilePath(): string | undefined {
@@ -377,7 +383,6 @@ export class ConanAPI {
 
     /**
      * Get the list of available remotes
-     * @param python 
      * @returns List of availabel remotes
      */
     public getRemotes(): Array<any> {
@@ -409,7 +414,6 @@ export class ConanAPI {
      * Method to remove a selected binary package from its recipe
      * @param recipe Conan recipe name
      * @param packageId Selected package Id to be removed
-     * @param python 
      */
     public removePackage(recipe: string, packageId: string) {
         execSync(`${this.conanExecutor} remove ${recipe} -p ${packageId} -f`);
@@ -418,7 +422,6 @@ export class ConanAPI {
     /**
      * Remove a selected recipe from the local cache
      * @param recipe Conan recipe name to be removed
-     * @param python 
      */
     public removeRecipe(recipe: string) {
         execSync(`${this.conanExecutor} remove ${recipe} -f`);
@@ -429,7 +432,6 @@ export class ConanAPI {
      * To make the process quicker, we will delete the file directly from the system.
      * In this case, we don't use the Conan CLI
      * @param profile Conan profile name to be removed
-     * @param python 
      */
     public removeProfile(profile: string) {
         let conanProfilesPath = this.getConanProfilesPath();
@@ -447,7 +449,6 @@ export class ConanAPI {
      * Add a new remote
      * @param remote Remote name
      * @param url URL that belongs to the remote
-     * @param python 
      */
     public addRemote(remote: string, url: string) {
         execSync(`${this.conanExecutor} remote add ${remote} ${url}`);
@@ -456,7 +457,6 @@ export class ConanAPI {
     /**
      * Remove a selected remote from Conan
      * @param remote Remote name to be removed
-     * @param python 
      */
     public removeRemote(remote: string) {
         execSync(`${this.conanExecutor} remote remove ${remote}`);
@@ -466,7 +466,6 @@ export class ConanAPI {
      * Enable/disable selected remote
      * @param remote Remote name
      * @param enable State to enable or disable
-     * @param python 
      */
     public enableRemote(remote: string, enable: boolean) {
         if (enable) {
@@ -481,7 +480,6 @@ export class ConanAPI {
      * Rename selected remote
      * @param remoteName Remote name to be renamed
      * @param newName New name for the remote
-     * @param python 
      */
     public renameRemote(remoteName: string, newName: string) {
         execSync(`${this.conanExecutor} remote rename ${remoteName} ${newName}`);
@@ -491,7 +489,6 @@ export class ConanAPI {
      * Edit URL of the selected remote
      * @param remoteName Remote name to be modified
      * @param url New URL for the selected remote
-     * @param python 
      */
     public updateRemoteURL(remoteName: string, url: string) {
         execSync(`${this.conanExecutor} remote update ${remoteName} ${url}`);
@@ -502,7 +499,6 @@ export class ConanAPI {
      * For this method we will use the file system approach again.
      * @param oldProfileName Profile name to be renamed
      * @param newProfileName New profile name
-     * @param python 
      */
     public renameProfile(oldProfileName: string, newProfileName: string) {
         // Get the absolute path to the selected profile
@@ -522,7 +518,7 @@ export class ConanAPI {
      * Therefore we can just use this method to duplicate an existing profile and give it a new name.
      * @param oldProfileName Profile name to be duplicated
      * @param newProfileName New profile name
-     * @param python 
+     * 
      */
     public duplicateProfile(oldProfileName: string, newProfileName: string) {
         let oldProfilePath = this.getProfileFilePath(oldProfileName);
@@ -538,7 +534,6 @@ export class ConanAPI {
     /**
      * Create a new profile
      * @param profileName Name for the new profile
-     * @param python 
      */
     public createNewProfile(profileName: string) {
         execSync(`${this.conanExecutor} profile new  ${profileName}`);
@@ -548,7 +543,6 @@ export class ConanAPI {
      * Method to retrieve recipe general information such as name, version, license and many more.
      * This method uses Conan CLI to get the recipe information and stores it in a JSON file.
      * @param recipeName Recipe name to get the information from
-     * @param python 
      * @returns Recipe general information in JSON string format | undefined on error
      */
     public getRecipeInformation(recipeName: string): string | undefined {
@@ -584,7 +578,6 @@ export class ConanAPI {
      * To search for a dirty package conan CLI cannot be used directly, therefore
      * we need to go through the file system to find files with '.dirty' extension
      * @param recipeName Recipe name to get the dirty packages from
-     * @param python 
      */
     public getDirtyPackage(recipeName: string): Array<string>{
 
@@ -603,5 +596,103 @@ export class ConanAPI {
         else {
             throw new Error(`Unable to find data path for recipe '${recipeName}'`);
         }
+    }
+
+    /**
+     * Function to obtain list of recipe of editable packages
+     * This function is a workaround that parses a plain string to obtain the information about editable packages
+     * Conan only output its own text formatting for this purpose (not YAML, not JSON)
+     * We are currently doing this parsing by asuming that the text that we get is ideal (kinda brute force way)
+     * Fingers crossed!!!
+     * @returns List of editable list
+     */
+    public getEditablePackageRecipes(): Array<ConanRecipeModel> {
+        let conanEditableRecipeList: Array<ConanRecipeModel> = [];
+
+        let jsonName: string = "editable_package.txt";
+        
+        let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
+
+        execSync(`${this.conanExecutor} editable list > ${jsonPath}`);
+        // let foo = execSync(`${this.conanExecutor} editable list`).toString();
+
+        let tempFile = fs.readFileSync(jsonPath, 'utf8').toString();
+
+        let stringList = [];
+
+        if (tempFile.length > 0) {
+            stringList = tempFile.split("\n");
+            
+            // Removing unnecessary text from the conan command line output
+            // This output is written to the output if the settngs.yaml is updated
+            // We need to remove this to start parse the information we need
+            if (stringList[0].includes("cacert.pem")) {
+                stringList = stringList.splice(-1,1);
+            }
+            
+            // Remove empty line in the last element
+            stringList.pop();
+
+            // Start parsing the information
+            for (let i=0; i < stringList.length; i++) {
+                // Every third item is the header of the data (name of the recipe)
+                // Thats why we check it with modulo
+                if (i % 3 === 0) {
+                    let recipeName = stringList[i].trim();
+                    let recipePath = stringList[i+1].trim().replace("Path: ", "");
+                    conanEditableRecipeList.push(new ConanRecipeModel(recipeName, true, recipePath));
+                }
+            }
+            console.log(tempFile.length)
+        }
+
+        return conanEditableRecipeList;
+    }
+
+    /**
+     * Method to remove a package from editable mode
+     * @param recipe Package recipe name
+     */
+    public removeEditablePackageRecipe(recipe: string) {
+        execSync(`${this.conanExecutor} editable remove ${recipe}`);
+    }
+
+    /**
+     * Method to add an editable package
+     * @param recipePath Path to conan recipe
+     * @param name Name of the package in the recipe (must be the same name as in the recipe)
+     * @param user Conan user for the package
+     * @param channel Conan channel for the package
+     * @param layout Predefined layout file for editable package (Can be a full path to the layout file) 
+     *               For further information please refer to official documentation from conan.
+     */
+    public addEditablePackage(recipePath: string, name: string, user: string, channel: string, layout: string) {
+        let recipeName: string = name;
+
+        if (user != "" && channel != "") {
+            recipeName = recipeName + `@${user}/${channel}`;
+        }
+        
+        execSync(`${this.conanExecutor} editable add ${recipePath} ${recipeName} --layout "${layout}"`);
+    }
+
+    /**
+     * Method to extract recipe attribute from a recipe file
+     * @param recipePath Path to recipe file
+     * @param attribute Attribute to be extracted from the recipe
+     * @returns Attribute information in string format
+     */
+    public getRecipeAttribute(recipePath: string, attribute: string) {
+        let res = execSync(`${this.conanExecutor} inspect ${recipePath} --raw ${attribute}`).toString();
+        
+        let stringList = [];
+
+        stringList = res.split("\n");
+
+        if (stringList[0].includes("cacert.pem")) {
+            stringList = stringList.splice(-1,1);
+        }
+        
+        return stringList[0];
     }
 }

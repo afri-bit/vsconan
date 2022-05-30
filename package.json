@@ -38,6 +38,8 @@
         "onCommand:vsconan.conan.source",
         "onCommand:vsconan.conan.package",
         "onCommand:vsconan.conan.package.export",
+        "onCommand:vsconan.conan.editable.add",
+        "onCommand:vsconan.conan.editable.remove",
         "onCommand:vsconan.config.global.create",
         "onCommand:vsconan.config.global.open",
         "onCommand:vsconan.config.workspace.create",
@@ -104,6 +106,14 @@
             {
                 "command": "vsconan.conan.package.export",
                 "title": "VSConan: Export Package"
+            },
+            {
+                "command": "vsconan.conan.editable.add",
+                "title": "VSConan: Add Editable"
+            },
+            {
+                "command": "vsconan.conan.editable.remove",
+                "title": "VSConan: Remove Editable"
             },
             {
                 "command": "vsconan.config.global.create",
@@ -407,7 +417,8 @@
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.copy-clipboard",
-                    "when": "view == vsconan-explorer.treeview.recipe"
+                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "group": "1-recipeContext@1"
                 },
                 {
                     "command": "vsconan.explorer.treeview.package.item.open-explorer",
