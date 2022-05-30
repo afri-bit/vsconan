@@ -21,6 +21,26 @@ export class ConanRecipeModel {
     }
 }
 
+export class ConanPackageModel {
+    public id: string;
+    public dirty: boolean;
+    public options: object;
+    public outdated: boolean;
+    public requires: object;
+    public settings: object;
+    public path: string;
+
+    constructor(id: string, dirty: boolean, options: object, outdated: boolean, requires: object, settings: object, path: string = "") {
+        this.id = id;
+        this.dirty = dirty;
+        this.options = options;
+        this.outdated = outdated;
+        this.requires = requires;
+        this.settings = settings;
+        this.path = path;
+    }
+}
+
 /**
  * Class to interact with the conan package manager
  * 
@@ -308,8 +328,8 @@ export class ConanAPI {
      * @param recipe Recipe ID to get the packages from
      * @returns Return will be an array of dictionary / map from JSON file
      */
-    public getPackages(recipe: string): Array<any> {
-        let arrayPackageList: Array<any> = [];
+    public getPackages(recipe: string): Array<ConanPackageModel> {
+        let arrayPackageList: Array<ConanPackageModel> = [];
 
         // This if condition is meant to empty the list
         // User can put empty string of the recipe name to get empty list
@@ -347,7 +367,7 @@ export class ConanAPI {
                         let packageItems = recipeJson.results[0].items[0].packages;
 
                         for (let pkg of packageItems) {
-                            arrayPackageList.push(pkg);
+                            arrayPackageList.push(new ConanPackageModel(pkg.id, false, pkg.options, pkg.outdated, pkg.requires, pkg.settings));
                         }
                     }
                 }
@@ -579,8 +599,9 @@ export class ConanAPI {
      * we need to go through the file system to find files with '.dirty' extension
      * @param recipeName Recipe name to get the dirty packages from
      */
-    public getDirtyPackage(recipeName: string): Array<string>{
-
+    public getDirtyPackage(recipeName: string): Array<ConanPackageModel>{
+        let dirtyPackageList: Array<ConanPackageModel> = [];
+        
         // Get the recipePath
         let recipePath = this.getRecipePath(recipeName);
 
@@ -591,7 +612,13 @@ export class ConanAPI {
                 .filter(item => !item.isDirectory())
                 .map(item => item.name);
 
-            return listOfFiles.filter(el => path.extname(el) === ".dirty");
+            let dirtyFiles = listOfFiles.filter(el => path.extname(el) === ".dirty");
+
+            for (let f of dirtyFiles) {
+                dirtyPackageList.push(new ConanPackageModel(f, true, {}, false, {}, {}));
+            }
+
+            return dirtyPackageList;
         }
         else {
             throw new Error(`Unable to find data path for recipe '${recipeName}'`);

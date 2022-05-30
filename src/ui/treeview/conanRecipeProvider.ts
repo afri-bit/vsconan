@@ -89,7 +89,7 @@ export class ConanRecipeItem extends vscode.TreeItem {
             "command": "vsconan.explorer.treeview.recipe.item.selected",
         };
 
-        if (model.editable) {
+        if (this.model.editable) {
             this.iconPath = {
                 light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'recipe_editable.png'),
                 dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'recipe_editable.png')

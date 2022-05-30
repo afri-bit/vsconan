@@ -427,12 +427,12 @@
                 },
                 {
                     "command": "vsconan.explorer.treeview.package.item.open-vscode",
-                    "when": "view == vsconan-explorer.treeview.package",
+                    "when": "view == vsconan-explorer.treeview.package && viewItem == package",
                     "group": "inline"
                 },
                 {
                     "command": "vsconan.explorer.treeview.package.item.remove",
-                    "when": "view == vsconan-explorer.treeview.package",
+                    "when": "view == vsconan-explorer.treeview.package && viewItem == package",
                     "group": "inline"
                 },
                 {

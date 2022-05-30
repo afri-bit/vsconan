@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as utils from "../../utils";
-import { ConanAPI } from "../../api/conan/conanAPI";
+import { ConanAPI, ConanPackageModel } from "../../api/conan/conanAPI";
 
 export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPackageItem> {
 
@@ -27,8 +27,8 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
     }
 
     public getChildren(element?: ConanPackageItem): ConanPackageItem[] {
-        let packageList = [];
-        let dirtyPackageList: string[] = [];
+        let packageList: Array<ConanPackageModel> = [];
+        let dirtyPackageList: Array<ConanPackageModel> = [];
 
         packageList = this.conanApi.getPackages(this.recipeName);
 
@@ -43,15 +43,7 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
         }
 
         for (let pkg of dirtyPackageList) {
-            let dirtyPackageitem = new ConanPackageItem(pkg, vscode.TreeItemCollapsibleState.None, "");
-
-            // TODO: Setup the class separately instead of changing the icon path manually
-            dirtyPackageitem.iconPath = {
-                light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dirty_package.png'),
-                dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dirty_package.png')
-            };
-
-            packageItemList.push(dirtyPackageitem);
+            packageItemList.push(new ConanPackageItem(pkg.id, vscode.TreeItemCollapsibleState.None, pkg));
         }
 
         return packageItemList;
@@ -69,26 +61,41 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
 }
 
 export class ConanPackageItem extends vscode.TreeItem {
+    public model: ConanPackageModel;
 
     constructor(
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly detailInfo: string) {
+        model: ConanPackageModel) {
 
         super(label, collapsibleState);
 
-        this.detailInfo = JSON.stringify(this.detailInfo, null, 4);
+        this.model = model;
 
         this.command = {
             "title": "Conan Package Selected",
             "command": "vsconan.explorer.treeview.package.item.selected",
         };
+
+        if (this.model.dirty) {
+            this.iconPath = {
+                light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'package_dirty.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'package_dirty.png')
+            };
+
+            this.contextValue = 'packageDirty';
+        }
+        else {
+            this.iconPath = {
+                light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'package.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'package.png')
+            };
+
+            this.contextValue = 'package';
+        }
     }
-
-    iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'package.png'),
-        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'package.png')
-    };
-
-    contextValue = 'package';
+    
+    public isDirty(): boolean {
+        return this.model.dirty;
+    }
 }
