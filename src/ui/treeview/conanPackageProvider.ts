@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as utils from "../../utils";
-import { ConanAPI } from "../../api/conan/conanAPI";
+import { ConanAPI, ConanPackageModel } from "../../api/conan/conanAPI";
 
 export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPackageItem> {
 
@@ -9,14 +9,16 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
     readonly onDidChangeTreeData: vscode.Event<ConanPackageItem | undefined | void> = this._onDidChangeTreeData.event;
 
     private recipeName: string = "";
+    private showDirtyPackage: boolean = false;
     private conanApi: ConanAPI;
 
     public constructor(conanApi: ConanAPI) {
         this.conanApi = conanApi;
     }
 
-    public refresh(recipeName: string): void {
+    public refresh(recipeName: string, showDirtyPackage: boolean): void {
         this.recipeName = recipeName;
+        this.showDirtyPackage = showDirtyPackage;
         this._onDidChangeTreeData.fire();
     }
 
@@ -25,19 +27,22 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
     }
 
     public getChildren(element?: ConanPackageItem): ConanPackageItem[] {
-        // Get the python interpreter from the explorer configuration file
-        // If something goes wrong it will be an empty list
-        let python = utils.vsconan.config.getExplorerPython();
+        let packageList: Array<ConanPackageModel> = [];
+        let dirtyPackageList: Array<ConanPackageModel> = [];
 
-        let packageList = [];
+        packageList = this.conanApi.getPackages(this.recipeName);
 
-        if (python) {
-            packageList = this.conanApi.getPackages(this.recipeName, python!);
+        if (this.showDirtyPackage){
+            dirtyPackageList = this.conanApi.getDirtyPackage(this.recipeName);
         }
 
         let packageItemList: Array<ConanPackageItem> = [];
 
         for (let pkg of packageList) {
+            packageItemList.push(new ConanPackageItem(pkg.id, vscode.TreeItemCollapsibleState.None, pkg));
+        }
+
+        for (let pkg of dirtyPackageList) {
             packageItemList.push(new ConanPackageItem(pkg.id, vscode.TreeItemCollapsibleState.None, pkg));
         }
 
@@ -56,26 +61,41 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
 }
 
 export class ConanPackageItem extends vscode.TreeItem {
+    public model: ConanPackageModel;
 
     constructor(
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly detailInfo: string) {
+        model: ConanPackageModel) {
 
         super(label, collapsibleState);
 
-        this.detailInfo = JSON.stringify(this.detailInfo, null, 4);
+        this.model = model;
 
         this.command = {
             "title": "Conan Package Selected",
             "command": "vsconan.explorer.treeview.package.item.selected",
         };
+
+        if (this.model.dirty) {
+            this.iconPath = {
+                light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'package_dirty.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'package_dirty.png')
+            };
+
+            this.contextValue = 'packageDirty';
+        }
+        else {
+            this.iconPath = {
+                light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'package.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'package.png')
+            };
+
+            this.contextValue = 'package';
+        }
     }
-
-    iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'package.png'),
-        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'package.png')
-    };
-
-    contextValue = 'package';
+    
+    public isDirty(): boolean {
+        return this.model.dirty;
+    }
 }

@@ -23,15 +23,9 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
     }
 
     public getChildren(element?: ConanRemoteItem): ConanRemoteItem[] {
-        // Get the python interpreter from the explorer configuration file
-        // If something goes wrong it will be an empty list
-        let python = utils.vsconan.config.getExplorerPython();
-
         let remoteList = [];
 
-        if (python) {
-            remoteList = this.conanApi.getRemotes(python!);
-        }
+        remoteList = this.conanApi.getRemotes();
 
         let remoteItemList: Array<ConanRemoteItem> = [];
 

@@ -3,7 +3,6 @@ import * as path from "path";
 import * as os from "os";
 import * as constants from "./constants";
 import * as fs from "fs";
-import { ConfigGlobal, ConfigGlobalGeneral, ConfigGlobalExplorer } from "./config/configGlobal";
 import { ConfigWorkspace } from "./config/configWorkspace";
 import {
     CommandContainer, ConfigCommandBuild, ConfigCommandCreate,
@@ -48,12 +47,6 @@ export namespace vsconan {
             fs.mkdirSync(vsconan.getVSConanHomeDir());
         }
 
-        // Check if global config file is available, otherwise create a new one with default parameters
-        if (!fs.existsSync(vsconan.getGlobalConfigPath())) {
-            let configGlobal = new ConfigGlobal(new ConfigGlobalGeneral("python"), new ConfigGlobalExplorer("python"));
-            configGlobal.writeToFile(vsconan.getGlobalConfigPath());
-        }
-
         //  Additionally the temp folder will created to store temporary files
         if (!fs.existsSync(vsconan.getVSConanHomeDirTemp())) {
             fs.mkdirSync(vsconan.getVSConanHomeDirTemp());
@@ -92,52 +85,7 @@ export namespace vsconan {
 
     }
 
-    export namespace config {
-        /**
-         * Method to select python interpreter between global and workspace configuration
-         * The workspace python has higher priority over the global configuration.
-         * If both are filled with information, the workspace interpreter will be chosen as return.
-         * 
-         * @param configDataGlobal 
-         * @param configDataWorkspace 
-         * @returns <string> String return will occur if the configuration is not empty string
-         *          <undefined> This will be return as result if string is empty string or atrribute is not defined in the configuration file
-         */
-        export function selectPython(configGlobal: ConfigGlobal, configWorkspace: ConfigWorkspace): string | undefined {
-            // Config workspace has priority over the global config
-            // If workspace config is undefined or empty, the global config will be used
-            // With this logic, user can define the python configuration locally in workspace
-    
-            if (configWorkspace.python !== undefined && configWorkspace.python !== "") { // Returning workspace python
-                return configWorkspace.python;
-            }
-            else if (configGlobal.general.python !== undefined && configGlobal.general.python !== "") { // Returning global python
-                return configGlobal.general.python;
-            }
-            else { // No other option available
-                return undefined;
-            }
-    
-        }
-    
-        /**
-         * Utility function to retrieve python interpreter for explorer manager from the config file 
-         * @returns String of python interpreter that is stored in the configuration file | undefined on error
-         */
-        export function getExplorerPython(): string | undefined {
-            if (fs.existsSync(vsconan.getGlobalConfigPath())) {
-                let configGlobal = new ConfigGlobal();
-    
-                let configText = fs.readFileSync(vsconan.getGlobalConfigPath(), 'utf8');
-                configGlobal = JSON.parse(configText);
-    
-                return configGlobal.explorer.python!;
-            }
-            else {
-                vscode.window.showErrorMessage("Unable to find configuration file");
-            }
-        }
-    
+    export namespace config {    
         /**
          * Function to create initial workspace configuration file with all conan commands
          * registered in the config files

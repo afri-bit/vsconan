@@ -1,6 +1,40 @@
 # Change Log
 
-## [0.1.0]
+## 0.2.0 - 2022-05-30
+
+### Added
+* [#10](https://github.com/afri-bit/vsconan/issues/10) Enable option to list dirty packages from a recipe  
+  * `vsconan.explorer.treeview.package.showDirtyPackage` is available to set the flag persistent
+* [#14](https://github.com/afri-bit/vsconan/issues/14) Support non-pip conan installation  
+  * Enable possibility for user to use the extension using alternative conan installation (e.g. conan executable)
+  * Provide mode switch between python interpreter and conan executable (User can still use the python interpreter to execute conan CLI)
+* Configuration for the extension in `settings.json`
+  * `vsconan.general.conanExecutable`
+  * `vsconan.general.conanExecutionMode`
+  * `vsconan.general.pythonInterpreter`
+* Right click option for recipe and package treeview item to copy its path
+* [#13](https://github.com/afri-bit/vsconan/issues/13) Managing editable packages
+  * List editable packages in the treeview
+  * Remove editable package via Treeview
+  * Open editable package in VS Code
+  * Open editable package in Explorer
+  * Copy editable path to clipboard
+  * Remove editable package via command and quickpick (simple option)
+  * Add editable package from the workspace
+  * Enable layout file input for the editable package  
+    **!!!** Currently only supporting the manual input from the user for the layout.
+
+
+### Changed
+* The configuration for extension is migrated to official VS Code `settings.json`. Custom global `config.json` under `~/.vsconan` is now **deprecated**.
+
+### Removed
+* `VSConan: Create Global Configuration (JSON)`  
+  Command to create global configuration file in your home directory
+* `VSConan: Open Global Configuration (JSON)`  
+  Open the global configuration file in editor
+
+## 0.1.0 - 2022-04-21
 * Initial Release
 * Conan Explorer
     * Conan Recipe

@@ -58,8 +58,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
         let conanProfileList = this.nodeProviderConanProfile.getChildrenString();
 
         if (conanProfileList.includes(node.label)) {
-            let python = utils.vsconan.config.getExplorerPython();
-            utils.editor.openFileInEditor(this.conanApi.getProfileFilePath(node.label, python)!);
+            utils.editor.openFileInEditor(this.conanApi.getProfileFilePath(node.label)!);
         }
         else {
             vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
@@ -79,9 +78,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
                 .showWarningMessage(`Are you sure you want to remove the profile '${node.label}'?`, ...["Yes", "No"])
                 .then((answer) => {
                     if (answer === "Yes") {
-                        let python = utils.vsconan.config.getExplorerPython();
-
-                        this.conanApi.removeProfile(node.label, python);
+                        this.conanApi.removeProfile(node.label);
 
                         this.nodeProviderConanProfile.refresh();
                     }
@@ -100,10 +97,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
         let conanProfileList = this.nodeProviderConanProfile.getChildrenString();
 
         if (conanProfileList.includes(node.label)) {
-
-            let python = utils.vsconan.config.getExplorerPython();
-
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getProfileFilePath(node.label, python)!));
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getProfileFilePath(node.label)!));
         }
         else {
             vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
@@ -136,10 +130,8 @@ export class ConanProfileExplorerManager extends ExtensionManager {
             });
 
             if (newProfileName) {
-                let python = utils.vsconan.config.getExplorerPython();
-
                 try {
-                    this.conanApi.renameProfile(node.label, newProfileName, python);
+                    this.conanApi.renameProfile(node.label, newProfileName);
                     this.nodeProviderConanProfile.refresh();
                 }
                 catch (err) {
@@ -178,10 +170,8 @@ export class ConanProfileExplorerManager extends ExtensionManager {
             });
 
             if (newProfileName) {
-                let python = utils.vsconan.config.getExplorerPython();
-
                 try {
-                    this.conanApi.duplicateProfile(node.label, newProfileName, python);
+                    this.conanApi.duplicateProfile(node.label, newProfileName);
 
                     // Refresh the treeview once again
                     this.nodeProviderConanProfile.refresh();
@@ -219,10 +209,8 @@ export class ConanProfileExplorerManager extends ExtensionManager {
         });
 
         if (profileName) {
-            let python = utils.vsconan.config.getExplorerPython();
-
             try {
-                this.conanApi.createNewProfile(profileName, python);
+                this.conanApi.createNewProfile(profileName);
 
                 // Refresh the treeview once again
                 this.nodeProviderConanProfile.refresh();

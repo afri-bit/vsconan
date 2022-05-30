@@ -2,7 +2,7 @@
     "name": "vsconan",
     "displayName": "VSConan",
     "description": "Conan local cache and workspace manager.",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "publisher": "afri-bit",
     "repository": {
         "type": "git",
@@ -38,8 +38,8 @@
         "onCommand:vsconan.conan.source",
         "onCommand:vsconan.conan.package",
         "onCommand:vsconan.conan.package.export",
-        "onCommand:vsconan.config.global.create",
-        "onCommand:vsconan.config.global.open",
+        "onCommand:vsconan.conan.editable.add",
+        "onCommand:vsconan.conan.editable.remove",
         "onCommand:vsconan.config.workspace.create",
         "onCommand:vsconan.config.workspace.open"
     ],
@@ -106,12 +106,12 @@
                 "title": "VSConan: Export Package"
             },
             {
-                "command": "vsconan.config.global.create",
-                "title": "VSConan: Create Global Configuration (JSON)"
+                "command": "vsconan.conan.editable.add",
+                "title": "VSConan: Add Editable"
             },
             {
-                "command": "vsconan.config.global.open",
-                "title": "VSConan: Open Global Configuration (JSON)"
+                "command": "vsconan.conan.editable.remove",
+                "title": "VSConan: Remove Editable"
             },
             {
                 "command": "vsconan.config.workspace.create",
@@ -136,6 +136,14 @@
                     "light": "resources/icon/light/refresh.png",
                     "dark": "resources/icon/dark/refresh.png"
                 }
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.dirty.show",
+                "title": "Show Dirty Package"
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.dirty.hide",
+                "title": "Hide Dirty Package"
             },
             {
                 "command": "vsconan.explorer.treeview.profile.refresh",
@@ -163,7 +171,7 @@
             },
             {
                 "command": "vsconan.explorer.treeview.remote.add",
-                "title": "Refresh",
+                "title": "Add New Remote",
                 "icon": {
                     "light": "resources/icon/light/add.png",
                     "dark": "resources/icon/dark/add.png"
@@ -210,6 +218,10 @@
                 }
             },
             {
+                "command": "vsconan.explorer.treeview.recipe.item.copy-clipboard",
+                "title": "Copy Path to Clipboard"
+            },
+            {
                 "command": "vsconan.explorer.treeview.package.item.information",
                 "title": "Information",
                 "icon": {
@@ -240,6 +252,10 @@
                     "light": "resources/icon/light/remove.png",
                     "dark": "resources/icon/dark/remove.png"
                 }
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.item.copy-clipboard",
+                "title": "Copy Path to Clipboard"
             },
             {
                 "command": "vsconan.explorer.treeview.profile.item.remove",
@@ -335,6 +351,14 @@
                     "group": "navigation"
                 },
                 {
+                    "command": "vsconan.explorer.treeview.package.dirty.show",
+                    "when": "view == vsconan-explorer.treeview.package && show-dirty == false"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.package.dirty.hide",
+                    "when": "view == vsconan-explorer.treeview.package && show-dirty == true"
+                },
+                {
                     "command": "vsconan.explorer.treeview.profile.refresh",
                     "when": "view == vsconan-explorer.treeview.profile",
                     "group": "navigation"
@@ -382,19 +406,28 @@
                     "group": "inline"
                 },
                 {
+                    "command": "vsconan.explorer.treeview.recipe.item.copy-clipboard",
+                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "group": "1-recipeContext@1"
+                },
+                {
                     "command": "vsconan.explorer.treeview.package.item.open-explorer",
                     "when": "view == vsconan-explorer.treeview.package",
                     "group": "inline"
                 },
                 {
                     "command": "vsconan.explorer.treeview.package.item.open-vscode",
-                    "when": "view == vsconan-explorer.treeview.package",
+                    "when": "view == vsconan-explorer.treeview.package && viewItem == package",
                     "group": "inline"
                 },
                 {
                     "command": "vsconan.explorer.treeview.package.item.remove",
-                    "when": "view == vsconan-explorer.treeview.package",
+                    "when": "view == vsconan-explorer.treeview.package && viewItem == package",
                     "group": "inline"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.package.item.copy-clipboard",
+                    "when": "view == vsconan-explorer.treeview.package"
                 },
                 {
                     "command": "vsconan.explorer.treeview.profile.item.edit",
@@ -447,7 +480,45 @@
                     "group": "inline@4"
                 }
             ]
-        }
+        },
+        "configuration":[
+            {
+                "title": "General",
+                "order": 1,
+                "properties": {
+                    "vsconan.general.pythonInterpreter": {
+                        "markdownDescription": "Python interpreter executable path.",
+                        "type": "string",
+                        "default": "python"
+                    },
+                    "vsconan.general.conanExecutable": {
+                        "markdownDescription": "Conan executable path.",
+                        "type": "string",
+                        "default": "conan"
+                    },
+                    "vsconan.general.conanExecutionMode": {
+                        "markdownDescription": "Option to choose how to execute the Conan CLI",
+                        "type": "string",
+                        "enum": [
+                            "pythonInterpreter",
+                            "conanExecutable"
+                        ],
+                        "default": "conanExecutable"
+                    }
+                }
+            },
+            {
+                "title": "Explorer",
+                "order": 2,
+                "properties": {
+                    "vsconan.explorer.treeview.package.showDirtyPackage": {
+                        "markdownDescription": "Show dirty binary package from a recipe.",
+                        "type": "boolean",
+                        "default": false
+                    }
+                }
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
