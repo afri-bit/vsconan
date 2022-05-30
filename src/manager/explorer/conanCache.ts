@@ -211,19 +211,25 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * Refresh binary package treeview
      */
     private packageRefreshTreeview() {
-        this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), this.context.workspaceState.get("show-dirty")!);
+        if (this.nodeProviderConanRecipe.getSelectedRecipe()) {
+            this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), this.context.workspaceState.get("show-dirty")!);
+        }
     }
 
     private showDirtyPackage() {
         vscode.commands.executeCommand('setContext', 'show-dirty', true);
         this.context.workspaceState.update("show-dirty", true);
-        this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), true);
+        if (this.nodeProviderConanRecipe.getSelectedRecipe()) {
+            this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), true);
+        }
     }
 
     private hideDirtyPackage() {
         vscode.commands.executeCommand('setContext', 'show-dirty', false);
         this.context.workspaceState.update("show-dirty", false);
-        this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), false);
+        if (this.nodeProviderConanRecipe.getSelectedRecipe()) {
+            this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), false);
+        }
     }
 
     /**
