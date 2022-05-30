@@ -21,6 +21,9 @@
   * Copy editable path to clipboard
   * Remove editable package via command and quickpick (simple option)
   * Add editable package from the workspace
+  * Enable layout file input for the editable package  
+    **!!!** Currently only supporting the manual input from the user for the layout.
+
 
 ### Changed
 * The configuration for extension is migrated to official VS Code `settings.json`. Custom global `config.json` under `~/.vsconan` is now **deprecated**.

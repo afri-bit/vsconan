@@ -480,8 +480,16 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                     // Last step is to put the selected package to editable mode with all the given information
                     // Make sure that user and channel are string, not 'undefined', and then we can execute the conan API command to add the editable package
                     if (user != undefined && channel != undefined) {
-                        this.conanApi.addEditablePackage(wsChoice.label, packageInformation, user, channel);
-                        vscode.window.showInformationMessage(`Editable package '${packageInformation}' with user '${user}' and channel '${channel}' has been added.`);
+
+                        const layout = await vscode.window.showInputBox({
+                            title: `Editable - Select 'layout' for package '${packageInformation}'`
+                        });
+
+                        if (layout != undefined) {
+                            this.conanApi.addEditablePackage(wsChoice.label, packageInformation, user, channel, layout);
+                            vscode.window.showInformationMessage(`Editable package '${packageInformation}' with user '${user}' and channel '${channel}' has been added.`);
+                        }
+
                     }
                 }
             }
