@@ -51,7 +51,6 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         this.registerCommand("vsconan.explorer.treeview.recipe.item.open-explorer", (node: ConanRecipeItem) => this.recipeOpenExplorer(node));
         this.registerCommand("vsconan.explorer.treeview.recipe.item.open-vscode", (node: ConanRecipeItem) => this.recipeOpenVSCode(node));
         this.registerCommand("vsconan.explorer.treeview.recipe.item.remove", (node: ConanRecipeItem) => this.recipeRemove(node));
-        this.registerCommand("vsconan.explorer.treeview.recipe.item.editable.remove", (node: ConanRecipeItem) => this.recipeRemoveEditabel(node));
         this.registerCommand("vsconan.explorer.treeview.recipe.item.copy-clipboard", (node: ConanRecipeItem) => this.recipeCopyPathToClipboard(node));
 
         // Register command for binary package treeview
@@ -83,11 +82,18 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * Callback method if a recipe item in the treeview in selected
      */
     private recipeItemSelected() {
-        this.nodeProviderConanRecipe.setSelectedRecipe(this.treeViewConanRecipe.selection[0].label);
-
-        // Change the title of the treeview for package explorer to match the selected recipe
-        this.treeViewConanPackage.title = this.treeViewConanRecipe.selection[0].label;
-        this.nodeProviderConanPackage.refresh(this.treeViewConanRecipe.selection[0].label, this.context.workspaceState.get("show-dirty")!);
+        // Only works with non editable package
+        if (this.treeViewConanRecipe.selection[0].isEditable()) {
+            this.nodeProviderConanPackage.refresh("", this.context.workspaceState.get("show-dirty")!); // Empty the binary package treeview
+            this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the binary package treeview panel
+        }
+        else {
+             this.nodeProviderConanRecipe.setSelectedRecipe(this.treeViewConanRecipe.selection[0].label);
+    
+            // Change the title of the treeview for package explorer to match the selected recipe
+            this.treeViewConanPackage.title = this.treeViewConanRecipe.selection[0].label;
+            this.nodeProviderConanPackage.refresh(this.treeViewConanRecipe.selection[0].label, this.context.workspaceState.get("show-dirty")!);
+        }
     }
 
     /**
@@ -160,7 +166,12 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      */
     private recipeRemove(node: ConanRecipeItem) {
         try {
-            vscode.window
+            if (node.isEditable()) {
+                this.conanApi.removeEditablePackageRecipe(node.label);
+                this.nodeProviderConanRecipe.refresh();
+            }
+            else {
+                vscode.window
                 .showWarningMessage(`Are you sure you want to remove the recipe '${node.label}'?`, ...["Yes", "No"])
                 .then((answer) => {
                     if (answer === "Yes") {
@@ -171,16 +182,8 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                         this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the binary package treeview panel
                     }
                 });
-        }
-        catch (err) {
-            vscode.window.showErrorMessage((err as Error).message);
-        }
-    }
-
-    private recipeRemoveEditabel(node: ConanRecipeItem) {
-        try {
-            this.conanApi.removeEditablePackageRecipe(node.label);
-            this.nodeProviderConanRecipe.refresh();
+            }
+            
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);

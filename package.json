@@ -228,10 +228,6 @@
                 }
             },
             {
-                "command": "vsconan.explorer.treeview.recipe.item.editable.remove",
-                "title": "Remove Editable"
-            },
-            {
                 "command": "vsconan.explorer.treeview.recipe.item.copy-clipboard",
                 "title": "Copy Path to Clipboard"
             },
@@ -416,18 +412,13 @@
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.remove",
-                    "when": "view == vsconan-explorer.treeview.recipe && viewItem == recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe",
                     "group": "inline"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.copy-clipboard",
                     "when": "view == vsconan-explorer.treeview.recipe",
                     "group": "1-recipeContext@1"
-                },
-                {
-                    "command": "vsconan.explorer.treeview.recipe.item.editable.remove",
-                    "when": "view == vsconan-explorer.treeview.recipe && viewItem == recipeEditable",
-                    "group": "2-recipeContext@1"
                 },
                 {
                     "command": "vsconan.explorer.treeview.package.item.open-explorer",
