@@ -40,8 +40,6 @@
         "onCommand:vsconan.conan.package.export",
         "onCommand:vsconan.conan.editable.add",
         "onCommand:vsconan.conan.editable.remove",
-        "onCommand:vsconan.config.global.create",
-        "onCommand:vsconan.config.global.open",
         "onCommand:vsconan.config.workspace.create",
         "onCommand:vsconan.config.workspace.open"
     ],
@@ -116,14 +114,6 @@
                 "title": "VSConan: Remove Editable"
             },
             {
-                "command": "vsconan.config.global.create",
-                "title": "VSConan: Create Global Configuration (JSON)"
-            },
-            {
-                "command": "vsconan.config.global.open",
-                "title": "VSConan: Open Global Configuration (JSON)"
-            },
-            {
                 "command": "vsconan.config.workspace.create",
                 "title": "VSConan: Create Workspace Configuration (JSON)"
             },
@@ -181,7 +171,7 @@
             },
             {
                 "command": "vsconan.explorer.treeview.remote.add",
-                "title": "Refresh",
+                "title": "Add New Remote",
                 "icon": {
                     "light": "resources/icon/light/add.png",
                     "dark": "resources/icon/dark/add.png"

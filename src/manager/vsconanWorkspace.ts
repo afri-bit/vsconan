@@ -51,39 +51,8 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         this.registerCommand("vsconan.conan.package.export", () => this.executeConanCommand(ConanCommand.packageExport));
         this.registerCommand("vsconan.conan.editable.add", () => this.addEditablePackage());
         this.registerCommand("vsconan.conan.editable.remove", () => this.removeEditablePackage());
-        this.registerCommand("vsconan.config.global.create", () => this.createGlobalConfig());
-        this.registerCommand("vsconan.config.global.open", () => this.openGlobalConfig());
         this.registerCommand("vsconan.config.workspace.create", () => this.createWorkspaceConfig());
         this.registerCommand("vsconan.config.workspace.open", () => this.openWorkspaceConfig());
-    }
-
-    /**
-     * Callback method to create a global configuration for VSConan Extension
-     */
-    private createGlobalConfig() {
-        if (!fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
-            // Initial the global area even it just needs to create the configuration file
-            utils.vsconan.initializeGlobalArea();
-            vscode.window.showInformationMessage("Global configuration file has been created.");
-
-            // Opening the file after being created
-            utils.editor.openFileInEditor(utils.vsconan.getGlobalConfigPath());
-        }
-        else {
-            vscode.window.showInformationMessage("Global configuration file already exists.");
-        }
-    }
-
-    /**
-     * Open the global config file in the VS Code
-     */
-    private openGlobalConfig() {
-        if (fs.existsSync(utils.vsconan.getGlobalConfigPath())) {
-            utils.editor.openFileInEditor(utils.vsconan.getGlobalConfigPath());
-        }
-        else {
-            vscode.window.showErrorMessage("Unable to find the GLOBAL config file.");
-        }
     }
 
     /**
