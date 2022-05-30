@@ -3,6 +3,7 @@
 [![Marketplace VSConan](https://img.shields.io/visual-studio-marketplace/v/afri-bit.vsconan)](https://marketplace.visualstudio.com/items?itemName=afri-bit.vsconan)
 ![Rating](https://img.shields.io/visual-studio-marketplace/r/afri-bit.vsconan)
 ![Downloads](https://img.shields.io/visual-studio-marketplace/d/afri-bit.vsconan)
+[![GitHub stars](https://img.shields.io/github/stars/afri-bit/vsconan?color=red&label=GitHub%20Stars)](https://github.com/afri-bit/vsconan)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/afribit)
 
@@ -39,7 +40,7 @@ If your system is set according to the default values of the settings, then you 
 
 If your prefer GUI solution to tweak this configuration, go to `File` > `Preferences` > `Settings` > `Extensions` > `VSConan`, and you will get the following view
 
-![VSConan GUI Settings](resources/img/vsconan_gui_settings.png)
+![VSConan GUI Settings](https://raw.githubusercontent.com/afri-bit/vsconan/main/resources/img/vsconan_gui_settings.png)
 
 
 ## Extension Features
@@ -232,6 +233,8 @@ The default configuration file can be seen as following. You can extend the list
   Create workspace configuration file
 * `VSConan: Open Workspace Configuration (JSON)`  
   Open the workspace configuration file in the editor
+
+Further information of currrent supported features is available [here](doc/FEATURES.md).
 
 ## Release Notes
 Detailed release notes are available [here](CHANGELOG.md).

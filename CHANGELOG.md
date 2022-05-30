@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 0.2.0 - 2022-05-30
 
 ### Added
 * [#10](https://github.com/afri-bit/vsconan/issues/10) Enable option to list dirty packages from a recipe  
@@ -34,7 +34,7 @@
 * `VSConan: Open Global Configuration (JSON)`  
   Open the global configuration file in editor
 
-## [0.1.0]
+## 0.1.0 - 2022-04-21
 * Initial Release
 * Conan Explorer
     * Conan Recipe
