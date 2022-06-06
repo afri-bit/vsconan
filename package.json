@@ -2,7 +2,7 @@
     "name": "vsconan",
     "displayName": "VSConan",
     "description": "Conan local cache and workspace manager.",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "publisher": "afri-bit",
     "repository": {
         "type": "git",
@@ -497,13 +497,18 @@
                         "default": "conan"
                     },
                     "vsconan.general.conanExecutionMode": {
-                        "markdownDescription": "Option to choose how to execute the Conan CLI",
+                        "markdownDescription": "Option to choose how to execute the Conan CLI.",
                         "type": "string",
                         "enum": [
                             "pythonInterpreter",
                             "conanExecutable"
                         ],
                         "default": "conanExecutable"
+                    },
+                    "vsconan.general.conanUserHome": {
+                        "markdownDescription": "Set and/or overwrite predefined path to conan home folder.",
+                        "type": ["string", "null"],
+                        "default": null
                     }
                 }
             },

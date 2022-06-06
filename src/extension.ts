@@ -14,6 +14,7 @@ import { ConanProfileExplorerManager } from "./manager/explorer/conanProfile";
 import { ConanRemoteExplorerManager } from "./manager/explorer/conanRemote";
 import { VSConanWorkspaceManager } from "./manager/vsconanWorkspace";
 import { configChangeListener } from "./configChangeListener";
+import { ConfigurationManager } from "./configManager";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -26,6 +27,22 @@ export function activate(context: vscode.ExtensionContext) {
     //               This area has lower priority then the workspace area
     // Global Area - To work for the API a extension folder will created in the home directory
     utils.vsconan.initializeGlobalArea();
+
+    // ========== Managing configuration
+    // Create Configuration Manager object to store and get some configuration
+    let configManager = new ConfigurationManager(context);
+
+    // Set the environment conan user home path in the config manager
+    // With this approach, we can get back to the environment variable that is set when the VS Code is started
+    // Undefined means no specific path is set, so conan default home folder will be used.
+    configManager.setEnvConanUserHome(process.env.CONAN_USER_HOME)
+
+    // Get the configuration from 'settings.json' for this matter
+    let conanUserHome: string | null | undefined = vscode.workspace.getConfiguration("vsconan").get("general.conanUserHome");
+    // If this is defined, the the environment variable will be overwritten, using the configuration in settings.json
+    if (conanUserHome != null) {
+        process.env.CONAN_USER_HOME = conanUserHome;
+    }
 
     vscode.commands.executeCommand('setContext', 'show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
     context.workspaceState.update('show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
@@ -60,7 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
     const conanRemoteExplorerManager = new ConanRemoteExplorerManager(context, channelVSConan, conanApi, conanRemoteNodeProvider);
     const conanWorkspaceManager = new VSConanWorkspaceManager(context, channelVSConan, conanApi);
 
-    const configListener = vscode.workspace.onDidChangeConfiguration((event) => configChangeListener(event, conanApi));
+    const configListener = vscode.workspace.onDidChangeConfiguration((event) => configChangeListener(event, conanApi, configManager));
 
     // Check if it starts with workspace
     // To check whether its workspace or not is to determine if the function "getWorkspaceFolder" returns undefined or a path

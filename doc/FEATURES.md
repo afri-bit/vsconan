@@ -9,6 +9,7 @@
     - [Conan - Profile](#conan---profile)
     - [Conan - Remote](#conan---remote)
   - [Workspace](#workspace)
+  - [General](#general)
 
 ## Explorer
 ### Conan - Recipe
@@ -56,3 +57,9 @@
   * export-pkg
 * Add editable package
 * Remove editable package
+
+## General
+* Option to overwrite the `CONAN_USER_HOME` environment variable within the VS Code using the setting `vsconan.general.conanUserHome` in `settings.json`. Possible input:
+  * `null`  
+    This is a default value of the configuration. If this is set, the predefined value for `CONAN_USER_HOME` will be used.
+  * `string` - User defined path
