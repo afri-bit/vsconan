@@ -8,6 +8,10 @@ import * as vscode from "vscode";
 export class ConfigurationManager {
     private context: vscode.ExtensionContext;
 
+    // This variable is used to store the original path from the environment
+    // If there is no environment variable defined the path will be an empty string.
+    private envConanUserHome: string | undefined = undefined; 
+
     public constructor(context: vscode.ExtensionContext) {
         this.context = context;
     }
@@ -18,5 +22,13 @@ export class ConfigurationManager {
     
     public showDirtyPackage(): boolean | undefined {
         return vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage");
+    }
+
+    public setEnvConanUserHome(envConanUserHome: string | undefined) {
+        this.envConanUserHome = envConanUserHome;
+    }
+
+    public getEnvConanUserHome(): string | undefined {
+        return this.envConanUserHome;
     }
 }

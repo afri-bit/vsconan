@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.3.0 - 2022-06-06
+
+### Added
+* [#16](https://github.com/afri-bit/vsconan/issues/16) Configuration in settings.json for `CONAN_USER_HOME`
+  * Enable possibility to overwrite the pre defined `CONAN_USER_HOME` environment variable using `vsconan.general.conanUserHome` configuration option
+  * User can set home directory to conan local cache within the VS Code using `settings.json` file
+
 ## 0.2.0 - 2022-05-30
 
 ### Added
