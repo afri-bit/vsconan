@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as utils from '../../utils';
-import { ConanAPI } from "../../conan/api/conanAPI";
+import * as utils from '../../../utils/utils';
+import { ConanAPI } from "../../../conan/api/conanAPI";
 
 export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanProfileItem> {
 
@@ -64,8 +64,8 @@ export class ConanProfileItem extends vscode.TreeItem {
     }
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'light', 'profile.png'),
-        dark: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'dark', 'profile.png')
+        light: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'light', 'profile.png'),
+        dark: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'dark', 'profile.png')
     };
 
     contextValue = 'profile';

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as utils from '../../utils';
-import { ConanAPI, ConanRecipeModel } from "../../conan/api/conanAPI";
+import * as utils from '../../../utils/utils';
+import { ConanAPI, ConanRecipeModel } from "../../../conan/api/conanAPI";
 
 export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRecipeItem> {
 
@@ -91,16 +91,16 @@ export class ConanRecipeItem extends vscode.TreeItem {
 
         if (this.model.editable) {
             this.iconPath = {
-                light: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe_editable.png'),
-                dark: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe_editable.png')
+                light: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe_editable.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe_editable.png')
             };
 
             this.contextValue = 'recipeEditable';
         }
         else {
             this.iconPath = {
-                light: path.join(__filename, '..','..', '..', '..', '..', 'resources', 'icon', 'recipe.png'),
-                dark: path.join(__filename, '..','..', '..', '..', '..', 'resources', 'icon', 'recipe.png')
+                light: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe.png')
             };
 
             this.contextValue = 'recipe';

@@ -1,20 +1,20 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import * as utils from "./utils";
-import * as constants from "./constants";
+import * as utils from "./utils/utils";
+import * as constants from "./utils/constants";
 
-import { ConanPackageNodeProvider } from "./ui/treeview/conanPackageProvider";
-import { ConanProfileNodeProvider } from "./ui/treeview/conanProfileProvider";
-import { ConanRecipeNodeProvider } from "./ui/treeview/conanRecipeProvider";
-import { ConanRemoteNodeProvider } from "./ui/treeview/conanRemoteProvider";
+import { ConanPackageNodeProvider } from "./extension/ui/treeview/conanPackageProvider";
+import { ConanProfileNodeProvider } from "./extension/ui/treeview/conanProfileProvider";
+import { ConanRecipeNodeProvider } from "./extension/ui/treeview/conanRecipeProvider";
+import { ConanRemoteNodeProvider } from "./extension/ui/treeview/conanRemoteProvider";
 import { ConanAPI, ConanExecutionMode } from "./conan/api/conanAPI";
-import { ConanCacheExplorerManager } from "./manager/explorer/conanCache";
-import { ConanProfileExplorerManager } from "./manager/explorer/conanProfile";
-import { ConanRemoteExplorerManager } from "./manager/explorer/conanRemote";
-import { VSConanWorkspaceManager } from "./manager/vsconanWorkspace";
-import { configChangeListener } from "./configChangeListener";
-import { ConfigurationManager } from "./configManager";
+import { ConanCacheExplorerManager } from "./extension/manager/explorer/conanCache";
+import { ConanProfileExplorerManager } from "./extension/manager/explorer/conanProfile";
+import { ConanRemoteExplorerManager } from "./extension/manager/explorer/conanRemote";
+import { VSConanWorkspaceManager } from "./extension/manager/vsconanWorkspace";
+import { configChangeListener } from "./extension/config/configChangeListener";
+import { ConfigurationManager } from "./extension/config/configManager";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {

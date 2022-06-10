@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { CommandContainer } from "./configCommand";
+import { CommandContainer } from "../cli/configCommand";
 
 export class ConfigWorkspace {
     public python: string;

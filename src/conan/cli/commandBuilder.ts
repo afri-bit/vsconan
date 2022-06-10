@@ -1,10 +1,10 @@
-import * as utils from "../utils";
+import * as utils from "../../utils/utils";
 import { ConfigCommandBuild, 
     ConfigCommandCreate, 
     ConfigCommandInstall, 
     ConfigCommandPackage, 
     ConfigCommandPackageExport, 
-    ConfigCommandSource } from "../config/configCommand";
+    ConfigCommandSource } from "./configCommand";
 
 /**
  * Static class to build command for some conan workflow based on the configuration. 

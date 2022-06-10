@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Disposable } from "../utils/disposable";
+import { Disposable } from "../disposable";
 
 export abstract class ExtensionManager extends Disposable {
     /**

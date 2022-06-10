@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as utils from "../../utils";
-import { ConanAPI, ConanPackageModel } from "../../conan/api/conanAPI";
+import * as utils from "../../../utils/utils";
+import { ConanAPI, ConanPackageModel } from "../../../conan/api/conanAPI";
 
 export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPackageItem> {
 
@@ -79,16 +79,16 @@ export class ConanPackageItem extends vscode.TreeItem {
 
         if (this.model.dirty) {
             this.iconPath = {
-                light: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'package_dirty.png'),
-                dark: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'package_dirty.png')
+                light: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package_dirty.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package_dirty.png')
             };
 
             this.contextValue = 'packageDirty';
         }
         else {
             this.iconPath = {
-                light: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'package.png'),
-                dark: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'package.png')
+                light: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package.png')
             };
 
             this.contextValue = 'package';
