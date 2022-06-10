@@ -3,7 +3,7 @@ import * as utils from '../utils';
 import * as fs from "fs";
 import * as path from "path";
 import * as constants from "../constants";
-import { ConanAPI } from '../api/conan/conanAPI';
+import { ConanAPI } from '../conan/api/conanAPI';
 import { ExtensionManager } from "./extensionManager";
 import { ConfigWorkspace } from '../config/configWorkspace';
 import { ConfigCommand, ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from '../config/configCommand';

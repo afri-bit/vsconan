@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { ConanAPI, ConanExecutionMode } from "./api/conan/conanAPI";
+import { ConanAPI, ConanExecutionMode } from "./conan/api/conanAPI";
 import { ConfigurationManager } from "./configManager";
 
 export function configChangeListener(event: vscode.ConfigurationChangeEvent, conanApi: ConanAPI, configManager: ConfigurationManager) {
