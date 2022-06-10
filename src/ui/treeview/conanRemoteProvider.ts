@@ -85,14 +85,14 @@ export class ConanRemoteItem extends vscode.TreeItem {
     public setRemoteEnableIcon(state: boolean) {
         if (state) { // Remote is enabled
             this.iconPath = {
-                light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'remote_on.png'),
-                dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'remote_on.png')
+                light: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'light', 'remote_on.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'dark', 'remote_on.png')
             };
         }
         else { // Remote is disabled
             this.iconPath = {
-                light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'remote_off.png'),
-                dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'remote_off.png')
+                light: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'light', 'remote_off.png'),
+                dark: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'dark', 'remote_off.png')
             };
         }
     }

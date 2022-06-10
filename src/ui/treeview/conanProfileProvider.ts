@@ -64,8 +64,8 @@ export class ConanProfileItem extends vscode.TreeItem {
     }
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'light', 'profile.png'),
-        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'icon', 'dark', 'profile.png')
+        light: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'light', 'profile.png'),
+        dark: path.join(__filename, '..', '..', '..', '..', '..', 'resources', 'icon', 'dark', 'profile.png')
     };
 
     contextValue = 'profile';

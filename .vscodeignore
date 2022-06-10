@@ -16,3 +16,4 @@ out/**/*.js.map
 out/*.d.ts
 out/*.js.map
 jest.config.js
+test/**

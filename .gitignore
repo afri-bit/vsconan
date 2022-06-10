@@ -8,3 +8,5 @@ package-lock.json
 build/
 dist/
 out/
+test/**/*.js
+*.js.map
