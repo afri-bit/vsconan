@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as utils from '../../../utils/utils';
-import { ConanAPI } from '../../../conans/conan/api/conanAPI';
+import { ConanAPI } from '../../../conans/api/base/conanAPI';
 import { ConanProfileItem, ConanProfileNodeProvider } from '../../ui/treeview/conanProfileProvider';
 import { ExtensionManager } from "../extensionManager";
 

@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as utils from "../../../utils/utils";
-import { ConanAPI, ConanPackageModel } from "../../../conans/conan/api/conanAPI";
+import { ConanPackage } from '../../../conans/model/conanPackage';
+import { ConanAPI } from '../../../conans/api/base/conanAPI';
 
 export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPackageItem> {
 
@@ -27,8 +28,8 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
     }
 
     public getChildren(element?: ConanPackageItem): ConanPackageItem[] {
-        let packageList: Array<ConanPackageModel> = [];
-        let dirtyPackageList: Array<ConanPackageModel> = [];
+        let packageList: Array<ConanPackage> = [];
+        let dirtyPackageList: Array<ConanPackage> = [];
 
         packageList = this.conanApi.getPackages(this.recipeName);
 
@@ -61,12 +62,12 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
 }
 
 export class ConanPackageItem extends vscode.TreeItem {
-    public model: ConanPackageModel;
+    public model: ConanPackage;
 
     constructor(
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        model: ConanPackageModel) {
+        model: ConanPackage) {
 
         super(label, collapsibleState);
 

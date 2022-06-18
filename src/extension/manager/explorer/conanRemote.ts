@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ConanAPI } from '../../../conans/conan/api/conanAPI';
+import { ConanAPI } from '../../../conans/api/base/conanAPI';
 import { ConanRemoteItem, ConanRemoteNodeProvider } from '../../ui/treeview/conanRemoteProvider';
 import * as utils from '../../../utils/utils';
 import { ExtensionManager } from "../extensionManager";

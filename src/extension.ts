@@ -8,13 +8,14 @@ import { ConanPackageNodeProvider } from "./extension/ui/treeview/conanPackagePr
 import { ConanProfileNodeProvider } from "./extension/ui/treeview/conanProfileProvider";
 import { ConanRecipeNodeProvider } from "./extension/ui/treeview/conanRecipeProvider";
 import { ConanRemoteNodeProvider } from "./extension/ui/treeview/conanRemoteProvider";
-import { ConanAPI, ConanExecutionMode } from "./conans/conan/api/conanAPI";
 import { ConanCacheExplorerManager } from "./extension/manager/explorer/conanCache";
 import { ConanProfileExplorerManager } from "./extension/manager/explorer/conanProfile";
 import { ConanRemoteExplorerManager } from "./extension/manager/explorer/conanRemote";
 import { VSConanWorkspaceManager } from "./extension/manager/vsconanWorkspace";
 import { configChangeListener } from "./extension/config/configChangeListener";
 import { ConfigurationManager } from "./extension/config/configManager";
+import { ConanAPI, ConanExecutionMode} from "./conans/api/base/conanAPI";
+import { Conan1API } from "./conans/conan/api/conanAPI";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -61,7 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
         conanExecutionMode = ConanExecutionMode.conan;
     }
 
-    let conanApi = new ConanAPI(
+    let conanApi: ConanAPI = new Conan1API(
         vscode.workspace.getConfiguration("vsconan").get("general.pythonInterpreter")!,
         vscode.workspace.getConfiguration("vsconan").get("general.conanExecutable")!,
         conanExecutionMode);

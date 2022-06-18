@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as utils from '../../../utils/utils';
-import { ConanAPI } from "../../../conans/conan/api/conanAPI";
+import { ConanAPI } from '../../../conans/api/base/conanAPI';
 
 export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRemoteItem> {
 

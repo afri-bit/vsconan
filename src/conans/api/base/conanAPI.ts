@@ -28,8 +28,6 @@ export abstract class ConanAPI {
         this.pythonInterpreter = pythonInterpreter;
         this.conanExecutable = conanExecutable;
         this.conanExecutionMode = conanExecutionMode;
-
-        this.switchExecutionMode(this.conanExecutionMode);
     }
 
     /**

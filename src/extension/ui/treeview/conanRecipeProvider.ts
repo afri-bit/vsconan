@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as utils from '../../../utils/utils';
-import { ConanAPI, ConanRecipeModel } from "../../../conans/conan/api/conanAPI";
+import { ConanAPI } from '../../../conans/api/base/conanAPI';
+import { ConanRecipe } from '../../../conans/model/conanRecipe';
 
 export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRecipeItem> {
 
@@ -25,8 +26,8 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
     }
 
     public getChildren(element?: ConanRecipeItem): ConanRecipeItem[] {
-        let recipeList: Array<ConanRecipeModel> = [];
-        let recipeEditableList: Array<ConanRecipeModel> = [];
+        let recipeList: Array<ConanRecipe> = [];
+        let recipeEditableList: Array<ConanRecipe> = [];
 
         recipeList = this.conanApi.getRecipes();
         recipeEditableList = this.conanApi.getEditablePackageRecipes();
@@ -71,12 +72,12 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
 }
 
 export class ConanRecipeItem extends vscode.TreeItem {
-    public model: ConanRecipeModel;
+    public model: ConanRecipe;
 
     constructor(
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        model: ConanRecipeModel) {
+        model: ConanRecipe) {
         
         super(label, collapsibleState);
 
