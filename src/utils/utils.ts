@@ -3,12 +3,12 @@ import * as path from "path";
 import * as os from "os";
 import * as constants from "./constants";
 import * as fs from "fs";
-import { ConfigWorkspace } from "../conan/workspace/configWorkspace";
+import { ConfigWorkspace } from "../conans/workspace/configWorkspace";
 import {
     CommandContainer, ConfigCommandBuild, ConfigCommandCreate,
     ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport,
     ConfigCommandSource
-} from "../conan/cli/configCommand";
+} from "../conans/cli/configCommand";
 import { spawn } from "child_process";
 
 export namespace vsconan {

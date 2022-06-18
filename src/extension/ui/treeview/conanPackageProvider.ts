@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as utils from "../../../utils/utils";
-import { ConanAPI, ConanPackageModel } from "../../../conan/api/conanAPI";
+import { ConanAPI, ConanPackageModel } from "../../../conans/conan/api/conanAPI";
 
 export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPackageItem> {
 

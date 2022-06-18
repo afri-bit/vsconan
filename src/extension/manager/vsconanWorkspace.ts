@@ -3,11 +3,11 @@ import * as utils from '../../utils/utils';
 import * as fs from "fs";
 import * as path from "path";
 import * as constants from "../../utils/constants";
-import { ConanAPI } from '../../conan/api/conanAPI';
+import { ConanAPI } from '../../conans/conan/api/conanAPI';
 import { ExtensionManager } from "./extensionManager";
-import { ConfigWorkspace } from '../../conan/workspace/configWorkspace';
-import { ConfigCommand, ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from '../../conan/cli/configCommand';
-import { CommandBuilder } from '../../conan/cli/commandBuilder';
+import { ConfigWorkspace } from '../../conans/workspace/configWorkspace';
+import { ConfigCommand, ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from '../../conans/cli/configCommand';
+import { CommandBuilder } from '../../conans/cli/commandBuilder';
 
 enum ConanCommand {
     create,

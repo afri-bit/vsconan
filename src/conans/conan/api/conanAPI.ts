@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
-import * as utils from "../../utils/utils";
+import * as utils from "../../../utils/utils";
 
 
 export enum ConanExecutionMode {

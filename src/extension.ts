@@ -8,7 +8,7 @@ import { ConanPackageNodeProvider } from "./extension/ui/treeview/conanPackagePr
 import { ConanProfileNodeProvider } from "./extension/ui/treeview/conanProfileProvider";
 import { ConanRecipeNodeProvider } from "./extension/ui/treeview/conanRecipeProvider";
 import { ConanRemoteNodeProvider } from "./extension/ui/treeview/conanRemoteProvider";
-import { ConanAPI, ConanExecutionMode } from "./conan/api/conanAPI";
+import { ConanAPI, ConanExecutionMode } from "./conans/conan/api/conanAPI";
 import { ConanCacheExplorerManager } from "./extension/manager/explorer/conanCache";
 import { ConanProfileExplorerManager } from "./extension/manager/explorer/conanProfile";
 import { ConanRemoteExplorerManager } from "./extension/manager/explorer/conanRemote";
