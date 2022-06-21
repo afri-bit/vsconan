@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ConanAPI } from '../../../conans/api/base/conanAPI';
+import { ConfigurationManager } from '../../config/configManager';
 import { ConanPackageItem, ConanPackageNodeProvider } from '../../ui/treeview/conanPackageProvider';
 import { ConanRecipeItem, ConanRecipeNodeProvider } from '../../ui/treeview/conanRecipeProvider';
 import { ExtensionManager } from '../extensionManager';
@@ -12,6 +13,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
     private context: vscode.ExtensionContext;
     private outputChannel: vscode.OutputChannel;
     private conanApi: ConanAPI;
+    private configManager: ConfigurationManager;
     private nodeProviderConanRecipe: ConanRecipeNodeProvider;
     private nodeProviderConanPackage: ConanPackageNodeProvider;
     private treeViewConanRecipe: vscode.TreeView<any>;
@@ -26,12 +28,13 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * @param nodeProviderConanPackage Treedata provider for conan binary package
      */
     public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel, 
-        conanApi: ConanAPI, nodeProviderConanRecipe: ConanRecipeNodeProvider, nodeProviderConanPackage: ConanPackageNodeProvider) {
+        conanApi: ConanAPI, configManager: ConfigurationManager, nodeProviderConanRecipe: ConanRecipeNodeProvider, nodeProviderConanPackage: ConanPackageNodeProvider) {
         super();
 
         this.context = context;
         this.outputChannel = outputChannel;
         this.conanApi = conanApi;
+        this.configManager = configManager;
         this.nodeProviderConanRecipe = nodeProviderConanRecipe;
         this.nodeProviderConanPackage = nodeProviderConanPackage;
 
@@ -46,6 +49,8 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         // Register command for recipe treeview
         this.registerCommand("vsconan.explorer.treeview.recipe.refresh", () => this.recipeRefreshTreeview());
+        this.registerCommand("vsconan.explorer.treeview.recipe.filter.set", () => this.recipeSetFilter());
+        this.registerCommand("vsconan.explorer.treeview.recipe.filter.clear", () => this.recipeClearFilter());
         this.registerCommand("vsconan.explorer.treeview.recipe.item.selected", () => this.recipeItemSelected());
         this.registerCommand("vsconan.explorer.treeview.recipe.item.information", (node: ConanRecipeItem) => this.recipeShowInformation(node));
         this.registerCommand("vsconan.explorer.treeview.recipe.item.open-explorer", (node: ConanRecipeItem) => this.recipeOpenExplorer(node));
@@ -76,6 +81,48 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         this.nodeProviderConanRecipe.setSelectedRecipe(undefined); // Reset the internal selected recipe from the recipeNodeProvider
         this.nodeProviderConanPackage.refresh("", this.context.workspaceState.get("show-dirty")!); // Empty the binary package tree explorer
         this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the treeview
+    }
+
+    /**
+     * Method to set filter to search for recipes
+     * Currently this filter only meant for filtering based on remote
+     */
+    private async recipeSetFilter() {
+        // Get all the saved remotes
+        let remoteList = this.conanApi.getRemotes();
+
+        // TODO: Feed the remotes to Selection box
+        const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
+        let quickPickItems = [];
+        for (let i = 0; i < remoteList.length; i++) {
+            quickPickItems.push({
+                label: remoteList[i].name,
+                description: remoteList[i].url,
+                detail: "",
+                index: i
+            });
+        }
+        quickPickItems.map(label => ({ label }));
+        quickPick.items = quickPickItems;
+
+        const choice = await vscode.window.showQuickPick(quickPickItems);
+
+        if (choice) {
+            this.configManager.setRecipeFilter(choice.label);
+
+            this.recipeRefreshTreeview();
+        }
+    }
+
+    /**
+     * Clean the filter
+     */
+    private recipeClearFilter(): void {
+        // Use config manager to clear the filter
+        this.configManager.clearRecipeFilter();
+
+        // Refresh the recipe treeview
+        this.recipeRefreshTreeview();
     }
 
     /**
