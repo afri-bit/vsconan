@@ -60,6 +60,8 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         // Register command for binary package treeview
         this.registerCommand("vsconan.explorer.treeview.package.refresh", () => this.packageRefreshTreeview());
+        this.registerCommand("vsconan.explorer.treeview.package.filter.set", () => this.packageSetFilter());
+        this.registerCommand("vsconan.explorer.treeview.package.filter.clear", () => this.packageClearFilter());
         this.registerCommand("vsconan.explorer.treeview.package.dirty.show", () => this.showDirtyPackage());
         this.registerCommand("vsconan.explorer.treeview.package.dirty.hide", () => this.hideDirtyPackage());
         this.registerCommand("vsconan.explorer.treeview.package.item.information", (node: ConanPackageItem) => this.packageShowInformation(node));
@@ -117,6 +119,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         if (choice) {
             this.configManager.setRecipeFilter(choice.label);
+            this.configManager.setPackageFilter(choice.label);
 
             this.recipeRefreshTreeview();
         }
@@ -269,6 +272,56 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         if (this.nodeProviderConanRecipe.getSelectedRecipe()) {
             this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), this.context.workspaceState.get("show-dirty")!);
         }
+    }
+
+    /**
+     * Method to set filter to search for recipes
+     * Currently this filter only meant for filtering based on remote
+     */
+     private async packageSetFilter() {
+
+        // Get all the saved remotes
+        let remoteList = this.conanApi.getRemotes();
+
+        // Feed the remotes to Selection box
+        const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
+        let quickPickItems = [];
+        for (let i = 0; i < remoteList.length; i++) {
+            quickPickItems.push({
+                label: remoteList[i].name,
+                description: remoteList[i].url,
+                detail: "",
+                index: i
+            });
+        }
+        quickPickItems.map(label => ({ label }));
+        quickPick.items = quickPickItems;
+
+        const choice = await vscode.window.showQuickPick(quickPickItems);
+
+        if (choice) {
+            this.configManager.setPackageFilter(choice.label);
+
+            this.packageRefreshTreeview();
+        }
+    }
+
+    /**
+     * Clean the filter
+     */
+    private packageClearFilter(): void {
+
+        if (this.configManager.isRecipeFiltered()) {
+            vscode.window.showWarningMessage("Filter in Recipe is set. Unable to clear the filter in the packages.");
+        }
+        else {
+            // Use config manager to clear the filter
+            this.configManager.clearPackageFilter();
+
+            // Refresh the recipe treeview
+            this.packageRefreshTreeview();
+        }
+        
     }
 
     private showDirtyPackage() {

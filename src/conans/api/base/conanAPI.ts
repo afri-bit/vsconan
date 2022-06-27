@@ -279,5 +279,16 @@ export abstract class ConanAPI {
      */
     public abstract getRecipeAttribute(recipePath: string, attribute: string): string;
 
+    /**
+     * Method to get all the recipes based on selected remote
+     * @param remote Remote name to filter the source of the recipes
+     */
     public abstract getRecipesByRemote(remote: string): Array<ConanRecipe>;
+
+    /**
+     * Method to get all the binary packages from a recipe based on selected remote
+     * @param recipe Recipe name to get the binary packages from
+     * @param remote Remote name to filter the source of the binary packages
+     */
+    public abstract getPackagesByRemote(recipe: string, remote: string): Array<ConanPackage>;
 }

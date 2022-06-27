@@ -51,4 +51,24 @@ export class ConfigurationManager {
     public getRecipeFilterKey(): string | undefined {
         return this.context.workspaceState.get('recipe-filter-key');
     }
+
+    public isPackageFiltered(): boolean {
+        return this.context.workspaceState.get('package-filtered')!;
+    }
+
+    public setPackageFilter(filterKey: string) {
+        vscode.commands.executeCommand('setContext', 'package-filtered', true);
+        this.context.workspaceState.update('package-filtered', true);
+        this.context.workspaceState.update("package-filter-key", filterKey);
+    }
+
+    public clearPackageFilter() {
+        vscode.commands.executeCommand('setContext', 'package-filtered', false);
+        this.context.workspaceState.update('package-filtered', false);
+        this.context.workspaceState.update('package-filter-key', "");
+    }
+
+    public getPackageFilterKey(): string | undefined {
+        return this.context.workspaceState.get('package-filter-key');
+    }
 }
