@@ -81,6 +81,14 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         this.nodeProviderConanRecipe.setSelectedRecipe(undefined); // Reset the internal selected recipe from the recipeNodeProvider
         this.nodeProviderConanPackage.refresh("", this.context.workspaceState.get("show-dirty")!); // Empty the binary package tree explorer
         this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the treeview
+
+        // Change the title of the Conan Recipe Treeview to have filter name inside that
+        if (this.configManager.isRecipeFiltered()) {
+            this.treeViewConanRecipe.title = `Conan - Recipe (Remote: ${this.configManager.getRecipeFilterKey()})`;
+        }
+        else {
+            this.treeViewConanRecipe.title = "Conan - Recipe"
+        }
     }
 
     /**
@@ -91,7 +99,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         // Get all the saved remotes
         let remoteList = this.conanApi.getRemotes();
 
-        // TODO: Feed the remotes to Selection box
+        // Feed the remotes to Selection box
         const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
         let quickPickItems = [];
         for (let i = 0; i < remoteList.length; i++) {
