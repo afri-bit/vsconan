@@ -45,8 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
         process.env.CONAN_USER_HOME = conanUserHome;
     }
 
-    vscode.commands.executeCommand('setContext', 'show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
-    context.workspaceState.update('show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
+    initContextState(context);
 
     // ========== Initializing the Conan API
     // Getting the setting for execution mode as requirements for ConanAPI
@@ -68,12 +67,12 @@ export function activate(context: vscode.ExtensionContext) {
         conanExecutionMode);
 
     // ========== Registering the treeview for the extension
-    const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi);
+    const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi, configManager);
     const conanProfileNodeProvider = new ConanProfileNodeProvider(conanApi);
     const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApi);
     const conanRemoteNodeProvider = new ConanRemoteNodeProvider(conanApi);
 
-    const conanCacheExplorerManager = new ConanCacheExplorerManager(context, channelVSConan, conanApi, conanRecipeNodeProvider, conanPackageNodeProvider);
+    const conanCacheExplorerManager = new ConanCacheExplorerManager(context, channelVSConan, conanApi, configManager, conanRecipeNodeProvider, conanPackageNodeProvider);
     const conanProfileExplorerManager = new ConanProfileExplorerManager(context, channelVSConan, conanApi, conanProfileNodeProvider);
     const conanRemoteExplorerManager = new ConanRemoteExplorerManager(context, channelVSConan, conanApi, conanRemoteNodeProvider);
     const conanWorkspaceManager = new VSConanWorkspaceManager(context, channelVSConan, conanApi);
@@ -126,3 +125,16 @@ export function activate(context: vscode.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 export function deactivate() { }
+
+/**
+ * Function to initialize all the context state
+ * @param context VS Code extension context
+ */
+function initContextState(context: vscode.ExtensionContext) {
+    vscode.commands.executeCommand('setContext', 'show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
+    context.workspaceState.update('show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
+
+    vscode.commands.executeCommand('setContext', 'recipe-filtered', false);
+    context.workspaceState.update('recipe-filtered', false);
+    context.workspaceState.update('recipe-filter-key', "");
+}

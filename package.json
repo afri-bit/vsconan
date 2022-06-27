@@ -130,6 +130,22 @@
                 }
             },
             {
+                "command": "vsconan.explorer.treeview.recipe.filter.set",
+                "title": "Filter by Remote",
+                "icon": {
+                    "light": "resources/icon/light/filter.png",
+                    "dark": "resources/icon/dark/filter.png"
+                }
+            },
+            {
+                "command": "vsconan.explorer.treeview.recipe.filter.clear",
+                "title": "Clear Filter",
+                "icon": {
+                    "light": "resources/icon/light/filter_clear.png",
+                    "dark": "resources/icon/dark/filter_clear.png"
+                }
+            },
+            {
                 "command": "vsconan.explorer.treeview.package.refresh",
                 "title": "Refresh",
                 "icon": {
@@ -343,7 +359,17 @@
                 {
                     "command": "vsconan.explorer.treeview.recipe.refresh",
                     "when": "view == vsconan-explorer.treeview.recipe",
-                    "group": "navigation"
+                    "group": "navigation@3"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.recipe.filter.set",
+                    "when": "view == vsconan-explorer.treeview.recipe && recipe-filtered == false",
+                    "group": "navigation@2"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.recipe.filter.clear",
+                    "when": "view == vsconan-explorer.treeview.recipe && recipe-filtered == true",
+                    "group": "navigation@1"
                 },
                 {
                     "command": "vsconan.explorer.treeview.package.refresh",

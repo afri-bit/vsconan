@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as utils from '../../../utils/utils';
 import { ConanAPI } from '../../../conans/api/base/conanAPI';
+import { ConanRemote } from '../../../conans/model/conanRemote';
 
 export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRemoteItem> {
 
@@ -23,7 +24,7 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
     }
 
     public getChildren(element?: ConanRemoteItem): ConanRemoteItem[] {
-        let remoteList = [];
+        let remoteList: Array<ConanRemote> = [];
 
         remoteList = this.conanApi.getRemotes();
 
@@ -52,36 +53,22 @@ export class ConanRemoteItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public detailInfo: any) {
+        public model: ConanRemote) {
 
         super(label, collapsibleState);
 
-        this.detailInfo = JSON.stringify(this.detailInfo, null, 4);
+        this.model = model;
 
-        this.tooltip = this.detailInfo;
+        this.tooltip = JSON.stringify(this.model, null, 4);
 
         this.command = {
             "title": "Conan Remote Selected",
             "command": "vsconan.explorer.treeview.remote.item.selected",
         };
 
-        this.setRemoteEnableIcon(this.isEnabled()!);
+        this.setRemoteEnableIcon(this.model.enabled);
     }
     
-    public isEnabled() {
-        let jsonObj = JSON.parse(this.detailInfo);
-
-        // Remote is disabled
-        if (jsonObj.disabled === true) { // Remote is disabled
-            return false;
-        }
-        // Undefined mean that this remote is enabled
-        // The 'disabled' option will be visible only if the remote is disabled
-        else if (jsonObj.disabled === undefined || jsonObj.disabled === false) {
-            return true;
-        }
-    }
-
     public setRemoteEnableIcon(state: boolean) {
         if (state) { // Remote is enabled
             this.iconPath = {

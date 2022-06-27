@@ -1,11 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as os from "os";
 import { execSync } from "child_process";
 import * as utils from "../../../utils/utils";
 import { ConanPackage } from "../../model/conanPackage";
 import { ConanRecipe } from "../../model/conanRecipe";
 import { ConanAPI } from "../../api/base/conanAPI";
 import { ConanExecutionMode } from "../../api/base/conanAPI";
+import { ConanRemote } from "../../model/conanRemote";
 
 
 /**
@@ -308,8 +310,8 @@ export class Conan1API extends ConanAPI {
         return remotePath;
     }
 
-    public override getRemotes(): Array<any> {
-        let arrayRemoteList: Array<any> = [];
+    public override getRemotes(): Array<ConanRemote> {
+        let arrayRemoteList: Array<ConanRemote> = [];
 
         let conanHomePath = this.getConanHomePath();
 
@@ -326,7 +328,7 @@ export class Conan1API extends ConanAPI {
             let remoteItemList = remoteJson.remotes;
 
             for (let remote of remoteItemList) {
-                arrayRemoteList.push(remote);
+                arrayRemoteList.push(new ConanRemote(remote.name, remote.url, remote.verify_ssl, remote.disabled ? false : true));
             }
         }
 
@@ -528,5 +530,36 @@ export class Conan1API extends ConanAPI {
         }
 
         return stringList[0];
+    }
+
+    public override getRecipesByRemote(remote: string): Array<ConanRecipe> {
+        let listOfRecipes: Array<ConanRecipe> = [];
+
+        // Execute the conan remote `list_ref` to get list of recipe with associated remote
+        let res = execSync(`${this.conanExecutor} remote list_ref`).toString();
+
+        let stringList = [];
+
+        stringList = res.split(os.EOL);
+
+        if (stringList[0].includes("cacert.pem")) {
+            stringList.splice(0, 1);
+        }
+
+        // Remove empty line in the last element
+        stringList.pop();
+
+        for (let item of stringList) {
+            // The output from CLI is string with such format 'boost/1.77.0: conan.io'
+            // To get the recipe name we need to split the string using following string
+            let remoteRef = item.split(": ");
+
+            // Check if the remote is matched to given one
+            if (remoteRef[1] === remote) {
+                listOfRecipes.push(new ConanRecipe(remoteRef[0], false, ""));
+            }
+        }
+
+        return listOfRecipes;
     }
 }

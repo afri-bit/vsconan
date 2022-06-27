@@ -31,4 +31,24 @@ export class ConfigurationManager {
     public getEnvConanUserHome(): string | undefined {
         return this.envConanUserHome;
     }
+
+    public isRecipeFiltered(): boolean {
+        return this.context.workspaceState.get('recipe-filtered')!;
+    }
+
+    public setRecipeFilter(filterKey: string) {
+        vscode.commands.executeCommand('setContext', 'recipe-filtered', true);
+        this.context.workspaceState.update('recipe-filtered', true);
+        this.context.workspaceState.update("recipe-filter-key", filterKey);
+    }
+
+    public clearRecipeFilter() {
+        vscode.commands.executeCommand('setContext', 'recipe-filtered', false);
+        this.context.workspaceState.update('recipe-filtered', false);
+        this.context.workspaceState.update('recipe-filter-key', "");
+    }
+
+    public getRecipeFilterKey(): string | undefined {
+        return this.context.workspaceState.get('recipe-filter-key');
+    }
 }

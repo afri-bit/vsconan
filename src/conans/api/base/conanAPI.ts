@@ -147,7 +147,7 @@ export abstract class ConanAPI {
      * Get the list of available remotes
      * @returns List of availabel remotes
      */
-    public abstract getRemotes(): Array<any>;
+    public abstract getRemotes(): Array<ConanRemote>;
 
     /**
      * Method to remove a selected binary package from its recipe
@@ -278,4 +278,6 @@ export abstract class ConanAPI {
      * @returns Attribute information in string format
      */
     public abstract getRecipeAttribute(recipePath: string, attribute: string): string;
+
+    public abstract getRecipesByRemote(remote: string): Array<ConanRecipe>;
 }

@@ -217,13 +217,13 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
 
         if (conanRemoteList.includes(node.label)) {
 
-            let remoteDetailInfo = JSON.parse(node.detailInfo);
+            // let remoteDetailInfo = JSON.parse(node.detailInfo);
 
             const newURL = await vscode.window.showInputBox({
                 title: `Update URL for remote ${node.label}. Enter a new URL for the remote...`,
-                placeHolder: remoteDetailInfo.url,
+                placeHolder: node.model.url,
                 validateInput: text => {
-                    if (text === remoteDetailInfo.url && text !== "") {
+                    if (text === node.model.url && text !== "") {
                         return 'Enter a differet URL';
                     }
                     else if (text === "") {
