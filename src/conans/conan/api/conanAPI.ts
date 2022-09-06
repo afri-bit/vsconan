@@ -27,6 +27,18 @@ export class Conan1API extends ConanAPI {
         this.switchExecutionMode(this.conanExecutionMode);
     }
 
+    /**
+     * Helper function to get the path inside .conan_link file
+     * This .conan_link exists if conan is configured using short path (Windows), 
+     * so it will contain a reference to another path
+     * @param conanLinkFile Path to .conan_link file
+     * @returns Path inside the .conan_link file
+     */
+    private getPathFromConanLink(conanLinkFile: string): string {
+        let pathInConanLink = fs.readFileSync(conanLinkFile).toString('utf8');
+        return pathInConanLink.trim();
+    }
+
     public override switchExecutionMode(mode: ConanExecutionMode) {
         switch (this.conanExecutionMode) {
             case ConanExecutionMode.python: {
@@ -561,5 +573,150 @@ export class Conan1API extends ConanAPI {
         }
 
         return listOfRecipes;
+    }
+
+    public override getRecipeFolderPathDownload(recipe: string): string {
+        let recipePath = this.getRecipePath(recipe);
+
+        let returnValue = ""
+
+        if (recipePath) {
+            let downloadFolder = path.join(recipePath, "dl");
+
+            let conanLinkFile = path.join(downloadFolder, ".conan_link");
+
+            if (fs.existsSync(downloadFolder)) {
+                // If .conan_link exists, it means conan only give reference to the real path using content of this file
+                if (fs.existsSync(conanLinkFile)) {
+                    returnValue = this.getPathFromConanLink(conanLinkFile);
+                }
+                else {
+                    returnValue = downloadFolder;
+                }
+            }
+        }
+
+        return returnValue;
+    }
+
+    public override getRecipeFolderPathExport(recipe: string): string {
+        let recipePath = this.getRecipePath(recipe);
+
+        let returnValue = ""
+
+        if (recipePath) {
+            let exportFolder = path.join(recipePath, "export");
+
+            let conanLinkFile = path.join(exportFolder, ".conan_link");
+
+            if (fs.existsSync(exportFolder)) {
+                // If .conan_link exists, it means conan only give reference to the real path using content of this file
+                if (fs.existsSync(conanLinkFile)) {
+                    returnValue = this.getPathFromConanLink(conanLinkFile);
+                }
+                else {
+                    returnValue = exportFolder;
+                }
+            }
+        }
+
+        return returnValue;
+    }
+
+    public override getRecipeFolderPathExportSource(recipe: string): string {
+        let recipePath = this.getRecipePath(recipe);
+
+        let returnValue = ""
+
+        if (recipePath) {
+            let exportSourceFolder = path.join(recipePath, "export_source");
+
+            let conanLinkFile = path.join(exportSourceFolder, ".conan_link");
+
+            if (fs.existsSync(exportSourceFolder)) {
+                // If .conan_link exists, it means conan only give reference to the real path using content of this file
+                if (fs.existsSync(conanLinkFile)) {
+                    returnValue = this.getPathFromConanLink(conanLinkFile);
+                }
+                else {
+                    returnValue = exportSourceFolder;
+                }
+            }
+            
+        }
+
+        return returnValue;
+    }
+
+    public override getRecipeFolderPathLocks(recipe: string): string {
+        let recipePath = this.getRecipePath(recipe);
+
+        let returnValue = ""
+
+        if (recipePath) {
+            let locksFolder = path.join(recipePath, "locks");
+
+            let conanLinkFile = path.join(locksFolder, ".conan_link");
+
+            if (fs.existsSync(locksFolder)) {
+                // If .conan_link exists, it means conan only give reference to the real path using content of this file
+                if (fs.existsSync(conanLinkFile)) {
+                    returnValue = this.getPathFromConanLink(conanLinkFile);
+                }
+                else {
+                    returnValue = locksFolder;
+                }
+            }
+        }
+
+        return returnValue;
+    }
+
+    public override getRecipeFolderPathSource(recipe: string): string {
+        let recipePath = this.getRecipePath(recipe);
+
+        let returnValue = ""
+
+        if (recipePath) {
+            let sourceFolder = path.join(recipePath, "locks");
+
+            let conanLinkFile = path.join(sourceFolder, ".conan_link");
+
+            if (fs.existsSync(sourceFolder)) {
+                // If .conan_link exists, it means conan only give reference to the real path using content of this file
+                if (fs.existsSync(conanLinkFile)) {
+                    returnValue = this.getPathFromConanLink(conanLinkFile);
+                }
+                else {
+                    returnValue = sourceFolder;
+                }
+            }
+        }
+
+        return returnValue;
+    }
+
+    public override getRecipeFolderPathScmSource(recipe: string): string { 
+        let recipePath = this.getRecipePath(recipe);
+
+        let returnValue = ""
+
+        if (recipePath) {
+            let scmSourceFolder = path.join(recipePath, "scm_source");
+
+            let conanLinkFile = path.join(scmSourceFolder, ".conan_link");
+
+            if (fs.existsSync(scmSourceFolder)) {
+                // If .conan_link exists, it means conan only give reference to the real path using content of this file
+                if (fs.existsSync(conanLinkFile)) {
+                    returnValue = this.getPathFromConanLink(conanLinkFile);
+                }
+                else {
+                    returnValue = scmSourceFolder;
+                }
+            }
+        }
+
+        return returnValue;
     }
 }

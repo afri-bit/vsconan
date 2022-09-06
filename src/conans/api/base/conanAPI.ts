@@ -280,4 +280,16 @@ export abstract class ConanAPI {
     public abstract getRecipeAttribute(recipePath: string, attribute: string): string;
 
     public abstract getRecipesByRemote(remote: string): Array<ConanRecipe>;
+
+    public abstract getRecipeFolderPathDownload(recipe: string): string;
+
+    public abstract getRecipeFolderPathExport(recipe: string): string;
+
+    public abstract getRecipeFolderPathExportSource(recipe: string): string;
+
+    public abstract getRecipeFolderPathLocks(recipe: string): string;
+
+    public abstract getRecipeFolderPathSource(recipe: string): string;
+
+    public abstract getRecipeFolderPathScmSource(recipe: string): string;
 }

@@ -57,6 +57,12 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         this.registerCommand("vsconan.explorer.treeview.recipe.item.open-vscode", (node: ConanRecipeItem) => this.recipeOpenVSCode(node));
         this.registerCommand("vsconan.explorer.treeview.recipe.item.remove", (node: ConanRecipeItem) => this.recipeRemove(node));
         this.registerCommand("vsconan.explorer.treeview.recipe.item.copy-clipboard", (node: ConanRecipeItem) => this.recipeCopyPathToClipboard(node));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open.explorer.download", (node: ConanRecipeItem) => this.recipeOpenExplorerDownload(node));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open.explorer.export", (node: ConanRecipeItem) => this.recipeOpenExplorerExport(node));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open.explorer.export-source", (node: ConanRecipeItem) => this.recipeOpenExplorerExportSource(node));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open.explorer.locks", (node: ConanRecipeItem) => this.recipeOpenExplorerLocks(node));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open.explorer.source", (node: ConanRecipeItem) => this.recipeOpenExplorerSource(node));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open.explorer.scm-source", (node: ConanRecipeItem) => this.recipeOpenExplorerScmSource(node));
 
         // Register command for binary package treeview
         this.registerCommand("vsconan.explorer.treeview.package.refresh", () => this.packageRefreshTreeview());
@@ -257,6 +263,72 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         }
         catch {
             vscode.window.showErrorMessage("Unable to copy the path to clipboard");
+        }
+    }
+    
+    private recipeOpenExplorerDownload(node: ConanRecipeItem) {
+        let downloadPath = this.conanApi.getRecipeFolderPathDownload(node.label);
+
+        if (downloadPath) {
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(downloadPath));
+        }
+        else {
+            vscode.window.showErrorMessage("Error while opening the path. The path does not exist.");
+        }
+    }
+
+    private recipeOpenExplorerExport(node: ConanRecipeItem) {
+        let exportPath = this.conanApi.getRecipeFolderPathExport(node.label);
+
+        if (exportPath) {
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(exportPath));
+        }
+        else {
+            vscode.window.showErrorMessage("Error while opening the path. The path does not exist.");
+        }
+    }
+
+    private recipeOpenExplorerExportSource(node: ConanRecipeItem) {
+        let exportSourcePath = this.conanApi.getRecipeFolderPathExportSource(node.label);
+
+        if (exportSourcePath) {
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(exportSourcePath));
+        }
+        else {
+            vscode.window.showErrorMessage("Error while opening the path. The path does not exist.");
+        }
+    }
+
+    private recipeOpenExplorerLocks(node: ConanRecipeItem) {
+        let locksPath = this.conanApi.getRecipeFolderPathLocks(node.label);
+
+        if (locksPath) {
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(locksPath));
+        }
+        else {
+            vscode.window.showErrorMessage("Error while opening the path. The path does not exist.");
+        }
+    }
+
+    private recipeOpenExplorerSource(node: ConanRecipeItem) {
+        let sourcePath = this.conanApi.getRecipeFolderPathSource(node.label);
+
+        if (sourcePath) {
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(sourcePath));
+        }
+        else {
+            vscode.window.showErrorMessage("Error while opening the path. The path does not exist.");
+        }
+    }
+
+    private recipeOpenExplorerScmSource(node: ConanRecipeItem) {
+        let scmSourcePath = this.conanApi.getRecipeFolderPathScmSource(node.label);
+
+        if (scmSourcePath) {
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(scmSourcePath));
+        }
+        else {
+            vscode.window.showErrorMessage("Error while opening the path. The path does not exist.");
         }
     }
 
