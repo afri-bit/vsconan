@@ -9,6 +9,16 @@ import { ConanAPI } from "../../api/base/conanAPI";
 import { ConanExecutionMode } from "../../api/base/conanAPI";
 import { ConanRemote } from "../../model/conanRemote";
 
+export enum RecipeFolderOption {
+    build = "build",
+    download = "dl",
+    export = "export",
+    exportSource = "export_source",
+    locks = "locks",
+    package = "package",
+    source = "source",
+    scmSource = "scm_source"
+}
 
 /**
  * Class to interact with the conan package manager
@@ -25,6 +35,18 @@ export class Conan1API extends ConanAPI {
     public constructor(pythonInterpreter: string, conanExecutable: string, conanExecutionMode: ConanExecutionMode) {
         super(pythonInterpreter, conanExecutable, conanExecutionMode);
         this.switchExecutionMode(this.conanExecutionMode);
+    }
+
+    /**
+     * Helper function to get the path inside .conan_link file
+     * This .conan_link exists if conan is configured using short path (Windows), 
+     * so it will contain a reference to another path
+     * @param conanLinkFile Path to .conan_link file
+     * @returns Path inside the .conan_link file
+     */
+    private getPathFromConanLink(conanLinkFile: string): string {
+        let pathInConanLink = fs.readFileSync(conanLinkFile).toString('utf8');
+        return pathInConanLink.trim();
     }
 
     public override switchExecutionMode(mode: ConanExecutionMode) {
@@ -561,5 +583,29 @@ export class Conan1API extends ConanAPI {
         }
 
         return listOfRecipes;
+    }
+
+    public override getFolderPathFromRecipe(recipe: string, folderOption: RecipeFolderOption): string {
+        let recipePath = this.getRecipePath(recipe);
+
+        let returnValue = ""
+
+        if (recipePath) {
+            let buildFolder = path.join(recipePath, folderOption);
+
+            let conanLinkFile = path.join(buildFolder, ".conan_link");
+
+            if (fs.existsSync(buildFolder)) {
+                // If .conan_link exists, it means conan only give reference to the real path using content of this file
+                if (fs.existsSync(conanLinkFile)) {
+                    returnValue = this.getPathFromConanLink(conanLinkFile);
+                }
+                else {
+                    returnValue = buildFolder;
+                }
+            }
+        }
+
+        return returnValue;
     }
 }
