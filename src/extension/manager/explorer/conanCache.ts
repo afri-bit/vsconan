@@ -65,6 +65,13 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         this.registerCommand("vsconan.explorer.treeview.recipe.item.open.explorer.locks", (node: ConanRecipeItem) => this.recipeOpenFolderInExplorer(node, RecipeFolderOption.locks));
         this.registerCommand("vsconan.explorer.treeview.recipe.item.open.explorer.source", (node: ConanRecipeItem) => this.recipeOpenFolderInExplorer(node, RecipeFolderOption.source));
         this.registerCommand("vsconan.explorer.treeview.recipe.item.open.explorer.scm-source", (node: ConanRecipeItem) => this.recipeOpenFolderInExplorer(node, RecipeFolderOption.scmSource));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open.vscode.build", (node: ConanRecipeItem) => this.recipeOpenFolderInVSCode(node, RecipeFolderOption.build));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open.vscode.download", (node: ConanRecipeItem) => this.recipeOpenFolderInVSCode(node, RecipeFolderOption.download));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open.vscode.export", (node: ConanRecipeItem) => this.recipeOpenFolderInVSCode(node, RecipeFolderOption.export));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open.vscode.export-source", (node: ConanRecipeItem) => this.recipeOpenFolderInVSCode(node, RecipeFolderOption.exportSource));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open.vscode.locks", (node: ConanRecipeItem) => this.recipeOpenFolderInVSCode(node, RecipeFolderOption.locks));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open.vscode.source", (node: ConanRecipeItem) => this.recipeOpenFolderInVSCode(node, RecipeFolderOption.source));
+        this.registerCommand("vsconan.explorer.treeview.recipe.item.open.vscode.scm-source", (node: ConanRecipeItem) => this.recipeOpenFolderInVSCode(node, RecipeFolderOption.scmSource));
 
         // Register command for binary package treeview
         this.registerCommand("vsconan.explorer.treeview.package.refresh", () => this.packageRefreshTreeview());
@@ -273,6 +280,17 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         if (pathToOpen) {
             vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(pathToOpen));
+        }
+        else {
+            vscode.window.showErrorMessage("Error while opening the path. The path does not exist.");
+        }
+    }
+
+    private recipeOpenFolderInVSCode(node: ConanRecipeItem, folderType: RecipeFolderOption) {
+        let pathToOpen = this.conanApi.getFolderPathFromRecipe(node.label, folderType);
+
+        if (pathToOpen) {
+            vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(pathToOpen), true);
         }
         else {
             vscode.window.showErrorMessage("Error while opening the path. The path does not exist.");

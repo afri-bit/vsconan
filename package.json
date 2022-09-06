@@ -266,6 +266,34 @@
                 "title": "Open SCM Source in Explorer"
             },
             {
+                "command": "vsconan.explorer.treeview.recipe.item.open.vscode.build",
+                "title": "Open Build in VSCode"
+            },
+            {
+                "command": "vsconan.explorer.treeview.recipe.item.open.vscode.download",
+                "title": "Open Download in VSCode"
+            },
+            {
+                "command": "vsconan.explorer.treeview.recipe.item.open.vscode.export",
+                "title": "Open Export in VSCode"
+            },
+            {
+                "command": "vsconan.explorer.treeview.recipe.item.open.vscode.export-source",
+                "title": "Open Export Source in VSCode"
+            },
+            {
+                "command": "vsconan.explorer.treeview.recipe.item.open.vscode.locks",
+                "title": "Open Locks in VSCode"
+            },
+            {
+                "command": "vsconan.explorer.treeview.recipe.item.open.vscode.source",
+                "title": "Open Source in VSCode"
+            }, 
+            {
+                "command": "vsconan.explorer.treeview.recipe.item.open.vscode.scm-source",
+                "title": "Open SCM Source in VSCode"
+            },
+            {
                 "command": "vsconan.explorer.treeview.package.item.information",
                 "title": "Information",
                 "icon": {
@@ -498,6 +526,41 @@
                     "command": "vsconan.explorer.treeview.recipe.item.open.explorer.scm-source",
                     "when": "view == vsconan-explorer.treeview.recipe",
                     "group": "2-recipeContext@7"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.recipe.item.open.vscode.build",
+                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "group": "3-recipeContext@1"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.recipe.item.open.vscode.download",
+                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "group": "3-recipeContext@2"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.recipe.item.open.vscode.export",
+                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "group": "3-recipeContext@3"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.recipe.item.open.vscode.export-source",
+                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "group": "3-recipeContext@4"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.recipe.item.open.vscode.locks",
+                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "group": "3-recipeContext@5"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.recipe.item.open.vscode.source",
+                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "group": "3-recipeContext@6"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.recipe.item.open.vscode.scm-source",
+                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "group": "3-recipeContext@7"
                 },
                 {
                     "command": "vsconan.explorer.treeview.package.item.open-explorer",
