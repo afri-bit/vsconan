@@ -238,6 +238,10 @@
                 "title": "Copy Path to Clipboard"
             },
             {
+                "command": "vsconan.explorer.treeview.recipe.item.open.explorer.build",
+                "title": "Open Build in Explorer"
+            },
+            {
                 "command": "vsconan.explorer.treeview.recipe.item.open.explorer.download",
                 "title": "Open Download in Explorer"
             },
@@ -461,34 +465,39 @@
                     "group": "1-recipeContext@1"
                 },
                 {
-                    "command": "vsconan.explorer.treeview.recipe.item.open.explorer.download",
+                    "command": "vsconan.explorer.treeview.recipe.item.open.explorer.build",
                     "when": "view == vsconan-explorer.treeview.recipe",
                     "group": "2-recipeContext@1"
                 },
                 {
-                    "command": "vsconan.explorer.treeview.recipe.item.open.explorer.export",
+                    "command": "vsconan.explorer.treeview.recipe.item.open.explorer.download",
                     "when": "view == vsconan-explorer.treeview.recipe",
                     "group": "2-recipeContext@2"
                 },
                 {
-                    "command": "vsconan.explorer.treeview.recipe.item.open.explorer.export-source",
+                    "command": "vsconan.explorer.treeview.recipe.item.open.explorer.export",
                     "when": "view == vsconan-explorer.treeview.recipe",
                     "group": "2-recipeContext@3"
                 },
                 {
-                    "command": "vsconan.explorer.treeview.recipe.item.open.explorer.locks",
+                    "command": "vsconan.explorer.treeview.recipe.item.open.explorer.export-source",
                     "when": "view == vsconan-explorer.treeview.recipe",
                     "group": "2-recipeContext@4"
                 },
                 {
-                    "command": "vsconan.explorer.treeview.recipe.item.open.explorer.source",
+                    "command": "vsconan.explorer.treeview.recipe.item.open.explorer.locks",
                     "when": "view == vsconan-explorer.treeview.recipe",
                     "group": "2-recipeContext@5"
                 },
                 {
-                    "command": "vsconan.explorer.treeview.recipe.item.open.explorer.scm-source",
+                    "command": "vsconan.explorer.treeview.recipe.item.open.explorer.source",
                     "when": "view == vsconan-explorer.treeview.recipe",
                     "group": "2-recipeContext@6"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.recipe.item.open.explorer.scm-source",
+                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "group": "2-recipeContext@7"
                 },
                 {
                     "command": "vsconan.explorer.treeview.package.item.open-explorer",

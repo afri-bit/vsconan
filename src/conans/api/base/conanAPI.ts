@@ -2,6 +2,7 @@ import { ConanRecipe } from "../../model/conanRecipe";
 import { ConanPackage } from "../../model/conanPackage";
 import { ConanProfile } from "../../model/conanProfile";
 import { ConanRemote } from "../../model/conanRemote";
+import { RecipeFolderOption } from "../../conan/api/conanAPI";
 
 export enum ConanExecutionMode {
     python = 1,
@@ -281,15 +282,12 @@ export abstract class ConanAPI {
 
     public abstract getRecipesByRemote(remote: string): Array<ConanRecipe>;
 
-    public abstract getRecipeFolderPathDownload(recipe: string): string;
-
-    public abstract getRecipeFolderPathExport(recipe: string): string;
-
-    public abstract getRecipeFolderPathExportSource(recipe: string): string;
-
-    public abstract getRecipeFolderPathLocks(recipe: string): string;
-
-    public abstract getRecipeFolderPathSource(recipe: string): string;
-
-    public abstract getRecipeFolderPathScmSource(recipe: string): string;
+    /**
+     * Open a specific path from the recipe folder
+     * There are several folders, that exits based on the way you build the package.
+     * For example 'build', 'dl', 'source', etc. 
+     * @param recipe Recipe name
+     * @param folderOption Option of the folder to be opened.
+     */
+    public abstract getFolderPathFromRecipe(recipe: string, folderOption: RecipeFolderOption): string;
 }
