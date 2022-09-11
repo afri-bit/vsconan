@@ -520,7 +520,7 @@ export class Conan1API extends ConanAPI {
                     conanEditableRecipeList.push(new ConanRecipe(recipeName, true, recipePath));
                 }
             }
-            console.log(tempFile.length)
+            console.log(tempFile.length);
         }
 
         return conanEditableRecipeList;
@@ -533,7 +533,7 @@ export class Conan1API extends ConanAPI {
     public override addEditablePackage(recipePath: string, name: string, user: string, channel: string, layout: string) {
         let recipeName: string = name;
 
-        if (user != "" && channel != "") {
+        if (user !== "" && channel !== "") {
             recipeName = recipeName + `@${user}/${channel}`;
         }
 
@@ -588,7 +588,7 @@ export class Conan1API extends ConanAPI {
     public override getFolderPathFromRecipe(recipe: string, folderOption: RecipeFolderOption): string {
         let recipePath = this.getRecipePath(recipe);
 
-        let returnValue = ""
+        let returnValue = "";
 
         if (recipePath) {
             let buildFolder = path.join(recipePath, folderOption);
@@ -642,7 +642,7 @@ export class Conan1API extends ConanAPI {
 
             }
 
-            return listOfPackages
+            return listOfPackages;
         }
     }
 }

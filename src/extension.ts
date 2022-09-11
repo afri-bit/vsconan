@@ -36,12 +36,12 @@ export function activate(context: vscode.ExtensionContext) {
     // Set the environment conan user home path in the config manager
     // With this approach, we can get back to the environment variable that is set when the VS Code is started
     // Undefined means no specific path is set, so conan default home folder will be used.
-    configManager.setEnvConanUserHome(process.env.CONAN_USER_HOME)
+    configManager.setEnvConanUserHome(process.env.CONAN_USER_HOME);
 
     // Get the configuration from 'settings.json' for this matter
     let conanUserHome: string | null | undefined = vscode.workspace.getConfiguration("vsconan").get("general.conanUserHome");
     // If this is defined, the the environment variable will be overwritten, using the configuration in settings.json
-    if (conanUserHome != null) {
+    if (conanUserHome !== null) {
         process.env.CONAN_USER_HOME = conanUserHome;
     }
 

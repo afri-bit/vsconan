@@ -102,7 +102,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
             this.treeViewConanRecipe.title = `Conan - Recipe (Remote: ${this.configManager.getRecipeFilterKey()})`;
         }
         else {
-            this.treeViewConanRecipe.title = "Conan - Recipe"
+            this.treeViewConanRecipe.title = "Conan - Recipe";
         }
 
         // Refreshing the package treeview, following single responsibility principal
@@ -170,7 +170,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         }
 
         if (this.configManager.isPackageFiltered()) {
-            this.treeViewConanPackage.title = this.treeViewConanPackage.title + ` (Remote: ${this.configManager.getPackageFilterKey()})`
+            this.treeViewConanPackage.title = this.treeViewConanPackage.title + ` (Remote: ${this.configManager.getPackageFilterKey()})`;
         }
     }
 
@@ -322,7 +322,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         }
 
         if (this.configManager.isPackageFiltered()) {
-            this.treeViewConanPackage.title = this.treeViewConanPackage.title + ` (Remote: ${this.configManager.getPackageFilterKey()})`
+            this.treeViewConanPackage.title = this.treeViewConanPackage.title + ` (Remote: ${this.configManager.getPackageFilterKey()})`;
         }
     }
 

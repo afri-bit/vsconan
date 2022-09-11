@@ -14,7 +14,7 @@ export class ConanRemote {
     }
 
     public rename(newName: string) {
-        this.name = newName
+        this.name = newName;
     }
 
     public updateUrl(newUrl: string) {
