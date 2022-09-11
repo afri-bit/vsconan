@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 0.4.0 - 2022-09-11
 
 ### Added
 * [#24](https://github.com/afri-bit/vsconan/issues/24) Open different folders under recipe folder
