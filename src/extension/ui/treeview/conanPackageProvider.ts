@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as utils from "../../../utils/utils";
 import { ConanPackage } from '../../../conans/model/conanPackage';
 import { ConanAPI } from '../../../conans/api/base/conanAPI';
+import { ConfigurationManager } from '../../config/configManager';
 
 export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPackageItem> {
 
@@ -12,9 +13,11 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
     private recipeName: string = "";
     private showDirtyPackage: boolean = false;
     private conanApi: ConanAPI;
+    private configManager: ConfigurationManager;
 
-    public constructor(conanApi: ConanAPI) {
+    public constructor(conanApi: ConanAPI, configManager: ConfigurationManager) {
         this.conanApi = conanApi;
+        this.configManager = configManager;
     }
 
     public refresh(recipeName: string, showDirtyPackage: boolean): void {
@@ -31,7 +34,12 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
         let packageList: Array<ConanPackage> = [];
         let dirtyPackageList: Array<ConanPackage> = [];
 
-        packageList = this.conanApi.getPackages(this.recipeName);
+        if (this.configManager.isPackageFiltered()) {
+            packageList = this.conanApi.getPackagesByRemote(this.recipeName, this.configManager.getPackageFilterKey()!);
+        }
+        else {
+            packageList = this.conanApi.getPackages(this.recipeName);
+        }
 
         if (this.showDirtyPackage){
             dirtyPackageList = this.conanApi.getDirtyPackage(this.recipeName);

@@ -75,6 +75,8 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         // Register command for binary package treeview
         this.registerCommand("vsconan.explorer.treeview.package.refresh", () => this.packageRefreshTreeview());
+        this.registerCommand("vsconan.explorer.treeview.package.filter.set", () => this.packageSetFilter());
+        this.registerCommand("vsconan.explorer.treeview.package.filter.clear", () => this.packageClearFilter());
         this.registerCommand("vsconan.explorer.treeview.package.dirty.show", () => this.showDirtyPackage());
         this.registerCommand("vsconan.explorer.treeview.package.dirty.hide", () => this.hideDirtyPackage());
         this.registerCommand("vsconan.explorer.treeview.package.item.information", (node: ConanPackageItem) => this.packageShowInformation(node));
@@ -94,8 +96,6 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         // Refreshing the recipe tree explorer will reset the recipe tree explorer and package tree explorer
         this.nodeProviderConanRecipe.setSelectedRecipe(undefined); // Reset the internal selected recipe from the recipeNodeProvider
-        this.nodeProviderConanPackage.refresh("", this.context.workspaceState.get("show-dirty")!); // Empty the binary package tree explorer
-        this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the treeview
 
         // Change the title of the Conan Recipe Treeview to have filter name inside that
         if (this.configManager.isRecipeFiltered()) {
@@ -104,6 +104,9 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         else {
             this.treeViewConanRecipe.title = "Conan - Recipe"
         }
+
+        // Refreshing the package treeview, following single responsibility principal
+        this.packageRefreshTreeview();
     }
 
     /**
@@ -132,6 +135,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         if (choice) {
             this.configManager.setRecipeFilter(choice.label);
+            this.configManager.setPackageFilter(choice.label);
 
             this.recipeRefreshTreeview();
         }
@@ -158,11 +162,15 @@ export class ConanCacheExplorerManager extends ExtensionManager {
             this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the binary package treeview panel
         }
         else {
-             this.nodeProviderConanRecipe.setSelectedRecipe(this.treeViewConanRecipe.selection[0].label);
+            this.nodeProviderConanRecipe.setSelectedRecipe(this.treeViewConanRecipe.selection[0].label);
     
             // Change the title of the treeview for package explorer to match the selected recipe
             this.treeViewConanPackage.title = this.treeViewConanRecipe.selection[0].label;
             this.nodeProviderConanPackage.refresh(this.treeViewConanRecipe.selection[0].label, this.context.workspaceState.get("show-dirty")!);
+        }
+
+        if (this.configManager.isPackageFiltered()) {
+            this.treeViewConanPackage.title = this.treeViewConanPackage.title + ` (Remote: ${this.configManager.getPackageFilterKey()})`
         }
     }
 
@@ -303,9 +311,69 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * Refresh binary package treeview
      */
     private packageRefreshTreeview() {
-        if (this.nodeProviderConanRecipe.getSelectedRecipe()) {
+        // Check if there is a recipe selected from the recipe treeview
+        if (this.nodeProviderConanRecipe.getSelectedRecipe()) { // A recipe is selected
             this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), this.context.workspaceState.get("show-dirty")!);
+            this.treeViewConanPackage.title = this.nodeProviderConanRecipe.getSelectedRecipe();
         }
+        else { // No selected Recipe "undefined"
+            this.nodeProviderConanPackage.refresh("", this.context.workspaceState.get("show-dirty")!); // Empty the binary package tree explorer
+            this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the treeview
+        }
+
+        if (this.configManager.isPackageFiltered()) {
+            this.treeViewConanPackage.title = this.treeViewConanPackage.title + ` (Remote: ${this.configManager.getPackageFilterKey()})`
+        }
+    }
+
+    /**
+     * Method to set filter to search for recipes
+     * Currently this filter only meant for filtering based on remote
+     */
+     private async packageSetFilter() {
+
+        // Get all the saved remotes
+        let remoteList = this.conanApi.getRemotes();
+
+        // Feed the remotes to Selection box
+        const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
+        let quickPickItems = [];
+        for (let i = 0; i < remoteList.length; i++) {
+            quickPickItems.push({
+                label: remoteList[i].name,
+                description: remoteList[i].url,
+                detail: "",
+                index: i
+            });
+        }
+        quickPickItems.map(label => ({ label }));
+        quickPick.items = quickPickItems;
+
+        const choice = await vscode.window.showQuickPick(quickPickItems);
+
+        if (choice) {
+            this.configManager.setPackageFilter(choice.label);
+
+            this.packageRefreshTreeview();
+        }
+    }
+
+    /**
+     * Clean the filter
+     */
+    private packageClearFilter(): void {
+
+        if (this.configManager.isRecipeFiltered()) {
+            vscode.window.showWarningMessage("Filter in Recipe is set. Unable to clear the filter in the packages.");
+        }
+        else {
+            // Use config manager to clear the filter
+            this.configManager.clearPackageFilter();
+
+            // Refresh the recipe treeview
+            this.packageRefreshTreeview();
+        }
+        
     }
 
     private showDirtyPackage() {

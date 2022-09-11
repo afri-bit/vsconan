@@ -69,7 +69,7 @@ export function activate(context: vscode.ExtensionContext) {
     // ========== Registering the treeview for the extension
     const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi, configManager);
     const conanProfileNodeProvider = new ConanProfileNodeProvider(conanApi);
-    const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApi);
+    const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApi, configManager);
     const conanRemoteNodeProvider = new ConanRemoteNodeProvider(conanApi);
 
     const conanCacheExplorerManager = new ConanCacheExplorerManager(context, channelVSConan, conanApi, configManager, conanRecipeNodeProvider, conanPackageNodeProvider);
@@ -137,4 +137,8 @@ function initContextState(context: vscode.ExtensionContext) {
     vscode.commands.executeCommand('setContext', 'recipe-filtered', false);
     context.workspaceState.update('recipe-filtered', false);
     context.workspaceState.update('recipe-filter-key', "");
+
+    vscode.commands.executeCommand('setContext', 'package-filtered', false);
+    context.workspaceState.update('package-filtered', false);
+    context.workspaceState.update('package-filter-key', "");
 }

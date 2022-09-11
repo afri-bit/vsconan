@@ -608,4 +608,41 @@ export class Conan1API extends ConanAPI {
 
         return returnValue;
     }
+    
+    public override getPackagesByRemote(recipe: string, remote: string): Array<ConanPackage> {
+        let listOfPackages: Array<ConanPackage> = [];
+
+        if (recipe === "") {
+            return listOfPackages;
+        }
+        else {
+            // Execute the conan remote `list_ref` to get list of recipe with associated remote
+            let res = execSync(`${this.conanExecutor} remote list_pref ${recipe}`).toString();
+
+            let stringList = [];
+
+            stringList = res.split(os.EOL);
+
+            if (stringList[0].includes("cacert.pem")) {
+                stringList.splice(0, 1);
+            }
+
+            // Remove empty line in the last element
+            stringList.pop();
+
+            for (let item of stringList) {
+                // The output from CLI is string with such format 'boost/1.77.0: conan.io'
+                // To get the recipe name we need to split the string using following string
+                let binaryPackageRef = item.replace(`${recipe}:`, "").split(": ");
+
+                // Check if the remote is matched to given one
+                if (binaryPackageRef[1] === remote) {
+                    listOfPackages.push(new ConanPackage(binaryPackageRef[0], false, {}, false, {}, {}, ""));
+                }
+
+            }
+
+            return listOfPackages
+        }
+    }
 }
