@@ -1,9 +1,9 @@
 # VSConan - Conan Extension for Visual Studio Code
 
 [![Marketplace VSConan](https://img.shields.io/visual-studio-marketplace/v/afri-bit.vsconan)](https://marketplace.visualstudio.com/items?itemName=afri-bit.vsconan)
-![Rating](https://img.shields.io/visual-studio-marketplace/r/afri-bit.vsconan)
-![Downloads](https://img.shields.io/visual-studio-marketplace/d/afri-bit.vsconan)
-[![GitHub stars](https://img.shields.io/github/stars/afri-bit/vsconan?color=red&label=GitHub%20Stars)](https://github.com/afri-bit/vsconan)
+[![Rating](https://img.shields.io/visual-studio-marketplace/r/afri-bit.vsconan)](https://marketplace.visualstudio.com/items?itemName=afri-bit.vsconan&ssr=false#review-details)
+[![Install](https://img.shields.io/visual-studio-marketplace/i/afri-bit.vsconan)](https://marketplace.visualstudio.com/items?itemName=afri-bit.vsconan)
+[![GitHub stars](https://img.shields.io/github/stars/afri-bit/vsconan?color=red&label=GitHub%20Stars)](https://github.com/afri-bit/vsconan/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/afribit)
 
