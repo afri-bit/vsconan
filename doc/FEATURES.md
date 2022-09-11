@@ -21,6 +21,15 @@
 * Remove
   * Remove recipe from local cache
   * Remove editable package recipe from editable mode
+* Filter list of recipe based on a remote
+* Right click option to open following folders in explorer or VS Code from a recipe 
+  * Build
+  * Download
+  * Export
+  * Export Source
+  * Locks
+  * Source
+  * SCM Source
   
 ### Conan - Package
 * Show list of binary packages from a recipe
@@ -30,6 +39,7 @@
 * Dirty package
   * Show list of dirty packages
   * Open in Explorer
+* Filter list of binary packages that belong to a recipe based on a remote
 
 ### Conan - Profile
 * Add new profile
