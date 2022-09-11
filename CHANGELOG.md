@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.4.0 - 2022-09-11
+
+### Added
+* [#24](https://github.com/afri-bit/vsconan/issues/24) Open different folders under recipe folder
+  * User has the possibility to access different folders that are located under the recipe folder itself, such as `build`, `dl`, `source`, etc.
+  * User can open the folder either in the explorer or in a new VS Code window. The option to open the folders can be found by using right click on the recipe item from the explorer.
+* [#17](https://github.com/afri-bit/vsconan/issues/17) Filter recipes based on a selected remote
+* [#18](https://github.com/afri-bit/vsconan/issues/18) Filter binary packages based on a selected remote
+
 ## 0.3.0 - 2022-06-06
 
 ### Added

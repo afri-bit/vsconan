@@ -1,20 +1,21 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import * as utils from "./utils";
-import * as constants from "./constants";
+import * as utils from "./utils/utils";
+import * as constants from "./utils/constants";
 
-import { ConanPackageNodeProvider } from "./ui/treeview/conanPackageProvider";
-import { ConanProfileNodeProvider } from "./ui/treeview/conanProfileProvider";
-import { ConanRecipeNodeProvider } from "./ui/treeview/conanRecipeProvider";
-import { ConanRemoteNodeProvider } from "./ui/treeview/conanRemoteProvider";
-import { ConanAPI, ConanExecutionMode } from "./api/conan/conanAPI";
-import { ConanCacheExplorerManager } from "./manager/explorer/conanCache";
-import { ConanProfileExplorerManager } from "./manager/explorer/conanProfile";
-import { ConanRemoteExplorerManager } from "./manager/explorer/conanRemote";
-import { VSConanWorkspaceManager } from "./manager/vsconanWorkspace";
-import { configChangeListener } from "./configChangeListener";
-import { ConfigurationManager } from "./configManager";
+import { ConanPackageNodeProvider } from "./extension/ui/treeview/conanPackageProvider";
+import { ConanProfileNodeProvider } from "./extension/ui/treeview/conanProfileProvider";
+import { ConanRecipeNodeProvider } from "./extension/ui/treeview/conanRecipeProvider";
+import { ConanRemoteNodeProvider } from "./extension/ui/treeview/conanRemoteProvider";
+import { ConanCacheExplorerManager } from "./extension/manager/explorer/conanCache";
+import { ConanProfileExplorerManager } from "./extension/manager/explorer/conanProfile";
+import { ConanRemoteExplorerManager } from "./extension/manager/explorer/conanRemote";
+import { VSConanWorkspaceManager } from "./extension/manager/vsconanWorkspace";
+import { configChangeListener } from "./extension/config/configChangeListener";
+import { ConfigurationManager } from "./extension/config/configManager";
+import { ConanAPI, ConanExecutionMode} from "./conans/api/base/conanAPI";
+import { Conan1API } from "./conans/conan/api/conanAPI";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -35,17 +36,16 @@ export function activate(context: vscode.ExtensionContext) {
     // Set the environment conan user home path in the config manager
     // With this approach, we can get back to the environment variable that is set when the VS Code is started
     // Undefined means no specific path is set, so conan default home folder will be used.
-    configManager.setEnvConanUserHome(process.env.CONAN_USER_HOME)
+    configManager.setEnvConanUserHome(process.env.CONAN_USER_HOME);
 
     // Get the configuration from 'settings.json' for this matter
     let conanUserHome: string | null | undefined = vscode.workspace.getConfiguration("vsconan").get("general.conanUserHome");
     // If this is defined, the the environment variable will be overwritten, using the configuration in settings.json
-    if (conanUserHome != null) {
+    if (conanUserHome !== null) {
         process.env.CONAN_USER_HOME = conanUserHome;
     }
 
-    vscode.commands.executeCommand('setContext', 'show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
-    context.workspaceState.update('show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
+    initContextState(context);
 
     // ========== Initializing the Conan API
     // Getting the setting for execution mode as requirements for ConanAPI
@@ -61,18 +61,18 @@ export function activate(context: vscode.ExtensionContext) {
         conanExecutionMode = ConanExecutionMode.conan;
     }
 
-    let conanApi = new ConanAPI(
+    let conanApi: ConanAPI = new Conan1API(
         vscode.workspace.getConfiguration("vsconan").get("general.pythonInterpreter")!,
         vscode.workspace.getConfiguration("vsconan").get("general.conanExecutable")!,
         conanExecutionMode);
 
     // ========== Registering the treeview for the extension
-    const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi);
+    const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi, configManager);
     const conanProfileNodeProvider = new ConanProfileNodeProvider(conanApi);
-    const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApi);
+    const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApi, configManager);
     const conanRemoteNodeProvider = new ConanRemoteNodeProvider(conanApi);
 
-    const conanCacheExplorerManager = new ConanCacheExplorerManager(context, channelVSConan, conanApi, conanRecipeNodeProvider, conanPackageNodeProvider);
+    const conanCacheExplorerManager = new ConanCacheExplorerManager(context, channelVSConan, conanApi, configManager, conanRecipeNodeProvider, conanPackageNodeProvider);
     const conanProfileExplorerManager = new ConanProfileExplorerManager(context, channelVSConan, conanApi, conanProfileNodeProvider);
     const conanRemoteExplorerManager = new ConanRemoteExplorerManager(context, channelVSConan, conanApi, conanRemoteNodeProvider);
     const conanWorkspaceManager = new VSConanWorkspaceManager(context, channelVSConan, conanApi);
@@ -125,3 +125,20 @@ export function activate(context: vscode.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 export function deactivate() { }
+
+/**
+ * Function to initialize all the context state
+ * @param context VS Code extension context
+ */
+function initContextState(context: vscode.ExtensionContext) {
+    vscode.commands.executeCommand('setContext', 'show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
+    context.workspaceState.update('show-dirty', vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage"));
+
+    vscode.commands.executeCommand('setContext', 'recipe-filtered', false);
+    context.workspaceState.update('recipe-filtered', false);
+    context.workspaceState.update('recipe-filter-key', "");
+
+    vscode.commands.executeCommand('setContext', 'package-filtered', false);
+    context.workspaceState.update('package-filtered', false);
+    context.workspaceState.update('package-filter-key', "");
+}
