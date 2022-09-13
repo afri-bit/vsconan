@@ -709,15 +709,14 @@
         "watch": "tsc -watch -p ./",
         "pretest": "npm run compile && npm run lint",
         "lint": "eslint src --ext ts",
-        "test": "npm run e2etest && npm run unittest",
-        "e2etest": "node ./out/test/runTest.js",
-        "unittest": "tsc && mocha out/test/unit/**/*.test.js"
+        "test": "node ./out/test/runTest.js"
     },
     "devDependencies": {
         "@types/vscode": "^1.56.0",
         "@types/glob": "^7.1.3",
         "@types/mocha": "^9.1.1",
         "@types/node": "16.x",
+        "ts-sinon": "^2.0.2",
         "eslint": "^8.18.0",
 		"@typescript-eslint/eslint-plugin": "^5.30.0",
 		"@typescript-eslint/parser": "^5.30.0",
