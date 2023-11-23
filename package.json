@@ -114,6 +114,10 @@
                 "title": "VSConan: Remove Editable"
             },
             {
+                "command": "vsconan.conan.version.switch",
+                "title": "VSConan: Switch Conan Version"
+            },
+            {
                 "command": "vsconan.config.workspace.create",
                 "title": "VSConan: Create Workspace Configuration (JSON)"
             },
@@ -661,8 +665,20 @@
         },
         "configuration":[
             {
-                "title": "General",
+                "title": "Conan",
                 "order": 1,
+                "properties": {
+                    "vsconan.conan.version": {
+                        "markdownDescription": "Switch version of Conan (API).",
+                        "type": "string",
+                        "default": "1",
+                        "enum": ["1", "2"]
+                    }
+                }
+            },
+            {
+                "title": "General",
+                "order": 2,
                 "properties": {
                     "vsconan.general.pythonInterpreter": {
                         "markdownDescription": "Python interpreter executable path.",
@@ -692,7 +708,7 @@
             },
             {
                 "title": "Explorer",
-                "order": 2,
+                "order": 3,
                 "properties": {
                     "vsconan.explorer.treeview.package.showDirtyPackage": {
                         "markdownDescription": "Show dirty binary package from a recipe.",

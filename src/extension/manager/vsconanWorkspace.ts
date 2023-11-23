@@ -30,6 +30,8 @@ export class VSConanWorkspaceManager extends ExtensionManager {
     private outputChannel: vscode.OutputChannel;
     private conanApi: ConanAPI;
 
+    private statusBarConanVersion: vscode.StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+
     /**
      * Create the conan workspace manager
      * @param context The context of the extension
@@ -53,6 +55,65 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         this.registerCommand("vsconan.conan.editable.remove", () => this.removeEditablePackage());
         this.registerCommand("vsconan.config.workspace.create", () => this.createWorkspaceConfig());
         this.registerCommand("vsconan.config.workspace.open", () => this.openWorkspaceConfig());
+        this.registerCommand("vsconan.conan.version.switch", () => this.switchConanVersion());
+
+        this.initStatusBarConanVersion();
+
+    }
+
+    private initStatusBarConanVersion() {
+        let conanVersion: string = vscode.workspace.getConfiguration("vsconan").get("conan.version")!;
+        this.statusBarConanVersion.command = "vsconan.conan.version.switch";
+        this.statusBarConanVersion.text = `$(extensions) VSConan: Conan ${conanVersion}`
+        this.statusBarConanVersion.show();
+        this.context.subscriptions.push(this.statusBarConanVersion);
+
+        // register some listener that make sure the status bar 
+        // item always up-to-date
+        this.context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((event) => this.conanVersionConfigChange(event)))
+    }
+
+    private conanVersionConfigChange(event: vscode.ConfigurationChangeEvent) {
+        // TODO: Check if the conan version config is changed
+        let affected = event.affectsConfiguration("vsconan");
+        if (affected) {
+            console.log("Test change listener");
+        }
+    }
+
+    /**
+     * Method to switch conan version
+     */
+    private switchConanVersion() {
+
+        // Create drop down menu for switch conan version
+        // This function will change the conan version, which means it will change the entire
+
+        // Picking the conan workspace after filtering the workspace into conan workspace
+        const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
+        let pythonInterpreter = vscode.workspace.getConfiguration("vsconan").inspect("conan.version")
+        let quickPickItems = [];
+        let conanVersion = ["1", "2"]
+        for (let i = 0; i < conanVersion.length; i++) {
+
+            let picked = conanVersion[i] == "2" ? true : false;
+
+            quickPickItems.push({
+                label: `Conan ${conanVersion[i]}`,
+                description: `Switch Application to Conan version ${conanVersion[i]}.x`,
+                detail: "",
+                index: 1,
+            });
+        }
+
+        quickPickItems.map(label => ({ label }));
+        quickPick.items = quickPickItems;
+
+        const wsChoice = vscode.window.showQuickPick(quickPickItems);
+
+        // TODO: Update the configuration to selected conan version
+        // Do nothing if the selection is the same as config
+
     }
 
     /**
@@ -492,7 +553,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 vscode.window.showInformationMessage(`Editable package ${choice?.label} has been removed.`);
             }
         }
-        catch(err) {
+        catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
         }
     }
