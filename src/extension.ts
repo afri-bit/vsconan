@@ -16,6 +16,7 @@ import { configChangeListener } from "./extension/config/configChangeListener";
 import { ConfigurationManager } from "./extension/config/configManager";
 import { ConanAPI, ConanExecutionMode} from "./conans/api/base/conanAPI";
 import { Conan1API } from "./conans/conan/api/conanAPI";
+import { Conan2API } from "./conans/conan2/api/conanAPI";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -61,7 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
         conanExecutionMode = ConanExecutionMode.conan;
     }
 
-    let conanApi: ConanAPI = new Conan1API(
+    let conanApi: ConanAPI = new Conan2API(
         vscode.workspace.getConfiguration("vsconan").get("general.pythonInterpreter")!,
         vscode.workspace.getConfiguration("vsconan").get("general.conanExecutable")!,
         conanExecutionMode);
