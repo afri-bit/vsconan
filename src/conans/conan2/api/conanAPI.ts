@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import { execSync } from "child_process";
 import { ConanAPI, ConanExecutionMode } from "../../api/base/conanAPI";
 import { RecipeFolderOption } from "../../conan/api/conanAPI";
@@ -103,11 +104,40 @@ export class Conan2API extends ConanAPI {
     }
 
     public override getRemoteFilePath(): string | undefined {
-        throw new Error("Method not implemented.");
+        let conanHomePath = this.getConanHomePath();
+
+        let remotePath = undefined;
+
+        if (conanHomePath) {
+            remotePath = path.join(conanHomePath!, "remotes.json");
+        }
+
+        return remotePath;
     }
 
     public override getRemotes(): ConanRemote[] {
-        throw new Error("Method not implemented.");
+        let arrayRemoteList: Array<ConanRemote> = [];
+
+        let conanHomePath = this.getConanHomePath();
+
+        if (conanHomePath === undefined) {
+            throw new Error("Unable to locate Conan home folder.");
+        }
+
+        let jsonPath: string = path.join(conanHomePath!, "remotes.json");
+
+        if (fs.existsSync(jsonPath)) {
+            let tempFile = fs.readFileSync(jsonPath, 'utf8');
+            let remoteJson = JSON.parse(tempFile);
+
+            let remoteItemList = remoteJson.remotes;
+
+            for (let remote of remoteItemList) {
+                arrayRemoteList.push(new ConanRemote(remote.name, remote.url, remote.verify_ssl, remote.disabled ? false : true));
+            }
+        }
+
+        return arrayRemoteList;
     }
 
     public override removePackage(recipe: string, packageId: string): void {
@@ -119,39 +149,75 @@ export class Conan2API extends ConanAPI {
     }
 
     public override removeProfile(profile: string): void {
-        throw new Error("Method not implemented.");
+        let conanProfilesPath = this.getConanProfilesPath();
+
+        if (conanProfilesPath === undefined) {
+            throw new Error("Unable to locate Conan profiles folder.");
+        }
+
+        let profileFilePath = path.join(conanProfilesPath, profile);
+
+        fs.unlinkSync(profileFilePath);
     }
 
     public override addRemote(remote: string, url: string): void {
-        throw new Error("Method not implemented.");
+        execSync(`${this.conanExecutor} remote add ${remote} ${url}`);
     }
 
     public override removeRemote(remote: string): void {
-        throw new Error("Method not implemented.");
+        execSync(`${this.conanExecutor} remote remove ${remote}`);
     }
 
     public override enableRemote(remote: string, enable: boolean): void {
-        throw new Error("Method not implemented.");
+        if (enable) {
+            execSync(`${this.conanExecutor} remote enable ${remote}`);
+        }
+        else {
+            execSync(`${this.conanExecutor} remote disable ${remote}`);
+        }
     }
 
     public override renameRemote(remoteName: string, newName: string): void {
-        throw new Error("Method not implemented.");
+        execSync(`${this.conanExecutor} remote rename ${remoteName} ${newName}`);
     }
 
     public override updateRemoteURL(remoteName: string, url: string): void {
-        throw new Error("Method not implemented.");
+        execSync(`${this.conanExecutor} remote update ${remoteName} --url ${url}`);
     }
 
     public override renameProfile(oldProfileName: string, newProfileName: string): void {
-        throw new Error("Method not implemented.");
+        // Get the absolute path to the selected profile
+        let oldProfilePath = this.getProfileFilePath(oldProfileName);
+
+        if (oldProfilePath) {
+            fs.renameSync(oldProfilePath, path.join(this.getConanProfilesPath()!, newProfileName));
+        }
+        else {
+            throw new Error(`Unable to locate profile ${oldProfileName}`);
+        }
     }
 
     public override duplicateProfile(oldProfileName: string, newProfileName: string): void {
-        throw new Error("Method not implemented.");
+        let oldProfilePath = this.getProfileFilePath(oldProfileName);
+
+        if (oldProfileName) {
+            fs.copyFileSync(oldProfilePath!, path.join(this.getConanProfilesPath()!, newProfileName));
+        }
+        else {
+            throw new Error(`Unable to duplicate profile ${oldProfileName}`);
+        }
     }
 
     public override createNewProfile(profileName: string): void {
-        throw new Error("Method not implemented.");
+        let conanProfilesPath = this.getConanProfilesPath();
+
+        if (conanProfilesPath === undefined) {
+            throw new Error("Unable to locate Conan profiles folder.");
+        }
+
+        let emptyProfileContent = "[settings]\n[options]\n[build_requires]\n[env]\n";
+
+        fs.writeFileSync(path.join(conanProfilesPath, profileName), emptyProfileContent);
     }
 
     public override getRecipeInformation(recipeName: string): string | undefined {
