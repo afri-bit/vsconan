@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.0.0-beta - Unrelease
+
+### Added
+* Conan 2 - Working with remotes with Tree view
+* Conan 2 - Working with profiles with Tree view
+* 
+
 ## 0.4.0 - 2022-09-11
 
 ### Added
