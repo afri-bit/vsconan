@@ -82,8 +82,27 @@ export class Conan2API extends ConanAPI {
         throw new Error("Method not implemented.");
     }
 
-    public override getRecipes(): ConanRecipe[] {
-        throw new Error("Method not implemented.");
+    public override getRecipes(): Array<ConanRecipe> {
+        let listOfRecipes: Array<ConanRecipe> = [];
+
+        try {
+            let jsonStdout = execSync(`${this.conanExecutor} list *#* --format json`);
+            let jsonObject = JSON.parse(jsonStdout.toString());
+
+            let localCache = jsonObject["Local Cache"];
+
+            for (let recipe in localCache) {
+                for (let rev in localCache[recipe].revisions){
+                    listOfRecipes.push(new ConanRecipe(`${recipe}#${rev}`, false));
+                }
+            }
+        }
+        catch (err) {
+            console.log((err as Error).message);
+            listOfRecipes = []
+        }
+
+        return listOfRecipes;
     }
 
     public override getProfiles(): string[] {
@@ -229,7 +248,8 @@ export class Conan2API extends ConanAPI {
     }
 
     public override getEditablePackageRecipes(): ConanRecipe[] {
-        throw new Error("Method not implemented.");
+        // TODO: Implementation
+        return [];
     }
 
     public override removeEditablePackageRecipe(recipe: string): void {
@@ -245,7 +265,8 @@ export class Conan2API extends ConanAPI {
     }
 
     public override getRecipesByRemote(remote: string): ConanRecipe[] {
-        throw new Error("Method not implemented.");
+        // TODO: Implementation
+        return [];
     }
 
     public override getFolderPathFromRecipe(recipe: string, folderOption: RecipeFolderOption): string {
