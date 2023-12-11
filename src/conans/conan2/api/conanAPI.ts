@@ -92,7 +92,7 @@ export class Conan2API extends ConanAPI {
             let localCache = jsonObject["Local Cache"];
 
             for (let recipe in localCache) {
-                for (let rev in localCache[recipe].revisions){
+                for (let rev in localCache[recipe].revisions) {
                     listOfRecipes.push(new ConanRecipe(`${recipe}#${rev}`, false));
                 }
             }
@@ -119,7 +119,37 @@ export class Conan2API extends ConanAPI {
     }
 
     public override getPackages(recipe: string): ConanPackage[] {
-        throw new Error("Method not implemented.");
+        let listOfPackages: Array<ConanPackage> = [];
+
+        try {
+            let jsonStdout = execSync(`${this.conanExecutor} list ${recipe}:* --format json`);
+            let jsonObject = JSON.parse(jsonStdout.toString());
+
+            let recipeRevisionSplit = recipe.split("#");
+
+            let localCache = jsonObject["Local Cache"];
+
+            let packageObjects = localCache[recipeRevisionSplit[0]]["revisions"][recipeRevisionSplit[1]]["packages"];
+            
+            for (let packageId in packageObjects) {
+
+                listOfPackages.push(new ConanPackage(
+                    packageId,
+                    false,
+                    packageObjects[packageId].info.options,
+                    false,
+                    Object(),
+                    packageObjects[packageId].info.settings,
+                    ""
+                ));
+            }
+        }
+        catch (err) {
+            console.log((err as Error).message);
+            listOfPackages = []
+        }
+
+        return listOfPackages;
     }
 
     public override getRemoteFilePath(): string | undefined {
