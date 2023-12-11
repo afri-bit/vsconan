@@ -30,6 +30,7 @@
         "onView:vsconan-explorer.treeview.package",
         "onView:vsconan-explorer.treeview.profile",
         "onView:vsconan-explorer.treeview.remote",
+        "onView:vsconan-explorer.treeview.package.revision".
         "workspaceContains:conanfile.py",
         "workspaceContains:conanfile.txt",
         "onCommand:vsconan.conan.create",
@@ -65,6 +66,12 @@
                     "id": "vsconan-explorer.treeview.package",
                     "name": "Conan - Package",
                     "contextualTitle": "Conan Package"
+                },
+                {
+                    "id": "vsconan-explorer.treeview.package.revision",
+                    "name": "Conan - Package Revision",
+                    "contextualTitle": "Conan Package Revision",
+                    "when": "config.vsconan.conan.version == '2'"
                 },
                 {
                     "id": "vsconan-explorer.treeview.profile",
