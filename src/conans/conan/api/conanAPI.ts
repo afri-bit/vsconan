@@ -1,12 +1,12 @@
-import * as fs from "fs";
-import * as path from "path";
-import * as os from "os";
 import { execSync } from "child_process";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import * as utils from "../../../utils/utils";
+import { ConanAPI, ConanExecutionMode } from "../../api/base/conanAPI";
 import { ConanPackage } from "../../model/conanPackage";
+import { ConanPackageRevision } from "../../model/conanPackageRevision";
 import { ConanRecipe } from "../../model/conanRecipe";
-import { ConanAPI } from "../../api/base/conanAPI";
-import { ConanExecutionMode } from "../../api/base/conanAPI";
 import { ConanRemote } from "../../model/conanRemote";
 
 export enum RecipeFolderOption {
@@ -644,5 +644,11 @@ export class Conan1API extends ConanAPI {
 
             return listOfPackages;
         }
+    }
+
+    public override getPackageRevisions(recipe: string, packageId: string): Array<ConanPackageRevision> {
+        // DO NOTHING
+
+        return []
     }
 }

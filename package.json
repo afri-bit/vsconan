@@ -30,7 +30,7 @@
         "onView:vsconan-explorer.treeview.package",
         "onView:vsconan-explorer.treeview.profile",
         "onView:vsconan-explorer.treeview.remote",
-        "onView:vsconan-explorer.treeview.package.revision".
+        "onView:vsconan-explorer.treeview.package.revision",
         "workspaceContains:conanfile.py",
         "workspaceContains:conanfile.txt",
         "onCommand:vsconan.conan.create",

@@ -1,14 +1,20 @@
-import * as fs from "fs";
 import { execSync } from "child_process";
+import * as fs from "fs";
 import { ConanAPI, ConanExecutionMode } from "../../api/base/conanAPI";
 import { RecipeFolderOption } from "../../conan/api/conanAPI";
 import { ConanPackage } from "../../model/conanPackage";
+import { ConanPackageRevision } from "../../model/conanPackageRevision";
 import { ConanRecipe } from "../../model/conanRecipe";
 import { ConanRemote } from "../../model/conanRemote";
 import path = require("path");
 
-
 export class Conan2API extends ConanAPI {
+
+    public constructor(pythonInterpreter: string, conanExecutable: string, conanExecutionMode: ConanExecutionMode) {
+        super(pythonInterpreter, conanExecutable, conanExecutionMode);
+        this.switchExecutionMode(this.conanExecutionMode);
+    }
+
     public override switchExecutionMode(mode: ConanExecutionMode): void {
         switch (this.conanExecutionMode) {
             case ConanExecutionMode.python: {
@@ -130,7 +136,7 @@ export class Conan2API extends ConanAPI {
             let localCache = jsonObject["Local Cache"];
 
             let packageObjects = localCache[recipeRevisionSplit[0]]["revisions"][recipeRevisionSplit[1]]["packages"];
-            
+
             for (let packageId in packageObjects) {
 
                 listOfPackages.push(new ConanPackage(
@@ -305,6 +311,36 @@ export class Conan2API extends ConanAPI {
 
     public override getPackagesByRemote(recipe: string, remote: string): ConanPackage[] {
         throw new Error("Method not implemented.");
+    }
+
+    public override getPackageRevisions(recipe: string, packageId: string): Array<ConanPackageRevision> {
+        let listOfPackageRevisions: Array<ConanPackageRevision> = [];
+
+        try {
+            let jsonStdout = execSync(`${this.conanExecutor} list ${recipe}:${packageId}#* --format json`);
+            let jsonObject = JSON.parse(jsonStdout.toString());
+
+            let recipeRevisionSplit = recipe.split("#");
+
+            let localCache = jsonObject["Local Cache"];
+
+            let packageRevisionObjects = localCache[recipeRevisionSplit[0]]["revisions"][recipeRevisionSplit[1]]["packages"][packageId]["revisions"];
+
+            for (let revisionId in packageRevisionObjects) {
+                listOfPackageRevisions.push(
+                    new ConanPackageRevision(
+                        revisionId,
+                        packageRevisionObjects[revisionId]["timestamp"]
+                    )
+                );
+            }
+        }
+        catch (err) {
+            console.log((err as Error).message);
+            listOfPackageRevisions = [];
+        }
+
+        return listOfPackageRevisions;
     }
 
 }

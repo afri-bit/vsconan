@@ -2,6 +2,7 @@ import { ConanRecipe } from "../../model/conanRecipe";
 import { ConanPackage } from "../../model/conanPackage";
 import { ConanProfile } from "../../model/conanProfile";
 import { ConanRemote } from "../../model/conanRemote";
+import { ConanPackageRevision } from "../../model/conanPackageRevision";
 import { RecipeFolderOption } from "../../conan/api/conanAPI";
 
 export enum ConanExecutionMode {
@@ -301,4 +302,12 @@ export abstract class ConanAPI {
      * @param remote Remote name to filter the source of the binary packages
      */
     public abstract getPackagesByRemote(recipe: string, remote: string): Array<ConanPackage>;
+
+    /**
+     * Method to get all the package revisions from a package ID
+     * !!! Attention - this package revision only works on Conan 2 !!!
+     * @param recipe Recipe name to get the binary package from
+     * @param packageId Selected package Id to search package revision from
+     */
+    public abstract getPackageRevisions(recipe: string, packageId: string): Array<ConanPackageRevision>;
 }
