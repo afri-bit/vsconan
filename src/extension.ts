@@ -17,6 +17,7 @@ import { ConfigurationManager } from "./extension/config/configManager";
 import { ConanAPI, ConanExecutionMode} from "./conans/api/base/conanAPI";
 import { Conan1API } from "./conans/conan/api/conanAPI";
 import { Conan2API } from "./conans/conan2/api/conanAPI";
+import { ConanPackageRevisionNodeProvider } from "./extension/ui/treeview/conanPackageRevisionProvider";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -71,9 +72,10 @@ export function activate(context: vscode.ExtensionContext) {
     const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi, configManager);
     const conanProfileNodeProvider = new ConanProfileNodeProvider(conanApi);
     const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApi, configManager);
+    const conanPackageRevisionNodeProvider = new ConanPackageRevisionNodeProvider(conanApi, configManager);
     const conanRemoteNodeProvider = new ConanRemoteNodeProvider(conanApi);
 
-    const conanCacheExplorerManager = new ConanCacheExplorerManager(context, channelVSConan, conanApi, configManager, conanRecipeNodeProvider, conanPackageNodeProvider);
+    const conanCacheExplorerManager = new ConanCacheExplorerManager(context, channelVSConan, conanApi, configManager, conanRecipeNodeProvider, conanPackageNodeProvider, conanPackageRevisionNodeProvider);
     const conanProfileExplorerManager = new ConanProfileExplorerManager(context, channelVSConan, conanApi, conanProfileNodeProvider);
     const conanRemoteExplorerManager = new ConanRemoteExplorerManager(context, channelVSConan, conanApi, conanRemoteNodeProvider);
     const conanWorkspaceManager = new VSConanWorkspaceManager(context, channelVSConan, conanApi);
