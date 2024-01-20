@@ -310,4 +310,13 @@ export abstract class ConanAPI {
      * @param packageId Selected package Id to search package revision from
      */
     public abstract getPackageRevisions(recipe: string, packageId: string): Array<ConanPackageRevision>;
+
+    /**
+     * Method to get the path to the package revision in the local cache
+     * !!! Attention - this API only works for Conan 2 !!!
+     * @param recipe Recipe name to get the binary package from
+     * @param packageId Selected package id to search for the package revision
+     * @param revisionId Selected package revision id to get the path from
+     */
+    public abstract getPackageRevisionPath(recipe: string, packageId: string, revisionId: string): string | undefined;
 }

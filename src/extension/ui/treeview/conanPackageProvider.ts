@@ -15,6 +15,8 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
     private conanApi: ConanAPI;
     private configManager: ConfigurationManager;
 
+    private selectedPackage: string | undefined = undefined;
+
     public constructor(conanApi: ConanAPI, configManager: ConfigurationManager) {
         this.conanApi = conanApi;
         this.configManager = configManager;
@@ -66,6 +68,14 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
         }
 
         return childStringList;
+    }
+
+    public setSelectedPackage(packageId: string | undefined) {
+        this.selectedPackage = packageId;
+    }
+
+    public getSelectedPackage(): string {
+        return this.selectedPackage!;
     }
 }
 

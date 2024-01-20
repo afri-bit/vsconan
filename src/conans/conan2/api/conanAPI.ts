@@ -343,4 +343,17 @@ export class Conan2API extends ConanAPI {
         return listOfPackageRevisions;
     }
 
+    public override getPackageRevisionPath(recipe: string, packageId: string, revisionId: string): string | undefined {
+        let packageRevisionPath: string | undefined = undefined;
+
+        try {
+            packageRevisionPath = execSync(`${this.conanExecutor} cache path ${recipe}:${packageId}#${revisionId}`).toString().trim();
+        }
+        catch (err) {
+            console.log((err as Error).message);
+        }
+
+        return packageRevisionPath;
+    }
+
 }
