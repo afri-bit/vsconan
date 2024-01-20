@@ -165,6 +165,14 @@
                 }
             },
             {
+                "command": "vsconan.explorer.treeview.package.revision.refresh",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/icon/light/refresh.png",
+                    "dark": "resources/icon/dark/refresh.png"
+                }
+            },
+            {
                 "command": "vsconan.explorer.treeview.package.filter.set",
                 "title": "Filter by Remote",
                 "icon": {
@@ -357,6 +365,42 @@
                 "title": "Copy Path to Clipboard"
             },
             {
+                "command": "vsconan.explorer.treeview.package.revision.item.information",
+                "title": "Information",
+                "icon": {
+                    "light": "resources/icon/light/info.png",
+                    "dark": "resources/icon/dark/info.png"
+                }
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.revision.item.open-explorer",
+                "title": "Open in File Explorer",
+                "icon": {
+                    "light": "resources/icon/light/goto.png",
+                    "dark": "resources/icon/dark/goto.png"
+                }
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.revision.item.open-vscode",
+                "title": "Open in VSCode",
+                "icon": {
+                    "light": "resources/icon/light/vscode.png",
+                    "dark": "resources/icon/dark/vscode.png"
+                }
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.revision.item.remove",
+                "title": "Remove Package",
+                "icon": {
+                    "light": "resources/icon/light/remove.png",
+                    "dark": "resources/icon/dark/remove.png"
+                }
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.revision.item.copy-clipboard",
+                "title": "Copy Path to Clipboard"
+            },
+            {
                 "command": "vsconan.explorer.treeview.profile.item.remove",
                 "title": "Remove Profile",
                 "icon": {
@@ -457,6 +501,11 @@
                 {
                     "command": "vsconan.explorer.treeview.package.refresh",
                     "when": "view == vsconan-explorer.treeview.package",
+                    "group": "navigation@3"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.package.revision.refresh",
+                    "when": "view == vsconan-explorer.treeview.package.revision",
                     "group": "navigation@3"
                 },
                 {
@@ -617,6 +666,25 @@
                 {
                     "command": "vsconan.explorer.treeview.package.item.copy-clipboard",
                     "when": "view == vsconan-explorer.treeview.package"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.package.revision.item.open-explorer",
+                    "when": "view == vsconan-explorer.treeview.package.revision",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.package.revision.item.open-vscode",
+                    "when": "view == vsconan-explorer.treeview.package.revision && viewItem == packageRevision",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.package.revision.item.remove",
+                    "when": "view == vsconan-explorer.treeview.package.revision && viewItem == packageRevision",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.package.revision.item.copy-clipboard",
+                    "when": "view == vsconan-explorer.treeview.package.revision"
                 },
                 {
                     "command": "vsconan.explorer.treeview.profile.item.edit",

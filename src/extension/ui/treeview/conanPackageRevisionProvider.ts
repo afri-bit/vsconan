@@ -80,6 +80,6 @@ export class ConanPackageRevisionItem extends vscode.TreeItem {
             dark: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package.png')
         };
 
-        this.contextValue = 'package-revision';
+        this.contextValue = 'packageRevision';
     }
 }
