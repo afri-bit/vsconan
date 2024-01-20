@@ -128,7 +128,6 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         // Refreshing the package treeview, following single responsibility principal
         this.packageRefreshTreeview();
-        this.packageRevisionRefreshTreeview();
     }
 
     /**
@@ -189,6 +188,8 @@ export class ConanCacheExplorerManager extends ExtensionManager {
             // Change the title of the treeview for package explorer to match the selected recipe
             this.treeViewConanPackage.title = this.treeViewConanRecipe.selection[0].label;
             this.nodeProviderConanPackage.refresh(this.treeViewConanRecipe.selection[0].label, this.context.workspaceState.get("show-dirty")!);
+            this.nodeProviderConanPackageRevision.refresh("", "", this.context.workspaceState.get("show-dirty")!);
+            this.treeViewConanPackageRevision.title = "Conan - Package Revision"; //
         }
 
         if (this.configManager.isPackageFiltered()) {
@@ -333,6 +334,9 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * Refresh binary package treeview
      */
     private packageRefreshTreeview() {
+
+        this.nodeProviderConanPackage.setSelectedPackage(undefined);
+
         // Check if there is a recipe selected from the recipe treeview
         if (this.nodeProviderConanRecipe.getSelectedRecipe()) { // A recipe is selected
             this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), this.context.workspaceState.get("show-dirty")!);
@@ -346,6 +350,8 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         if (this.configManager.isPackageFiltered()) {
             this.treeViewConanPackage.title = this.treeViewConanPackage.title + ` (Remote: ${this.configManager.getPackageFilterKey()})`;
         }
+
+        this.packageRevisionRefreshTreeview();
     }
 
     /**
@@ -415,10 +421,9 @@ export class ConanCacheExplorerManager extends ExtensionManager {
     }
 
     private packageItemSelected() {
-        // TODO: Change the title of the treeview according to selected recipe and package
         this.nodeProviderConanPackage.setSelectedPackage(this.treeViewConanPackage.selection[0].label);
 
-        this.treeViewConanPackage.title = this.treeViewConanRecipe.selection[0].label;
+        this.treeViewConanPackageRevision.title = this.treeViewConanPackage.selection[0].label;
         this.nodeProviderConanPackageRevision.refresh(this.treeViewConanRecipe.selection[0].label, this.treeViewConanPackage.selection[0].label, false);
     }
 
@@ -509,8 +514,15 @@ export class ConanCacheExplorerManager extends ExtensionManager {
     }
 
     // ========== BINARY PACKAGE REVISION TREEVIEW COMMANDS
+
     private packageRevisionRefreshTreeview() {
-        // TODO:
+        if (this.nodeProviderConanRecipe.getSelectedRecipe() && this.nodeProviderConanPackage.getSelectedPackage()) {
+            this.nodeProviderConanPackageRevision.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), this.nodeProviderConanPackage.getSelectedPackage(), this.context.workspaceState.get("show-dirty")!);
+        }
+        else {
+            this.nodeProviderConanPackageRevision.refresh("", "", this.context.workspaceState.get("show-dirty")!);
+            this.treeViewConanPackageRevision.title = "Conan - Package Revision";
+        }
     }
 
     private packageRevisionItemSelected() {
@@ -553,5 +565,5 @@ export class ConanCacheExplorerManager extends ExtensionManager {
             vscode.window.showErrorMessage((err as Error).message);
         }
     }
-    
+
 }
