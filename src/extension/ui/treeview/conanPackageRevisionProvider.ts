@@ -76,8 +76,8 @@ export class ConanPackageRevisionItem extends vscode.TreeItem {
 
 
         this.iconPath = {
-            light: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package.png'),
-            dark: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package.png')
+            light: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package_revision.png'),
+            dark: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package_revision.png')
         };
 
         this.contextValue = 'packageRevision';
