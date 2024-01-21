@@ -81,11 +81,15 @@ export class Conan2API extends ConanAPI {
     }
 
     public override getRecipePath(recipe: string): string | undefined {
-        throw new Error("Method not implemented.");
+        let recipePath = execSync(`${this.conanExecutor} cache path ${recipe}`).toString().trim();
+
+        return recipePath;
     }
 
     public override getPackagePath(recipe: string, packageId: string): string | undefined {
-        throw new Error("Method not implemented.");
+        let packagePath = execSync(`${this.conanExecutor} cache path ${recipe}:${packageId}`).toString().trim();
+
+        return packagePath;
     }
 
     public override getRecipes(): Array<ConanRecipe> {
