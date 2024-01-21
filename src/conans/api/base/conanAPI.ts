@@ -319,4 +319,13 @@ export abstract class ConanAPI {
      * @param revisionId Selected package revision id to get the path from
      */
     public abstract getPackageRevisionPath(recipe: string, packageId: string, revisionId: string): string | undefined;
+
+    /**
+     * Method to remove package revision
+     * !!! Attention - this API only works for conan 2 !!!
+     * @param recipe 
+     * @param packageId 
+     * @param revisionId 
+     */
+    public abstract removePackageRevision(recipe: string, packageId: string, revisionId: string): void;
 }

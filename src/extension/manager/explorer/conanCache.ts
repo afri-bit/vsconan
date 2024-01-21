@@ -281,10 +281,12 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
                             this.nodeProviderConanPackage.refresh("", this.context.workspaceState.get("show-dirty")!); // Empty the binary package treeview
                             this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the binary package treeview panel
+
+                            this.nodeProviderConanPackageRevision.refresh("", "", this.context.workspaceState.get("show-dirty")!); // Empty the binary package treeview
+                            this.treeViewConanPackageRevision.title = "Conan - Package Revision";
                         }
                     });
             }
-
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -475,7 +477,10 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                     if (answer === "Yes") {
                         this.conanApi.removePackage(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
 
-                        this.nodeProviderConanPackage.refresh(this.treeViewConanRecipe.selection[0].label, this.context.workspaceState.get("show-dirty")!);
+                        this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), this.context.workspaceState.get("show-dirty")!);
+                        
+                        this.nodeProviderConanPackageRevision.refresh("", "", this.context.workspaceState.get("show-dirty")!); // Empty the binary package treeview
+                        this.treeViewConanPackageRevision.title = "Conan - Package Revision"; // Reset the title of the binary package treeview panel
                     }
                 });
         }
@@ -553,7 +558,22 @@ export class ConanCacheExplorerManager extends ExtensionManager {
     }
 
     private packageRevisionRemove(node: ConanPackageRevisionItem) {
-        // TODO:
+        try {
+            vscode.window
+                .showWarningMessage(`Are you sure you want to remove the binary package revision '${node.label}' from '${this.treeViewConanPackageRevision.title!}'?`, ...["Yes", "No"])
+                .then((answer) => {
+                    if (answer === "Yes") {
+                        this.conanApi.removePackageRevision(this.nodeProviderConanRecipe.getSelectedRecipe(), this.nodeProviderConanPackage.getSelectedPackage(), node.label);
+
+                        this.nodeProviderConanPackageRevision.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(),
+                            this.nodeProviderConanPackage.getSelectedPackage(),
+                            this.context.workspaceState.get("show-dirty")!);
+                    }
+                });
+        }
+        catch (err) {
+            vscode.window.showErrorMessage((err as Error).message);
+        }
     }
 
     private packageRevisionCopyPathToClipboard(node: ConanPackageRevisionItem) {

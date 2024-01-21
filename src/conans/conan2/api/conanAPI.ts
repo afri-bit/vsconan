@@ -196,11 +196,11 @@ export class Conan2API extends ConanAPI {
     }
 
     public override removePackage(recipe: string, packageId: string): void {
-        throw new Error("Method not implemented.");
+        execSync(`${this.conanExecutor} remove ${recipe}:${packageId} -c`);
     }
 
     public override removeRecipe(recipe: string): void {
-        throw new Error("Method not implemented.");
+        execSync(`${this.conanExecutor} remove ${recipe} -c`);
     }
 
     public override removeProfile(profile: string): void {
@@ -356,4 +356,7 @@ export class Conan2API extends ConanAPI {
         return packageRevisionPath;
     }
 
+    public removePackageRevision(recipe: string, packageId: string, revisionId: string): void {
+        execSync(`${this.conanExecutor} remove ${recipe}:${packageId}#${revisionId} -c`);
+    }
 }

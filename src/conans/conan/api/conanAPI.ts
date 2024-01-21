@@ -653,7 +653,12 @@ export class Conan1API extends ConanAPI {
     }
 
     public getPackageRevisionPath(recipe: string, packageId: string, revisionId: string): string | undefined {
+        // DO NOTHING
         return undefined;
+    }
+
+    public removePackageRevision(recipe: string, packageId: string, revisionId: string): void {
+        // DO NOTHING
     }
     
 }
