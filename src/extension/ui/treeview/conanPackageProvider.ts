@@ -1,8 +1,7 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
-import * as utils from "../../../utils/utils";
+import * as vscode from 'vscode';
+import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 import { ConanPackage } from '../../../conans/model/conanPackage';
-import { ConanAPI } from '../../../conans/api/base/conanAPI';
 import { ConfigurationManager } from '../../config/configManager';
 
 export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPackageItem> {
@@ -12,13 +11,13 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
 
     private recipeName: string = "";
     private showDirtyPackage: boolean = false;
-    private conanApi: ConanAPI;
+    private conanApiManager: ConanAPIManager;
     private configManager: ConfigurationManager;
 
     private selectedPackage: string | undefined = undefined;
 
-    public constructor(conanApi: ConanAPI, configManager: ConfigurationManager) {
-        this.conanApi = conanApi;
+    public constructor(conanApiManager: ConanAPIManager, configManager: ConfigurationManager) {
+        this.conanApiManager = conanApiManager;
         this.configManager = configManager;
     }
 
@@ -37,14 +36,14 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
         let dirtyPackageList: Array<ConanPackage> = [];
 
         if (this.configManager.isPackageFiltered()) {
-            packageList = this.conanApi.getPackagesByRemote(this.recipeName, this.configManager.getPackageFilterKey()!);
+            packageList = this.conanApiManager.conanApi.getPackagesByRemote(this.recipeName, this.configManager.getPackageFilterKey()!);
         }
         else {
-            packageList = this.conanApi.getPackages(this.recipeName);
+            packageList = this.conanApiManager.conanApi.getPackages(this.recipeName);
         }
 
         if (this.showDirtyPackage){
-            dirtyPackageList = this.conanApi.getDirtyPackage(this.recipeName);
+            dirtyPackageList = this.conanApiManager.conanApi.getDirtyPackage(this.recipeName);
         }
 
         let packageItemList: Array<ConanPackageItem> = [];

@@ -1,24 +1,26 @@
 import * as vscode from "vscode";
 import { ConanAPI, ConanExecutionMode} from "../../conans/api/base/conanAPI";
 import { ConfigurationManager } from "./configManager";
+import { ConanAPIManager } from "../../conans/api/conanAPIManager";
 
-export function configChangeListener(event: vscode.ConfigurationChangeEvent, conanApi: ConanAPI, configManager: ConfigurationManager) {
+export function configChangeListener(event: vscode.ConfigurationChangeEvent, conanApiManager: ConanAPIManager, configManager: ConfigurationManager) {
     // TODO: Check if only vsconan configuration is changed, otherwise do nothing. Removing overhead.
 
     let pythonInterpreter: string = vscode.workspace.getConfiguration("vsconan").get("general.pythonInterpreter")!;
     let conanExecutable: string = vscode.workspace.getConfiguration("vsconan").get("general.conanExecutable")!;
     let conanExecutionMode: string = vscode.workspace.getConfiguration("vsconan").get("general.conanExecutionMode")!;
 
-    conanApi.setPythonInterpreter(pythonInterpreter);
-    conanApi.setConanExecutable(conanExecutable);
+    // TODO: FIXME!!! adapt the changes according to the conan API manager class, this is the preparation of switching between conan 1 and 2!
+    conanApiManager.setPythonInterpreter(pythonInterpreter);
+    conanApiManager.setConanExecutable(conanExecutable);
     if (conanExecutionMode === "pythonInterpreter") {
-        conanApi.switchExecutionMode(ConanExecutionMode.python);
+        conanApiManager.switchExecutionMode(ConanExecutionMode.python);
     }
     else if (conanExecutionMode === "conanExecutable") {
-        conanApi.switchExecutionMode(ConanExecutionMode.conan);
+        conanApiManager.switchExecutionMode(ConanExecutionMode.conan);
     }
     else {
-        conanApi.switchExecutionMode(ConanExecutionMode.conan);
+        conanApiManager.switchExecutionMode(ConanExecutionMode.conan);
     }
 
     let conanUserHome: string = vscode.workspace.getConfiguration("vsconan").get("general.conanUserHome")!;

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
+import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 import * as utils from '../../../utils/utils';
-import { ConanAPI } from '../../../conans/api/base/conanAPI';
 import { ConanProfileItem, ConanProfileNodeProvider } from '../../ui/treeview/conanProfileProvider';
 import { ExtensionManager } from "../extensionManager";
 
@@ -11,7 +11,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
 
     private context: vscode.ExtensionContext;
     private outputChannel: vscode.OutputChannel;
-    private conanApi: ConanAPI;
+    private conanApiManager: ConanAPIManager;
     private nodeProviderConanProfile: ConanProfileNodeProvider;
     private treeViewConanProfile: vscode.TreeView<any>;
 
@@ -22,11 +22,11 @@ export class ConanProfileExplorerManager extends ExtensionManager {
      * @param conanApi Conan API
      * @param nodeProviderConanProfile Treedata provider for conan profile
      */
-    public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel, conanApi: ConanAPI, nodeProviderConanProfile: ConanProfileNodeProvider) {
+    public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel, conanApiManager: ConanAPIManager, nodeProviderConanProfile: ConanProfileNodeProvider) {
         super();
         this.context = context;
         this.outputChannel = outputChannel;
-        this.conanApi = conanApi;
+        this.conanApiManager = conanApiManager;
         this.nodeProviderConanProfile = nodeProviderConanProfile;
 
         this.treeViewConanProfile = vscode.window.createTreeView("vsconan-explorer.treeview.profile", {
@@ -58,7 +58,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
         let conanProfileList = this.nodeProviderConanProfile.getChildrenString();
 
         if (conanProfileList.includes(node.label)) {
-            utils.editor.openFileInEditor(this.conanApi.getProfileFilePath(node.label)!);
+            utils.editor.openFileInEditor(this.conanApiManager.conanApi.getProfileFilePath(node.label)!);
         }
         else {
             vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
@@ -78,7 +78,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
                 .showWarningMessage(`Are you sure you want to remove the profile '${node.label}'?`, ...["Yes", "No"])
                 .then((answer) => {
                     if (answer === "Yes") {
-                        this.conanApi.removeProfile(node.label);
+                        this.conanApiManager.conanApi.removeProfile(node.label);
 
                         this.nodeProviderConanProfile.refresh();
                     }
@@ -97,7 +97,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
         let conanProfileList = this.nodeProviderConanProfile.getChildrenString();
 
         if (conanProfileList.includes(node.label)) {
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getProfileFilePath(node.label)!));
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApiManager.conanApi.getProfileFilePath(node.label)!));
         }
         else {
             vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
@@ -131,7 +131,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
 
             if (newProfileName) {
                 try {
-                    this.conanApi.renameProfile(node.label, newProfileName);
+                    this.conanApiManager.conanApi.renameProfile(node.label, newProfileName);
                     this.nodeProviderConanProfile.refresh();
                 }
                 catch (err) {
@@ -171,7 +171,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
 
             if (newProfileName) {
                 try {
-                    this.conanApi.duplicateProfile(node.label, newProfileName);
+                    this.conanApiManager.conanApi.duplicateProfile(node.label, newProfileName);
 
                     // Refresh the treeview once again
                     this.nodeProviderConanProfile.refresh();
@@ -210,7 +210,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
 
         if (profileName) {
             try {
-                this.conanApi.createNewProfile(profileName);
+                this.conanApiManager.conanApi.createNewProfile(profileName);
 
                 // Refresh the treeview once again
                 this.nodeProviderConanProfile.refresh();

@@ -4,7 +4,7 @@ import { ConanAPI, ConanExecutionMode } from "./base/conanAPI";
 
 export class ConanAPIManager {
     private _conanVersion: string = "1";
-    private _conanApi: ConanAPI | undefined = undefined;
+    private _conanApi: ConanAPI = {} as ConanAPI;
 
     public constructor(conanVersion: string, pythonInterpreter: string, conanExecutable: string, conanExecutionMode: ConanExecutionMode) {
         this.setApiInstance(conanVersion, pythonInterpreter, conanExecutable, conanExecutionMode);
@@ -18,7 +18,7 @@ export class ConanAPIManager {
             this._conanApi = new Conan2API(pythonInterpreter, conanExecutable, conanExecutionMode);
         }
         else {
-            this._conanApi = undefined;
+            this._conanApi = {} as ConanAPI;
         }
     }
 
@@ -26,7 +26,7 @@ export class ConanAPIManager {
         return this._conanVersion
     }
 
-    public get conanApi(): ConanAPI | undefined {
+    public get conanApi(): ConanAPI {
         return this._conanApi;
     }
 

@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
-import { ConanAPI } from '../../../conans/api/base/conanAPI';
+import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 import { RecipeFolderOption } from '../../../conans/conan/api/conanAPI';
 import { ConfigurationManager } from '../../config/configManager';
 import { ConanPackageItem, ConanPackageNodeProvider } from '../../ui/treeview/conanPackageProvider';
+import { ConanPackageRevisionItem, ConanPackageRevisionNodeProvider } from '../../ui/treeview/conanPackageRevisionProvider';
 import { ConanRecipeItem, ConanRecipeNodeProvider } from '../../ui/treeview/conanRecipeProvider';
 import { ExtensionManager } from '../extensionManager';
-import { ConanPackageRevisionItem, ConanPackageRevisionNodeProvider } from '../../ui/treeview/conanPackageRevisionProvider';
 
 /**
  * Class to manage the treeview explorer of the recipe and binary package
@@ -14,7 +14,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
     private context: vscode.ExtensionContext;
     private outputChannel: vscode.OutputChannel;
-    private conanApi: ConanAPI;
+    private conanApiManager: ConanAPIManager;
     private configManager: ConfigurationManager;
     private nodeProviderConanRecipe: ConanRecipeNodeProvider;
     private nodeProviderConanPackage: ConanPackageNodeProvider;
@@ -32,7 +32,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * @param nodeProviderConanPackage Treedata provider for conan binary package
      */
     public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel,
-        conanApi: ConanAPI, configManager: ConfigurationManager,
+        conanApiManager: ConanAPIManager, configManager: ConfigurationManager,
         nodeProviderConanRecipe: ConanRecipeNodeProvider,
         nodeProviderConanPackage: ConanPackageNodeProvider,
         nodeProviderConanPackageRevision: ConanPackageRevisionNodeProvider) {
@@ -40,7 +40,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
         this.context = context;
         this.outputChannel = outputChannel;
-        this.conanApi = conanApi;
+        this.conanApiManager = conanApiManager;
         this.configManager = configManager;
         this.nodeProviderConanRecipe = nodeProviderConanRecipe;
         this.nodeProviderConanPackage = nodeProviderConanPackage;
@@ -136,7 +136,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      */
     private async recipeSetFilter() {
         // Get all the saved remotes
-        let remoteList = this.conanApi.getRemotes();
+        let remoteList = this.conanApiManager.conanApi.getRemotes();
 
         // Feed the remotes to Selection box
         const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
@@ -204,7 +204,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      */
     private recipeShowInformation(node: ConanRecipeItem) {
         try {
-            let recipeInfo = this.conanApi.getRecipeInformation(node.label);
+            let recipeInfo = this.conanApiManager.conanApi.getRecipeInformation(node.label);
 
             // Create a web view panel
             const panel = vscode.window.createWebviewPanel(
@@ -232,7 +232,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                 vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(node.model.path));
             }
             else {
-                vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getRecipePath(node.label)!));
+                vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApiManager.conanApi.getRecipePath(node.label)!));
             }
         }
         catch (err) {
@@ -252,7 +252,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                 vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(node.model.path + "/.."), true);
             }
             else {
-                let packagePath = this.conanApi.getRecipePath(node.label);
+                let packagePath = this.conanApiManager.conanApi.getRecipePath(node.label);
                 vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
             }
         }
@@ -268,7 +268,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
     private recipeRemove(node: ConanRecipeItem) {
         try {
             if (node.isEditable()) {
-                this.conanApi.removeEditablePackageRecipe(node.label);
+                this.conanApiManager.conanApi.removeEditablePackageRecipe(node.label);
                 this.nodeProviderConanRecipe.refresh();
             }
             else {
@@ -276,7 +276,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                     .showWarningMessage(`Are you sure you want to remove the recipe '${node.label}'?`, ...["Yes", "No"])
                     .then((answer) => {
                         if (answer === "Yes") {
-                            this.conanApi.removeRecipe(node.label);
+                            this.conanApiManager.conanApi.removeRecipe(node.label);
                             this.nodeProviderConanRecipe.refresh();
 
                             this.nodeProviderConanPackage.refresh("", this.context.workspaceState.get("show-dirty")!); // Empty the binary package treeview
@@ -299,7 +299,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                 vscode.env.clipboard.writeText(node.model.path);
             }
             else {
-                let recipePath = this.conanApi.getRecipePath(node.label);
+                let recipePath = this.conanApiManager.conanApi.getRecipePath(node.label);
                 vscode.env.clipboard.writeText(recipePath!);
             }
         }
@@ -309,7 +309,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
     }
 
     private recipeOpenFolderInExplorer(node: ConanRecipeItem, folderType: RecipeFolderOption) {
-        let pathToOpen = this.conanApi.getFolderPathFromRecipe(node.label, folderType);
+        let pathToOpen = this.conanApiManager.conanApi.getFolderPathFromRecipe(node.label, folderType);
 
         if (pathToOpen) {
             vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(pathToOpen));
@@ -320,7 +320,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
     }
 
     private recipeOpenFolderInVSCode(node: ConanRecipeItem, folderType: RecipeFolderOption) {
-        let pathToOpen = this.conanApi.getFolderPathFromRecipe(node.label, folderType);
+        let pathToOpen = this.conanApiManager.conanApi.getFolderPathFromRecipe(node.label, folderType);
 
         if (pathToOpen) {
             vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(pathToOpen), true);
@@ -363,7 +363,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
     private async packageSetFilter() {
 
         // Get all the saved remotes
-        let remoteList = this.conanApi.getRemotes();
+        let remoteList = this.conanApiManager.conanApi.getRemotes();
 
         // Feed the remotes to Selection box
         const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
@@ -444,7 +444,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      */
     private packageOpenExplorer(node: ConanPackageItem) {
         try {
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label)!));
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApiManager.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label)!));
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -457,7 +457,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      */
     private packageOpenVSCode(node: ConanPackageItem) {
         try {
-            let packagePath = this.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
+            let packagePath = this.conanApiManager.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
             vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
         }
         catch (err) {
@@ -475,10 +475,10 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                 .showWarningMessage(`Are you sure you want to remove the binary package '${node.label}' from '${this.treeViewConanPackage.title!}'?`, ...["Yes", "No"])
                 .then((answer) => {
                     if (answer === "Yes") {
-                        this.conanApi.removePackage(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
+                        this.conanApiManager.conanApi.removePackage(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
 
                         this.nodeProviderConanPackage.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), this.context.workspaceState.get("show-dirty")!);
-                        
+
                         this.nodeProviderConanPackageRevision.refresh("", "", this.context.workspaceState.get("show-dirty")!); // Empty the binary package treeview
                         this.treeViewConanPackageRevision.title = "Conan - Package Revision"; // Reset the title of the binary package treeview panel
                     }
@@ -491,7 +491,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
     private packageCopyPathToClipboard(node: ConanPackageItem) {
         try {
-            let packagePath = this.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
+            let packagePath = this.conanApiManager.conanApi.getPackagePath(this.nodeProviderConanRecipe.getSelectedRecipe(), node.label);
             vscode.env.clipboard.writeText(packagePath!);
         }
         catch (err) {
@@ -540,7 +540,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
     private packageRevisionOpenExplorer(node: ConanPackageRevisionItem) {
         try {
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApi.getPackageRevisionPath(this.nodeProviderConanRecipe.getSelectedRecipe(), this.nodeProviderConanPackage.getSelectedPackage(), node.label)!));
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApiManager.conanApi.getPackageRevisionPath(this.nodeProviderConanRecipe.getSelectedRecipe(), this.nodeProviderConanPackage.getSelectedPackage(), node.label)!));
         }
         catch (err) {
             vscode.window.showErrorMessage((err as Error).message);
@@ -549,7 +549,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
     private packageRevisionOpenVSCode(node: ConanPackageRevisionItem) {
         try {
-            let packagePath = this.conanApi.getPackageRevisionPath(this.nodeProviderConanRecipe.getSelectedRecipe(), this.nodeProviderConanPackage.getSelectedPackage(), node.label);
+            let packagePath = this.conanApiManager.conanApi.getPackageRevisionPath(this.nodeProviderConanRecipe.getSelectedRecipe(), this.nodeProviderConanPackage.getSelectedPackage(), node.label);
             vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(packagePath!), true);
         }
         catch (err) {
@@ -563,7 +563,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                 .showWarningMessage(`Are you sure you want to remove the binary package revision '${node.label}' from '${this.treeViewConanPackageRevision.title!}'?`, ...["Yes", "No"])
                 .then((answer) => {
                     if (answer === "Yes") {
-                        this.conanApi.removePackageRevision(this.nodeProviderConanRecipe.getSelectedRecipe(), this.nodeProviderConanPackage.getSelectedPackage(), node.label);
+                        this.conanApiManager.conanApi.removePackageRevision(this.nodeProviderConanRecipe.getSelectedRecipe(), this.nodeProviderConanPackage.getSelectedPackage(), node.label);
 
                         this.nodeProviderConanPackageRevision.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(),
                             this.nodeProviderConanPackage.getSelectedPackage(),
@@ -578,7 +578,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
 
     private packageRevisionCopyPathToClipboard(node: ConanPackageRevisionItem) {
         try {
-            let packageRevisionPath = this.conanApi.getPackageRevisionPath(this.nodeProviderConanRecipe.getSelectedRecipe(), this.nodeProviderConanPackage.getSelectedPackage(), node.label);
+            let packageRevisionPath = this.conanApiManager.conanApi.getPackageRevisionPath(this.nodeProviderConanRecipe.getSelectedRecipe(), this.nodeProviderConanPackage.getSelectedPackage(), node.label);
             vscode.env.clipboard.writeText(packageRevisionPath!);
         }
         catch (err) {

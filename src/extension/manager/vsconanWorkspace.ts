@@ -1,13 +1,13 @@
-import * as vscode from 'vscode';
-import * as utils from '../../utils/utils';
 import * as fs from "fs";
 import * as path from "path";
-import * as constants from "../../utils/constants";
-import { ConanAPI } from '../../conans/api/base/conanAPI';
-import { ExtensionManager } from "./extensionManager";
-import { ConfigWorkspace } from '../../conans/workspace/configWorkspace';
-import { ConfigCommand, ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from '../../conans/cli/configCommand';
+import * as vscode from 'vscode';
+import { ConanAPIManager } from '../../conans/api/conanAPIManager';
 import { CommandBuilder } from '../../conans/cli/commandBuilder';
+import { ConfigCommand, ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from '../../conans/cli/configCommand';
+import { ConfigWorkspace } from '../../conans/workspace/configWorkspace';
+import * as constants from "../../utils/constants";
+import * as utils from '../../utils/utils';
+import { ExtensionManager } from "./extensionManager";
 
 enum ConanCommand {
     create,
@@ -28,7 +28,7 @@ interface ConfigCommandQuickPickItem extends vscode.QuickPickItem {
 export class VSConanWorkspaceManager extends ExtensionManager {
     private context: vscode.ExtensionContext;
     private outputChannel: vscode.OutputChannel;
-    private conanApi: ConanAPI;
+    private conanApiManager: ConanAPIManager;
 
     private statusBarConanVersion: vscode.StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
 
@@ -38,12 +38,12 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param outputChannel Output channel of the extension
      * @param conanApi Conan API
      */
-    public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel, conanApi: ConanAPI) {
+    public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel, conanApiManager: ConanAPIManager) {
         super();
 
         this.context = context;
         this.outputChannel = outputChannel;
-        this.conanApi = conanApi;
+        this.conanApiManager = conanApiManager;
 
         this.registerCommand("vsconan.conan.create", () => this.executeConanCommand(ConanCommand.create));
         this.registerCommand("vsconan.conan.install", () => this.executeConanCommand(ConanCommand.install));
@@ -458,8 +458,8 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
                 if (wsChoice) {
                     // Get the name and version in the recipe
-                    let name = this.conanApi.getRecipeAttribute(wsChoice!.label, "name");
-                    let version = this.conanApi.getRecipeAttribute(wsChoice!.label, "version");
+                    let name = this.conanApiManager.conanApi.getRecipeAttribute(wsChoice!.label, "name");
+                    let version = this.conanApiManager.conanApi.getRecipeAttribute(wsChoice!.label, "version");
                     let packageInformation = `${name}/${version}`;
 
                     // Input for 'user' and 'channel'
@@ -516,7 +516,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                         });
 
                         if (layout !== undefined) {
-                            this.conanApi.addEditablePackage(wsChoice.label, packageInformation, user, channel, layout);
+                            this.conanApiManager.conanApi.addEditablePackage(wsChoice.label, packageInformation, user, channel, layout);
                             vscode.window.showInformationMessage(`Editable package '${packageInformation}' with user '${user}' and channel '${channel}' has been added.`);
                         }
 
@@ -531,7 +531,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
     private async removeEditablePackage() {
         try {
-            let editablePackageRecipes = this.conanApi.getEditablePackageRecipes();
+            let editablePackageRecipes = this.conanApiManager.conanApi.getEditablePackageRecipes();
 
             const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
             let quickPickItems = [];
@@ -549,7 +549,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
             const choice = await vscode.window.showQuickPick(quickPickItems);
 
             if (choice) {
-                this.conanApi.removeEditablePackageRecipe(choice.label);
+                this.conanApiManager.conanApi.removeEditablePackageRecipe(choice.label);
                 vscode.window.showInformationMessage(`Editable package ${choice?.label} has been removed.`);
             }
         }

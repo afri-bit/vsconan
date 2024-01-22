@@ -1,23 +1,22 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import * as utils from "./utils/utils";
 import * as constants from "./utils/constants";
+import * as utils from "./utils/utils";
 
-import { ConanPackageNodeProvider } from "./extension/ui/treeview/conanPackageProvider";
-import { ConanProfileNodeProvider } from "./extension/ui/treeview/conanProfileProvider";
-import { ConanRecipeNodeProvider } from "./extension/ui/treeview/conanRecipeProvider";
-import { ConanRemoteNodeProvider } from "./extension/ui/treeview/conanRemoteProvider";
+import { ConanExecutionMode } from "./conans/api/base/conanAPI";
+import { ConanAPIManager } from "./conans/api/conanAPIManager";
+import { configChangeListener } from "./extension/config/configChangeListener";
+import { ConfigurationManager } from "./extension/config/configManager";
 import { ConanCacheExplorerManager } from "./extension/manager/explorer/conanCache";
 import { ConanProfileExplorerManager } from "./extension/manager/explorer/conanProfile";
 import { ConanRemoteExplorerManager } from "./extension/manager/explorer/conanRemote";
 import { VSConanWorkspaceManager } from "./extension/manager/vsconanWorkspace";
-import { configChangeListener } from "./extension/config/configChangeListener";
-import { ConfigurationManager } from "./extension/config/configManager";
-import { ConanAPI, ConanExecutionMode} from "./conans/api/base/conanAPI";
-import { Conan1API } from "./conans/conan/api/conanAPI";
-import { Conan2API } from "./conans/conan2/api/conanAPI";
+import { ConanPackageNodeProvider } from "./extension/ui/treeview/conanPackageProvider";
 import { ConanPackageRevisionNodeProvider } from "./extension/ui/treeview/conanPackageRevisionProvider";
+import { ConanProfileNodeProvider } from "./extension/ui/treeview/conanProfileProvider";
+import { ConanRecipeNodeProvider } from "./extension/ui/treeview/conanRecipeProvider";
+import { ConanRemoteNodeProvider } from "./extension/ui/treeview/conanRemoteProvider";
 
 // This method is called when the extension is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -50,37 +49,61 @@ export function activate(context: vscode.ExtensionContext) {
     initContextState(context);
 
     // ========== Initializing the Conan API
-    // Getting the setting for execution mode as requirements for ConanAPI
-    let mode = vscode.workspace.getConfiguration("vsconan").get("general.conanExecutionMode");
+    let conanVersion: string | undefined = vscode.workspace.getConfiguration("vsconan.conan").get("version");
+    let conanExecutionMode: ConanExecutionMode;
+    let conanPythonInterpreter: string;
+    let conanExecutable: string;
 
-    // Set default mode, in case undefined mode is written in the config
-    let conanExecutionMode: ConanExecutionMode = ConanExecutionMode.conan;
+    let conanApiManager: ConanAPIManager;
 
-    if (mode === "pythonInterpreter") {
-        conanExecutionMode = ConanExecutionMode.python;
+    if (conanVersion == "2") {
+        // Getting the setting for execution mode as requirements for ConanAPI
+        let mode = vscode.workspace.getConfiguration("vsconan.conan").get("2.conanExecutionMode");
+
+        if (mode === "pythonInterpreter") {
+            conanExecutionMode = ConanExecutionMode.python;
+        }
+        else if (mode === "conanExecutable") {
+            conanExecutionMode = ConanExecutionMode.conan;
+        }
+
+        conanPythonInterpreter = vscode.workspace.getConfiguration("vsconan.conan").get("2.pythonInterpreter")!;
+        conanExecutable = vscode.workspace.getConfiguration("vsconan.conan").get("2.conanExecutable")!;
     }
-    else if (mode === "conanExecutable") {
-        conanExecutionMode = ConanExecutionMode.conan;
+    else { // In case the conan version is an error value, set to conan version 1 as default
+        conanVersion = "1";
+        // Getting the setting for execution mode as requirements for ConanAPI
+        let mode = vscode.workspace.getConfiguration("vsconan.conan").get("1.conanExecutionMode");
+
+        if (mode === "pythonInterpreter") {
+            conanExecutionMode = ConanExecutionMode.python;
+        }
+        else if (mode === "conanExecutable") {
+            conanExecutionMode = ConanExecutionMode.conan;
+        }
+
+        conanPythonInterpreter = vscode.workspace.getConfiguration("vsconan.conan").get("1.pythonInterpreter")!;
+        conanExecutable = vscode.workspace.getConfiguration("vsconan.conan").get("1.conanExecutable")!;
     }
 
-    let conanApi: ConanAPI = new Conan2API(
-        vscode.workspace.getConfiguration("vsconan").get("general.pythonInterpreter")!,
-        vscode.workspace.getConfiguration("vsconan").get("general.conanExecutable")!,
-        conanExecutionMode);
+    conanApiManager = new ConanAPIManager(conanVersion!,
+        conanPythonInterpreter,
+        conanExecutable,
+        conanExecutionMode!);
 
     // ========== Registering the treeview for the extension
-    const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApi, configManager);
-    const conanProfileNodeProvider = new ConanProfileNodeProvider(conanApi);
-    const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApi, configManager);
-    const conanPackageRevisionNodeProvider = new ConanPackageRevisionNodeProvider(conanApi, configManager);
-    const conanRemoteNodeProvider = new ConanRemoteNodeProvider(conanApi);
+    const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApiManager, configManager);
+    const conanProfileNodeProvider = new ConanProfileNodeProvider(conanApiManager);
+    const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApiManager, configManager);
+    const conanPackageRevisionNodeProvider = new ConanPackageRevisionNodeProvider(conanApiManager, configManager);
+    const conanRemoteNodeProvider = new ConanRemoteNodeProvider(conanApiManager);
 
-    const conanCacheExplorerManager = new ConanCacheExplorerManager(context, channelVSConan, conanApi, configManager, conanRecipeNodeProvider, conanPackageNodeProvider, conanPackageRevisionNodeProvider);
-    const conanProfileExplorerManager = new ConanProfileExplorerManager(context, channelVSConan, conanApi, conanProfileNodeProvider);
-    const conanRemoteExplorerManager = new ConanRemoteExplorerManager(context, channelVSConan, conanApi, conanRemoteNodeProvider);
-    const conanWorkspaceManager = new VSConanWorkspaceManager(context, channelVSConan, conanApi);
+    const conanCacheExplorerManager = new ConanCacheExplorerManager(context, channelVSConan, conanApiManager, configManager, conanRecipeNodeProvider, conanPackageNodeProvider, conanPackageRevisionNodeProvider);
+    const conanProfileExplorerManager = new ConanProfileExplorerManager(context, channelVSConan, conanApiManager, conanProfileNodeProvider);
+    const conanRemoteExplorerManager = new ConanRemoteExplorerManager(context, channelVSConan, conanApiManager, conanRemoteNodeProvider);
+    const conanWorkspaceManager = new VSConanWorkspaceManager(context, channelVSConan, conanApiManager);
 
-    const configListener = vscode.workspace.onDidChangeConfiguration((event) => configChangeListener(event, conanApi, configManager));
+    const configListener = vscode.workspace.onDidChangeConfiguration((event) => configChangeListener(event, conanApiManager, configManager));
 
     // Check if it starts with workspace
     // To check whether its workspace or not is to determine if the function "getWorkspaceFolder" returns undefined or a path

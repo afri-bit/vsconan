@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { ConanAPI } from '../../../conans/api/base/conanAPI';
+import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 import { ConanPackageRevision } from '../../../conans/model/conanPackageRevision';
 import { ConfigurationManager } from '../../config/configManager';
 
@@ -12,11 +12,11 @@ export class ConanPackageRevisionNodeProvider implements vscode.TreeDataProvider
     private recipeName: string = "";
     private packageId: string = "";
     private showDirtyPackage: boolean = false;
-    private conanApi: ConanAPI;
+    private conanApiManager: ConanAPIManager;
     private configManager: ConfigurationManager;
 
-    public constructor(conanApi: ConanAPI, configManager: ConfigurationManager) {
-        this.conanApi = conanApi;
+    public constructor(conanApiManager: ConanAPIManager, configManager: ConfigurationManager) {
+        this.conanApiManager = conanApiManager;
         this.configManager = configManager;
     }
 
@@ -35,7 +35,7 @@ export class ConanPackageRevisionNodeProvider implements vscode.TreeDataProvider
         let packageRevisionList: Array<ConanPackageRevision> = [];
         let dirtyPackageList: Array<ConanPackageRevision> = [];
 
-        packageRevisionList = this.conanApi.getPackageRevisions(this.recipeName, this.packageId);
+        packageRevisionList = this.conanApiManager.conanApi.getPackageRevisions(this.recipeName, this.packageId);
 
         let packageRevisionItemList: Array<ConanPackageRevisionItem> = [];
 

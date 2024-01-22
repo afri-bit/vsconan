@@ -1,7 +1,6 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
-import * as utils from '../../../utils/utils';
-import { ConanAPI } from '../../../conans/api/base/conanAPI';
+import * as vscode from 'vscode';
+import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 import { ConanRecipe } from '../../../conans/model/conanRecipe';
 import { ConfigurationManager } from '../../config/configManager';
 
@@ -12,11 +11,11 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
 
     private selectedRecipe: string | undefined = undefined;
 
-    private conanApi: ConanAPI;
+    private conanApiManager: ConanAPIManager;
     private configManager: ConfigurationManager;
 
-    public constructor(conanApi: ConanAPI, configManager: ConfigurationManager) {
-        this.conanApi = conanApi;
+    public constructor(conanApiManager: ConanAPIManager, configManager: ConfigurationManager) {
+        this.conanApiManager = conanApiManager;
         this.configManager = configManager;
     }
 
@@ -39,13 +38,13 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
         if (this.configManager.isRecipeFiltered()) {
             let filterKey: string = this.configManager.getRecipeFilterKey()!;
 
-            recipeList = this.conanApi.getRecipesByRemote(filterKey);
+            recipeList = this.conanApiManager.conanApi.getRecipesByRemote(filterKey);
         }
         else {
-            recipeList = this.conanApi.getRecipes();
-            recipeEditableList = this.conanApi.getEditablePackageRecipes();
+            recipeList = this.conanApiManager.conanApi.getRecipes();
+            recipeEditableList = this.conanApiManager.conanApi.getEditablePackageRecipes();
         }
-        
+
         // Get the list of string from editable packages
         let editableRecipeStringList: Array<string> = [];
 
@@ -92,7 +91,7 @@ export class ConanRecipeItem extends vscode.TreeItem {
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
         model: ConanRecipe) {
-        
+
         super(label, collapsibleState);
 
         this.model = model;
