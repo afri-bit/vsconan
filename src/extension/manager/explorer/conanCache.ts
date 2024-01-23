@@ -107,6 +107,10 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         this.registerCommand("vsconan.explorer.treeview.package.revision.item.copy-clipboard", (node: ConanPackageRevisionItem) => this.packageRevisionCopyPathToClipboard(node));
     }
 
+    public refresh() {
+        this.recipeRefreshTreeview();
+    }
+
     // ========== RECIPE TREEVIEW COMMANDS
 
     /**

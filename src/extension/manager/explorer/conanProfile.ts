@@ -42,6 +42,11 @@ export class ConanProfileExplorerManager extends ExtensionManager {
         this.registerCommand("vsconan.explorer.treeview.profile.item.duplicate", (node: ConanProfileItem) => this.duplicateProfile(node));
     }
 
+    public refresh() {
+        this.refreshProfileTreeview();
+    }
+
+
     /**
      * Refresh conan profile treeview
      */

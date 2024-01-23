@@ -44,6 +44,10 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
         this.registerCommand("vsconan.explorer.treeview.remote.item.update-url", (node: ConanRemoteItem) => this.updateRemoteURL(node));
     }
 
+    public refresh() {
+        this.refreshRemoteTreeview();
+    }
+
     /**
      * Refresh the treeview of conan remote
      */

@@ -103,7 +103,13 @@ export function activate(context: vscode.ExtensionContext) {
     const conanRemoteExplorerManager = new ConanRemoteExplorerManager(context, channelVSConan, conanApiManager, conanRemoteNodeProvider);
     const conanWorkspaceManager = new VSConanWorkspaceManager(context, channelVSConan, conanApiManager);
 
-    const configListener = vscode.workspace.onDidChangeConfiguration((event) => configChangeListener(event, conanApiManager, configManager));
+    const configListener = vscode.workspace.onDidChangeConfiguration((event) => configChangeListener(event,
+        conanApiManager,
+        conanCacheExplorerManager,
+        conanProfileExplorerManager,
+        conanRemoteExplorerManager,
+        conanWorkspaceManager,
+        configManager));
 
     // Check if it starts with workspace
     // To check whether its workspace or not is to determine if the function "getWorkspaceFolder" returns undefined or a path
