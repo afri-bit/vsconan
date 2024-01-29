@@ -132,26 +132,28 @@ export class Conan2API extends ConanAPI {
         let listOfPackages: Array<ConanPackage> = [];
 
         try {
-            let jsonStdout = execSync(`${this.conanExecutor} list ${recipe}:* --format json`);
-            let jsonObject = JSON.parse(jsonStdout.toString());
+            if (recipe) {
+                let jsonStdout = execSync(`${this.conanExecutor} list ${recipe}:* --format json`);
+                let jsonObject = JSON.parse(jsonStdout.toString());
 
-            let recipeRevisionSplit = recipe.split("#");
+                let recipeRevisionSplit = recipe.split("#");
 
-            let localCache = jsonObject["Local Cache"];
+                let localCache = jsonObject["Local Cache"];
 
-            let packageObjects = localCache[recipeRevisionSplit[0]]["revisions"][recipeRevisionSplit[1]]["packages"];
+                let packageObjects = localCache[recipeRevisionSplit[0]]["revisions"][recipeRevisionSplit[1]]["packages"];
 
-            for (let packageId in packageObjects) {
+                for (let packageId in packageObjects) {
 
-                listOfPackages.push(new ConanPackage(
-                    packageId,
-                    false,
-                    packageObjects[packageId].info.options,
-                    false,
-                    Object(),
-                    packageObjects[packageId].info.settings,
-                    ""
-                ));
+                    listOfPackages.push(new ConanPackage(
+                        packageId,
+                        false,
+                        packageObjects[packageId].info.options,
+                        false,
+                        Object(),
+                        packageObjects[packageId].info.settings,
+                        ""
+                    ));
+                }
             }
         }
         catch (err) {
@@ -321,23 +323,26 @@ export class Conan2API extends ConanAPI {
         let listOfPackageRevisions: Array<ConanPackageRevision> = [];
 
         try {
-            let jsonStdout = execSync(`${this.conanExecutor} list ${recipe}:${packageId}#* --format json`);
-            let jsonObject = JSON.parse(jsonStdout.toString());
+            if (recipe && packageId) {
+                let jsonStdout = execSync(`${this.conanExecutor} list ${recipe}:${packageId}#* --format json`);
+                let jsonObject = JSON.parse(jsonStdout.toString());
 
-            let recipeRevisionSplit = recipe.split("#");
+                let recipeRevisionSplit = recipe.split("#");
 
-            let localCache = jsonObject["Local Cache"];
+                let localCache = jsonObject["Local Cache"];
 
-            let packageRevisionObjects = localCache[recipeRevisionSplit[0]]["revisions"][recipeRevisionSplit[1]]["packages"][packageId]["revisions"];
+                let packageRevisionObjects = localCache[recipeRevisionSplit[0]]["revisions"][recipeRevisionSplit[1]]["packages"][packageId]["revisions"];
 
-            for (let revisionId in packageRevisionObjects) {
-                listOfPackageRevisions.push(
-                    new ConanPackageRevision(
-                        revisionId,
-                        packageRevisionObjects[revisionId]["timestamp"]
-                    )
-                );
+                for (let revisionId in packageRevisionObjects) {
+                    listOfPackageRevisions.push(
+                        new ConanPackageRevision(
+                            revisionId,
+                            packageRevisionObjects[revisionId]["timestamp"]
+                        )
+                    );
+                }
             }
+
         }
         catch (err) {
             console.log((err as Error).message);

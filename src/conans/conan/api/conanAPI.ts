@@ -520,7 +520,6 @@ export class Conan1API extends ConanAPI {
                     conanEditableRecipeList.push(new ConanRecipe(recipeName, true, recipePath));
                 }
             }
-            console.log(tempFile.length);
         }
 
         return conanEditableRecipeList;

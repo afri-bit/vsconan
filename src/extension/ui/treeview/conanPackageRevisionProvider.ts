@@ -69,6 +69,8 @@ export class ConanPackageRevisionItem extends vscode.TreeItem {
 
         this.model = model;
 
+        this.tooltip = JSON.stringify(this.model, null, 4);
+
         this.command = {
             "title": "Conan Package Revision Selected",
             "command": "vsconan.explorer.treeview.package.revision.item.selected",
