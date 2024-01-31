@@ -96,8 +96,6 @@ export class SettingsManager {
                 conanExecutionMode = ConanExecutionMode.conan;
             }
 
-            vscode.workspace.getConfiguration("vsconan.conan").update("version", conanConfigProfile.conanVersion);
-
             if (conanConfigProfile.conanVersion == "1") {
                 if (conanConfigProfile.conanUserHome === null || conanConfigProfile.conanUserHome === undefined) { // Default value of configuration, see 'package.json'. Null means follow the pre defined environment variable
                     // Reset the current conan user home to the default environment variable

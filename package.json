@@ -70,8 +70,7 @@
                 {
                     "id": "vsconan-explorer.treeview.package.revision",
                     "name": "Conan - Package Revision",
-                    "contextualTitle": "Conan Package Revision",
-                    "when": "config.vsconan.conan.version == '2'"
+                    "contextualTitle": "Conan Package Revision"
                 },
                 {
                     "id": "vsconan-explorer.treeview.profile",
@@ -121,8 +120,8 @@
                 "title": "VSConan: Remove Editable"
             },
             {
-                "command": "vsconan.conan.version.switch",
-                "title": "VSConan: Switch Conan Version"
+                "command": "vsconan.conan.profile.switch",
+                "title": "VSConan: Switch Conan Profile"
             },
             {
                 "command": "vsconan.config.workspace.create",
@@ -783,6 +782,11 @@
                                 "default": null
                             }
                         }
+                    },
+                    "vsconan.conan.profile.default": {
+                        "type": "string",
+                        "default": "default",
+                        "markdownDescription": "Conan profile default / selection",
                     }
                 }
             },

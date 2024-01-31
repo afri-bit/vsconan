@@ -55,7 +55,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         this.registerCommand("vsconan.conan.editable.remove", () => this.removeEditablePackage());
         this.registerCommand("vsconan.config.workspace.create", () => this.createWorkspaceConfig());
         this.registerCommand("vsconan.config.workspace.open", () => this.openWorkspaceConfig());
-        this.registerCommand("vsconan.conan.version.switch", () => this.switchConanVersion());
+        this.registerCommand("vsconan.conan.profile.switch", () => this.switchConanProfile());
 
         this.initStatusBarConanVersion();
 
@@ -76,9 +76,9 @@ export class VSConanWorkspaceManager extends ExtensionManager {
     }
 
     /**
-     * Method to switch conan version
+     * Method to switch conan profile
      */
-    private switchConanVersion() {
+    private switchConanProfile() {
         // Create drop down menu for switch conan version
         // This function will change the conan version, which means it will change the entire
 
@@ -104,10 +104,9 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         const wsChoice = vscode.window.showQuickPick(quickPickItems);
 
         wsChoice.then(result => {
-            if (result != currentConanVersion){
-                vscode.workspace.getConfiguration("vsconan.conan").update("version", result!.value, vscode.ConfigurationTarget.Global);
-                vscode.workspace.getConfiguration("vsconan.conan").update("version", result!.value, vscode.ConfigurationTarget.Workspace);
-            } 
+            if (result != currentConanVersion) {
+                // TODO: Fix this, conan version is not relevant anymore
+            }
 
             this.statusBarConanVersion.text = `$(extensions) VSConan: Conan ${result!.value}`
         })
