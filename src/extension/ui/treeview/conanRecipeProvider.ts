@@ -1,9 +1,8 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
-import * as utils from '../../../utils/utils';
-import { ConanAPI } from '../../../conans/api/base/conanAPI';
+import * as vscode from 'vscode';
+import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 import { ConanRecipe } from '../../../conans/model/conanRecipe';
-import { ConfigurationManager } from '../../config/configManager';
+import { SettingsPropertyManager } from '../../settings/settingsPropertyManager';
 
 export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRecipeItem> {
 
@@ -12,12 +11,12 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
 
     private selectedRecipe: string | undefined = undefined;
 
-    private conanApi: ConanAPI;
-    private configManager: ConfigurationManager;
+    private conanApiManager: ConanAPIManager;
+    private settingsPropertyManager: SettingsPropertyManager;
 
-    public constructor(conanApi: ConanAPI, configManager: ConfigurationManager) {
-        this.conanApi = conanApi;
-        this.configManager = configManager;
+    public constructor(conanApiManager: ConanAPIManager, settingsPropertyManager: SettingsPropertyManager) {
+        this.conanApiManager = conanApiManager;
+        this.settingsPropertyManager = settingsPropertyManager;
     }
 
     public refresh(): void {
@@ -36,16 +35,16 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
         // If the filter is set, get the filte name.
         // Otherwise do as always
         // If filter is on, the editable package will not appear
-        if (this.configManager.isRecipeFiltered()) {
-            let filterKey: string = this.configManager.getRecipeFilterKey()!;
+        if (this.settingsPropertyManager.isRecipeFiltered()) {
+            let filterKey: string = this.settingsPropertyManager.getRecipeFilterKey()!;
 
-            recipeList = this.conanApi.getRecipesByRemote(filterKey);
+            recipeList = this.conanApiManager.conanApi.getRecipesByRemote(filterKey);
         }
         else {
-            recipeList = this.conanApi.getRecipes();
-            recipeEditableList = this.conanApi.getEditablePackageRecipes();
+            recipeList = this.conanApiManager.conanApi.getRecipes();
+            recipeEditableList = this.conanApiManager.conanApi.getEditablePackageRecipes();
         }
-        
+
         // Get the list of string from editable packages
         let editableRecipeStringList: Array<string> = [];
 
@@ -92,7 +91,7 @@ export class ConanRecipeItem extends vscode.TreeItem {
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
         model: ConanRecipe) {
-        
+
         super(label, collapsibleState);
 
         this.model = model;

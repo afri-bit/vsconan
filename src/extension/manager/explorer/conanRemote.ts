@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { ConanAPI } from '../../../conans/api/base/conanAPI';
-import { ConanRemoteItem, ConanRemoteNodeProvider } from '../../ui/treeview/conanRemoteProvider';
+import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 import * as utils from '../../../utils/utils';
+import { ConanRemoteItem, ConanRemoteNodeProvider } from '../../ui/treeview/conanRemoteProvider';
 import { ExtensionManager } from "../extensionManager";
 
 /**
@@ -11,7 +11,7 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
 
     private context: vscode.ExtensionContext;
     private outputChannel: vscode.OutputChannel;
-    private conanApi: ConanAPI;
+    private conanApiManager: ConanAPIManager;
     private nodeProviderConanRemote: ConanRemoteNodeProvider;
     private treeViewConanRemote: vscode.TreeView<any>;
 
@@ -22,12 +22,12 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
      * @param conanApi Conan API
      * @param nodeProviderConanRemote Treedata provider for conan remote
      */
-    public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel, conanApi: ConanAPI, nodeProviderConanRemote: ConanRemoteNodeProvider) {
+    public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel, conanApiManager: ConanAPIManager, nodeProviderConanRemote: ConanRemoteNodeProvider) {
         super();
 
         this.context = context;
         this.outputChannel = outputChannel;
-        this.conanApi = conanApi;
+        this.conanApiManager = conanApiManager;
         this.nodeProviderConanRemote = nodeProviderConanRemote;
 
         this.treeViewConanRemote = vscode.window.createTreeView("vsconan-explorer.treeview.remote", {
@@ -44,6 +44,10 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
         this.registerCommand("vsconan.explorer.treeview.remote.item.update-url", (node: ConanRemoteItem) => this.updateRemoteURL(node));
     }
 
+    public refresh() {
+        this.refreshRemoteTreeview();
+    }
+
     /**
      * Refresh the treeview of conan remote
      */
@@ -55,7 +59,7 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
      * Edit the remotes.json file in the VS Code
      */
     private editRemote() {
-        let remoteFile = this.conanApi.getRemoteFilePath();
+        let remoteFile = this.conanApiManager.conanApi.getRemoteFilePath();
 
         if (remoteFile) {
             utils.editor.openFileInEditor(remoteFile);
@@ -77,7 +81,7 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
                 .showWarningMessage(`Are you sure you want to remove the remote '${node.label}'?`, ...["Yes", "No"])
                 .then((answer) => {
                     if (answer === "Yes") {
-                        this.conanApi.removeRemote(node.label);
+                        this.conanApiManager.conanApi.removeRemote(node.label);
 
                         this.nodeProviderConanRemote.refresh();
                     }
@@ -126,7 +130,7 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
 
             if (remoteURL) {
                 try {
-                    this.conanApi.addRemote(remoteName, remoteURL);
+                    this.conanApiManager.conanApi.addRemote(remoteName, remoteURL);
 
                     // Refresh the treeview once again
                     this.nodeProviderConanRemote.refresh();
@@ -144,7 +148,7 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
      */
     private enableRemote(node: ConanRemoteItem) {
         try {
-            this.conanApi.enableRemote(node.label, true);
+            this.conanApiManager.conanApi.enableRemote(node.label, true);
 
             this.nodeProviderConanRemote.refresh();
         }
@@ -159,7 +163,7 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
      */
     private disableRemote(node: ConanRemoteItem) {
         try {
-            this.conanApi.enableRemote(node.label, false);
+            this.conanApiManager.conanApi.enableRemote(node.label, false);
 
             this.nodeProviderConanRemote.refresh();
         }
@@ -195,7 +199,7 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
 
             if (newRemoteName) {
                 try {
-                    this.conanApi.renameRemote(node.label, newRemoteName);
+                    this.conanApiManager.conanApi.renameRemote(node.label, newRemoteName);
                     this.nodeProviderConanRemote.refresh();
                 }
                 catch (err) {
@@ -237,7 +241,7 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
 
             if (newURL) {
                 try {
-                    this.conanApi.updateRemoteURL(node.label, newURL);
+                    this.conanApiManager.conanApi.updateRemoteURL(node.label, newURL);
                     this.nodeProviderConanRemote.refresh();
                 }
                 catch (err) {

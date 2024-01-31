@@ -10,3 +10,5 @@ dist/
 out/
 test/**/*.js
 *.js.map
+
+.bak/
