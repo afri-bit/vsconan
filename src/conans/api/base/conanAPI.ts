@@ -1,9 +1,8 @@
-import { ConanRecipe } from "../../model/conanRecipe";
-import { ConanPackage } from "../../model/conanPackage";
-import { ConanProfile } from "../../model/conanProfile";
-import { ConanRemote } from "../../model/conanRemote";
-import { ConanPackageRevision } from "../../model/conanPackageRevision";
 import { RecipeFolderOption } from "../../conan/api/conanAPI";
+import { ConanPackage } from "../../model/conanPackage";
+import { ConanPackageRevision } from "../../model/conanPackageRevision";
+import { ConanRecipe } from "../../model/conanRecipe";
+import { ConanRemote } from "../../model/conanRemote";
 
 export enum ConanExecutionMode {
     python = 1,
