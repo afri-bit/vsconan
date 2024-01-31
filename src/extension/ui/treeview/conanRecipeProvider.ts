@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 import { ConanRecipe } from '../../../conans/model/conanRecipe';
-import { ConfigurationManager } from '../../config/configManager';
+import { SettingsPropertyManager } from '../../settings/settingsPropertyManager';
 
 export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRecipeItem> {
 
@@ -12,11 +12,11 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
     private selectedRecipe: string | undefined = undefined;
 
     private conanApiManager: ConanAPIManager;
-    private configManager: ConfigurationManager;
+    private settingsPropertyManager: SettingsPropertyManager;
 
-    public constructor(conanApiManager: ConanAPIManager, configManager: ConfigurationManager) {
+    public constructor(conanApiManager: ConanAPIManager, settingsPropertyManager: SettingsPropertyManager) {
         this.conanApiManager = conanApiManager;
-        this.configManager = configManager;
+        this.settingsPropertyManager = settingsPropertyManager;
     }
 
     public refresh(): void {
@@ -35,8 +35,8 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
         // If the filter is set, get the filte name.
         // Otherwise do as always
         // If filter is on, the editable package will not appear
-        if (this.configManager.isRecipeFiltered()) {
-            let filterKey: string = this.configManager.getRecipeFilterKey()!;
+        if (this.settingsPropertyManager.isRecipeFiltered()) {
+            let filterKey: string = this.settingsPropertyManager.getRecipeFilterKey()!;
 
             recipeList = this.conanApiManager.conanApi.getRecipesByRemote(filterKey);
         }

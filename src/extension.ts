@@ -4,14 +4,13 @@ import * as vscode from "vscode";
 import * as constants from "./utils/constants";
 import * as utils from "./utils/utils";
 
-import { ConanExecutionMode } from "./conans/api/base/conanAPI";
 import { ConanAPIManager } from "./conans/api/conanAPIManager";
-import { configChangeListener } from "./extension/config/configChangeListener";
-import { ConfigurationManager } from "./extension/config/configManager";
 import { ConanCacheExplorerManager } from "./extension/manager/explorer/conanCache";
 import { ConanProfileExplorerManager } from "./extension/manager/explorer/conanProfile";
 import { ConanRemoteExplorerManager } from "./extension/manager/explorer/conanRemote";
 import { VSConanWorkspaceManager } from "./extension/manager/vsconanWorkspace";
+import { SettingsManager } from "./extension/settings/settingsManager";
+import { SettingsPropertyManager } from "./extension/settings/settingsPropertyManager";
 import { ConanPackageNodeProvider } from "./extension/ui/treeview/conanPackageProvider";
 import { ConanPackageRevisionNodeProvider } from "./extension/ui/treeview/conanPackageRevisionProvider";
 import { ConanProfileNodeProvider } from "./extension/ui/treeview/conanProfileProvider";
@@ -31,85 +30,35 @@ export function activate(context: vscode.ExtensionContext) {
     utils.vsconan.initializeGlobalArea();
 
     // ========== Managing configuration
-    // Create Configuration Manager object to store and get some configuration
-    let configManager = new ConfigurationManager(context);
-
-    // Set the environment conan user home path in the config manager
-    // With this approach, we can get back to the environment variable that is set when the VS Code is started
-    // Undefined means no specific path is set, so conan default home folder will be used.
-    configManager.setEnvConanUserHome(process.env.CONAN_USER_HOME);
-
-    // Get the configuration from 'settings.json' for this matter
-    let conanUserHome: string | null | undefined = vscode.workspace.getConfiguration("vsconan").get("general.conanUserHome");
-    // If this is defined, the the environment variable will be overwritten, using the configuration in settings.json
-    if (conanUserHome !== null) {
-        process.env.CONAN_USER_HOME = conanUserHome;
-    }
-
     initContextState(context);
 
-    // ========== Initializing the Conan API
-    let conanVersion: string | undefined = vscode.workspace.getConfiguration("vsconan.conan").get("version");
-    let conanExecutionMode: ConanExecutionMode;
-    let conanPythonInterpreter: string;
-    let conanExecutable: string;
+    // Create Configuration Manager object to store and get some configuration
+    let settingsPropertyManager = new SettingsPropertyManager(context);
 
-    let conanApiManager: ConanAPIManager;
-
-    if (conanVersion == "2") {
-        // Getting the setting for execution mode as requirements for ConanAPI
-        let mode = vscode.workspace.getConfiguration("vsconan.conan").get("2.conanExecutionMode");
-
-        if (mode === "pythonInterpreter") {
-            conanExecutionMode = ConanExecutionMode.python;
-        }
-        else if (mode === "conanExecutable") {
-            conanExecutionMode = ConanExecutionMode.conan;
-        }
-
-        conanPythonInterpreter = vscode.workspace.getConfiguration("vsconan.conan").get("2.pythonInterpreter")!;
-        conanExecutable = vscode.workspace.getConfiguration("vsconan.conan").get("2.conanExecutable")!;
-    }
-    else { // In case the conan version is an error value, set to conan version 1 as default
-        conanVersion = "1";
-        // Getting the setting for execution mode as requirements for ConanAPI
-        let mode = vscode.workspace.getConfiguration("vsconan.conan").get("1.conanExecutionMode");
-
-        if (mode === "pythonInterpreter") {
-            conanExecutionMode = ConanExecutionMode.python;
-        }
-        else if (mode === "conanExecutable") {
-            conanExecutionMode = ConanExecutionMode.conan;
-        }
-
-        conanPythonInterpreter = vscode.workspace.getConfiguration("vsconan.conan").get("1.pythonInterpreter")!;
-        conanExecutable = vscode.workspace.getConfiguration("vsconan.conan").get("1.conanExecutable")!;
-    }
-
-    conanApiManager = new ConanAPIManager(conanVersion!,
-        conanPythonInterpreter,
-        conanExecutable,
-        conanExecutionMode!);
+    let conanApiManager: ConanAPIManager = new ConanAPIManager();
 
     // ========== Registering the treeview for the extension
-    const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApiManager, configManager);
+    const conanRecipeNodeProvider = new ConanRecipeNodeProvider(conanApiManager, settingsPropertyManager);
     const conanProfileNodeProvider = new ConanProfileNodeProvider(conanApiManager);
-    const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApiManager, configManager);
-    const conanPackageRevisionNodeProvider = new ConanPackageRevisionNodeProvider(conanApiManager, configManager);
+    const conanPackageNodeProvider = new ConanPackageNodeProvider(conanApiManager, settingsPropertyManager);
+    const conanPackageRevisionNodeProvider = new ConanPackageRevisionNodeProvider(conanApiManager, settingsPropertyManager);
     const conanRemoteNodeProvider = new ConanRemoteNodeProvider(conanApiManager);
 
-    const conanCacheExplorerManager = new ConanCacheExplorerManager(context, channelVSConan, conanApiManager, configManager, conanRecipeNodeProvider, conanPackageNodeProvider, conanPackageRevisionNodeProvider);
+    const conanCacheExplorerManager = new ConanCacheExplorerManager(context, channelVSConan, conanApiManager, settingsPropertyManager, conanRecipeNodeProvider, conanPackageNodeProvider, conanPackageRevisionNodeProvider);
     const conanProfileExplorerManager = new ConanProfileExplorerManager(context, channelVSConan, conanApiManager, conanProfileNodeProvider);
     const conanRemoteExplorerManager = new ConanRemoteExplorerManager(context, channelVSConan, conanApiManager, conanRemoteNodeProvider);
     const conanWorkspaceManager = new VSConanWorkspaceManager(context, channelVSConan, conanApiManager);
 
-    const configListener = vscode.workspace.onDidChangeConfiguration((event) => configChangeListener(event,
-        conanApiManager,
+    const settingsManager = new SettingsManager(conanApiManager,
         conanCacheExplorerManager,
         conanProfileExplorerManager,
         conanRemoteExplorerManager,
         conanWorkspaceManager,
-        configManager));
+        settingsPropertyManager);
+
+    settingsManager.init();
+
+    const configListener = vscode.workspace.onDidChangeConfiguration((event) => settingsManager.listen(event));
 
     // Check if it starts with workspace
     // To check whether its workspace or not is to determine if the function "getWorkspaceFolder" returns undefined or a path

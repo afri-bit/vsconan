@@ -738,100 +738,57 @@
                 }
             ]
         },
-        "configuration":[
+        "configuration": [
             {
                 "title": "Conan",
                 "order": 1,
                 "properties": {
-                    "vsconan.conan.version": {
-                        "markdownDescription": "Switch version of Conan (API).",
-                        "type": "string",
-                        "default": "1",
-                        "enum": ["1", "2"]
-                    },
-                    "vsconan.conan.1.pythonInterpreter": {
-                        "markdownDescription": "Python interpreter executable path.",
-                        "type": "string",
-                        "default": "python"
-                    },
-                    "vsconan.conan.1.conanExecutable": {
-                        "markdownDescription": "Conan executable path.",
-                        "type": "string",
-                        "default": "conan"
-                    },
-                    "vsconan.conan.1.conanExecutionMode": {
-                        "markdownDescription": "Option to choose how to execute the Conan CLI.",
-                        "type": "string",
-                        "enum": [
-                            "pythonInterpreter",
-                            "conanExecutable"
-                        ],
-                        "default": "conanExecutable"
-                    },
-                    "vsconan.conan.1.conanUserHome": {
-                        "markdownDescription": "Set and/or overwrite predefined path to conan home folder.",
-                        "type": ["string", "null"],
-                        "default": null
-                    },
-                    "vsconan.conan.2.pythonInterpreter": {
-                        "markdownDescription": "Python interpreter executable path.",
-                        "type": "string",
-                        "default": "python"
-                    },
-                    "vsconan.conan.2.conanExecutable": {
-                        "markdownDescription": "Conan executable path.",
-                        "type": "string",
-                        "default": "conan"
-                    },
-                    "vsconan.conan.2.conanExecutionMode": {
-                        "markdownDescription": "Option to choose how to execute the Conan CLI.",
-                        "type": "string",
-                        "enum": [
-                            "pythonInterpreter",
-                            "conanExecutable"
-                        ],
-                        "default": "conanExecutable"
-                    },
-                    "vsconan.conan.2.conanUserHome": {
-                        "markdownDescription": "Set and/or overwrite predefined path to conan home folder.",
-                        "type": ["string", "null"],
-                        "default": null
-                    }
-                }
-            },
-            {
-                "title": "General",
-                "order": 2,
-                "properties": {
-                    "vsconan.general.pythonInterpreter": {
-                        "markdownDescription": "Python interpreter executable path.",
-                        "type": "string",
-                        "default": "python"
-                    },
-                    "vsconan.general.conanExecutable": {
-                        "markdownDescription": "Conan executable path.",
-                        "type": "string",
-                        "default": "conan"
-                    },
-                    "vsconan.general.conanExecutionMode": {
-                        "markdownDescription": "Option to choose how to execute the Conan CLI.",
-                        "type": "string",
-                        "enum": [
-                            "pythonInterpreter",
-                            "conanExecutable"
-                        ],
-                        "default": "conanExecutable"
-                    },
-                    "vsconan.general.conanUserHome": {
-                        "markdownDescription": "Set and/or overwrite predefined path to conan home folder.",
-                        "type": ["string", "null"],
-                        "default": null
+                    "vsconan.conan.profile.configurations": {
+                        "type": "object",
+                        "properties": {
+                            "conanVersion": {
+                                "markdownDescription": "Define the version for the conan profile configuration",
+                                "type": "string",
+                                "default": "1",
+                                "enum": [
+                                    "1",
+                                    "2"
+                                ]
+                            },
+                            "conanPythonInterpreter": {
+                                "markdownDescription": "Python interpreter executable path.",
+                                "type": "string",
+                                "default": "python"
+                            },
+                            "conanExecutable": {
+                                "markdownDescription": "Conan executable path.",
+                                "type": "string",
+                                "default": "conan"
+                            },
+                            "conanExecutionMode": {
+                                "markdownDescription": "Option to choose how to execute the Conan CLI.",
+                                "type": "string",
+                                "enum": [
+                                    "pythonInterpreter",
+                                    "conanExecutable"
+                                ],
+                                "default": "conanExecutable"
+                            },
+                            "conanUserHome": {
+                                "markdownDescription": "Set and/or overwrite predefined path to conan home folder.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "default": null
+                            }
+                        }
                     }
                 }
             },
             {
                 "title": "Explorer",
-                "order": 3,
+                "order": 2,
                 "properties": {
                     "vsconan.explorer.treeview.package.showDirtyPackage": {
                         "markdownDescription": "Show dirty binary package from a recipe.",
@@ -860,6 +817,9 @@
 		"@typescript-eslint/eslint-plugin": "^5.30.0",
 		"@typescript-eslint/parser": "^5.30.0",
         "@types/chai": "^4.3.0",
+        "class-transformer": "^0.5.1",
+        "class-validator": "^0.14.1",
+        "reflect-metadata": "^0.2.1",
         "chai": "^4.3.6",
         "glob": "^7.1.6",
         "mocha": "^10.0.0",

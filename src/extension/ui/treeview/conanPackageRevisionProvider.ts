@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 import { ConanPackageRevision } from '../../../conans/model/conanPackageRevision';
-import { ConfigurationManager } from '../../config/configManager';
+import { SettingsPropertyManager } from '../../settings/settingsPropertyManager';
 
 export class ConanPackageRevisionNodeProvider implements vscode.TreeDataProvider<ConanPackageRevisionItem> {
 
@@ -13,11 +13,11 @@ export class ConanPackageRevisionNodeProvider implements vscode.TreeDataProvider
     private packageId: string = "";
     private showDirtyPackage: boolean = false;
     private conanApiManager: ConanAPIManager;
-    private configManager: ConfigurationManager;
+    private settingsPropertyManager: SettingsPropertyManager;
 
-    public constructor(conanApiManager: ConanAPIManager, configManager: ConfigurationManager) {
+    public constructor(conanApiManager: ConanAPIManager, settingsPropertyManager: SettingsPropertyManager) {
         this.conanApiManager = conanApiManager;
-        this.configManager = configManager;
+        this.settingsPropertyManager = settingsPropertyManager;
     }
 
     public refresh(recipeName: string, packageId: string, showDirtyPackage: boolean): void {

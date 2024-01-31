@@ -6,7 +6,10 @@ export class ConanAPIManager {
     private _conanVersion: string = "1";
     private _conanApi: ConanAPI = {} as ConanAPI;
 
-    public constructor(conanVersion: string, pythonInterpreter: string, conanExecutable: string, conanExecutionMode: ConanExecutionMode) {
+    public constructor(conanVersion: string = "1",
+        pythonInterpreter: string = "python",
+        conanExecutable: string = "conan",
+        conanExecutionMode: ConanExecutionMode = ConanExecutionMode.python) {
         this.setApiInstance(conanVersion, pythonInterpreter, conanExecutable, conanExecutionMode);
     }
 

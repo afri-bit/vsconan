@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 import { ConanPackage } from '../../../conans/model/conanPackage';
-import { ConfigurationManager } from '../../config/configManager';
+import { SettingsPropertyManager } from '../../settings/settingsPropertyManager';
 
 export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPackageItem> {
 
@@ -12,13 +12,13 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
     private recipeName: string = "";
     private showDirtyPackage: boolean = false;
     private conanApiManager: ConanAPIManager;
-    private configManager: ConfigurationManager;
+    private settingsPropertyManager: SettingsPropertyManager;
 
     private selectedPackage: string | undefined = undefined;
 
-    public constructor(conanApiManager: ConanAPIManager, configManager: ConfigurationManager) {
+    public constructor(conanApiManager: ConanAPIManager, settingsPropertyManager: SettingsPropertyManager) {
         this.conanApiManager = conanApiManager;
-        this.configManager = configManager;
+        this.settingsPropertyManager = settingsPropertyManager;
     }
 
     public refresh(recipeName: string, showDirtyPackage: boolean): void {
@@ -35,14 +35,14 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
         let packageList: Array<ConanPackage> = [];
         let dirtyPackageList: Array<ConanPackage> = [];
 
-        if (this.configManager.isPackageFiltered()) {
-            packageList = this.conanApiManager.conanApi.getPackagesByRemote(this.recipeName, this.configManager.getPackageFilterKey()!);
+        if (this.settingsPropertyManager.isPackageFiltered()) {
+            packageList = this.conanApiManager.conanApi.getPackagesByRemote(this.recipeName, this.settingsPropertyManager.getPackageFilterKey()!);
         }
         else {
             packageList = this.conanApiManager.conanApi.getPackages(this.recipeName);
         }
 
-        if (this.showDirtyPackage){
+        if (this.showDirtyPackage) {
             dirtyPackageList = this.conanApiManager.conanApi.getDirtyPackage(this.recipeName);
         }
 
@@ -112,7 +112,7 @@ export class ConanPackageItem extends vscode.TreeItem {
             this.contextValue = 'package';
         }
     }
-    
+
     public isDirty(): boolean {
         return this.model.dirty;
     }

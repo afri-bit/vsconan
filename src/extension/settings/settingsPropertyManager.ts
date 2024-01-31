@@ -5,23 +5,16 @@ import * as vscode from "vscode";
  * Class to manage the extension configuration
  * This class actually only abstracts the usage of VS Code configuration API
  */
-export class ConfigurationManager {
+export class SettingsPropertyManager {
     private context: vscode.ExtensionContext;
 
     // This variable is used to store the original path from the environment
     // If there is no environment variable defined the path will be an empty string.
-    private envConanUserHome: string | undefined = undefined; 
+    private envConanUserHome: string | undefined = undefined; // CONAN 1
+    private envConanHome: string | undefined = undefined; // CONAN 2
 
     public constructor(context: vscode.ExtensionContext) {
         this.context = context;
-    }
-
-    public getPythonGeneral(): string | undefined {
-        return vscode.workspace.getConfiguration("vsconan").get("general.pythonInterpreter");
-    }
-    
-    public showDirtyPackage(): boolean | undefined {
-        return vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage");
     }
 
     public setEnvConanUserHome(envConanUserHome: string | undefined) {
@@ -30,6 +23,18 @@ export class ConfigurationManager {
 
     public getEnvConanUserHome(): string | undefined {
         return this.envConanUserHome;
+    }
+
+    public setEnvConanHome(envConanHome: string | undefined) {
+        this.envConanHome = envConanHome;
+    }
+
+    public getEnvConanHome(): string | undefined {
+        return this.envConanHome;
+    }
+
+    public showDirtyPackage(): boolean | undefined {
+        return vscode.workspace.getConfiguration("vsconan").get("explorer.treeview.package.showDirtyPackage");
     }
 
     public isRecipeFiltered(): boolean {

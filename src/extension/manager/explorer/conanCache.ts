@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 import { RecipeFolderOption } from '../../../conans/conan/api/conanAPI';
-import { ConfigurationManager } from '../../config/configManager';
+import { SettingsPropertyManager } from '../../settings/settingsPropertyManager';
 import { ConanPackageItem, ConanPackageNodeProvider } from '../../ui/treeview/conanPackageProvider';
 import { ConanPackageRevisionItem, ConanPackageRevisionNodeProvider } from '../../ui/treeview/conanPackageRevisionProvider';
 import { ConanRecipeItem, ConanRecipeNodeProvider } from '../../ui/treeview/conanRecipeProvider';
@@ -15,7 +15,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
     private context: vscode.ExtensionContext;
     private outputChannel: vscode.OutputChannel;
     private conanApiManager: ConanAPIManager;
-    private configManager: ConfigurationManager;
+    private settingsPropertyManager: SettingsPropertyManager;
     private nodeProviderConanRecipe: ConanRecipeNodeProvider;
     private nodeProviderConanPackage: ConanPackageNodeProvider;
     private nodeProviderConanPackageRevision: ConanPackageRevisionNodeProvider;
@@ -32,7 +32,8 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      * @param nodeProviderConanPackage Treedata provider for conan binary package
      */
     public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel,
-        conanApiManager: ConanAPIManager, configManager: ConfigurationManager,
+        conanApiManager: ConanAPIManager,
+        settingsPropertyManager: SettingsPropertyManager,
         nodeProviderConanRecipe: ConanRecipeNodeProvider,
         nodeProviderConanPackage: ConanPackageNodeProvider,
         nodeProviderConanPackageRevision: ConanPackageRevisionNodeProvider) {
@@ -41,7 +42,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         this.context = context;
         this.outputChannel = outputChannel;
         this.conanApiManager = conanApiManager;
-        this.configManager = configManager;
+        this.settingsPropertyManager = settingsPropertyManager;
         this.nodeProviderConanRecipe = nodeProviderConanRecipe;
         this.nodeProviderConanPackage = nodeProviderConanPackage;
         this.nodeProviderConanPackageRevision = nodeProviderConanPackageRevision;
@@ -123,8 +124,8 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         this.nodeProviderConanRecipe.setSelectedRecipe(undefined); // Reset the internal selected recipe from the recipeNodeProvider
 
         // Change the title of the Conan Recipe Treeview to have filter name inside that
-        if (this.configManager.isRecipeFiltered()) {
-            this.treeViewConanRecipe.title = `Conan - Recipe (Remote: ${this.configManager.getRecipeFilterKey()})`;
+        if (this.settingsPropertyManager.isRecipeFiltered()) {
+            this.treeViewConanRecipe.title = `Conan - Recipe (Remote: ${this.settingsPropertyManager.getRecipeFilterKey()})`;
         }
         else {
             this.treeViewConanRecipe.title = "Conan - Recipe";
@@ -159,8 +160,8 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         const choice = await vscode.window.showQuickPick(quickPickItems);
 
         if (choice) {
-            this.configManager.setRecipeFilter(choice.label);
-            this.configManager.setPackageFilter(choice.label);
+            this.settingsPropertyManager.setRecipeFilter(choice.label);
+            this.settingsPropertyManager.setPackageFilter(choice.label);
 
             this.recipeRefreshTreeview();
         }
@@ -171,7 +172,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      */
     private recipeClearFilter(): void {
         // Use config manager to clear the filter
-        this.configManager.clearRecipeFilter();
+        this.settingsPropertyManager.clearRecipeFilter();
 
         // Refresh the recipe treeview
         this.recipeRefreshTreeview();
@@ -196,8 +197,8 @@ export class ConanCacheExplorerManager extends ExtensionManager {
             this.treeViewConanPackageRevision.title = "Conan - Package Revision"; //
         }
 
-        if (this.configManager.isPackageFiltered()) {
-            this.treeViewConanPackage.title = this.treeViewConanPackage.title + ` (Remote: ${this.configManager.getPackageFilterKey()})`;
+        if (this.settingsPropertyManager.isPackageFiltered()) {
+            this.treeViewConanPackage.title = this.treeViewConanPackage.title + ` (Remote: ${this.settingsPropertyManager.getPackageFilterKey()})`;
         }
     }
 
@@ -353,8 +354,8 @@ export class ConanCacheExplorerManager extends ExtensionManager {
             this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the treeview
         }
 
-        if (this.configManager.isPackageFiltered()) {
-            this.treeViewConanPackage.title = this.treeViewConanPackage.title + ` (Remote: ${this.configManager.getPackageFilterKey()})`;
+        if (this.settingsPropertyManager.isPackageFiltered()) {
+            this.treeViewConanPackage.title = this.treeViewConanPackage.title + ` (Remote: ${this.settingsPropertyManager.getPackageFilterKey()})`;
         }
 
         this.packageRevisionRefreshTreeview();
@@ -386,7 +387,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         const choice = await vscode.window.showQuickPick(quickPickItems);
 
         if (choice) {
-            this.configManager.setPackageFilter(choice.label);
+            this.settingsPropertyManager.setPackageFilter(choice.label);
 
             this.packageRefreshTreeview();
         }
@@ -397,12 +398,12 @@ export class ConanCacheExplorerManager extends ExtensionManager {
      */
     private packageClearFilter(): void {
 
-        if (this.configManager.isRecipeFiltered()) {
+        if (this.settingsPropertyManager.isRecipeFiltered()) {
             vscode.window.showWarningMessage("Filter in Recipe is set. Unable to clear the filter in the packages.");
         }
         else {
             // Use config manager to clear the filter
-            this.configManager.clearPackageFilter();
+            this.settingsPropertyManager.clearPackageFilter();
 
             // Refresh the recipe treeview
             this.packageRefreshTreeview();
