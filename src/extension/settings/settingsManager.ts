@@ -7,15 +7,8 @@ import { ConanProfileExplorerManager } from "../manager/explorer/conanProfile";
 import { ConanRemoteExplorerManager } from "../manager/explorer/conanRemote";
 import { VSConanWorkspaceManager } from "../manager/vsconanWorkspace";
 import { SettingsPropertyManager } from "./settingsPropertyManager";
+import { ConanProfileConfiguration } from './model';
 
-
-class ConanProfileConfiguration {
-    conanVersion: string = ""
-    conanPythonInterpreter: string = ""
-    conanExecutable: string = ""
-    conanExecutionMode: string = ""
-    conanUserHome: string | null | undefined = undefined;
-}
 
 
 export class SettingsManager {

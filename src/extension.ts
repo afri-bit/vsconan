@@ -47,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
     const conanCacheExplorerManager = new ConanCacheExplorerManager(context, channelVSConan, conanApiManager, settingsPropertyManager, conanRecipeNodeProvider, conanPackageNodeProvider, conanPackageRevisionNodeProvider);
     const conanProfileExplorerManager = new ConanProfileExplorerManager(context, channelVSConan, conanApiManager, conanProfileNodeProvider);
     const conanRemoteExplorerManager = new ConanRemoteExplorerManager(context, channelVSConan, conanApiManager, conanRemoteNodeProvider);
-    const conanWorkspaceManager = new VSConanWorkspaceManager(context, channelVSConan, conanApiManager);
+    const conanWorkspaceManager = new VSConanWorkspaceManager(context, channelVSConan, conanApiManager, settingsPropertyManager);
 
     const settingsManager = new SettingsManager(conanApiManager,
         conanCacheExplorerManager,

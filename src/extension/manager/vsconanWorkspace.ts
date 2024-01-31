@@ -7,6 +7,8 @@ import { ConfigCommand, ConfigCommandBuild, ConfigCommandCreate, ConfigCommandIn
 import { ConfigWorkspace } from '../../conans/workspace/configWorkspace';
 import * as constants from "../../utils/constants";
 import * as utils from '../../utils/utils';
+import { ConanProfileConfiguration } from "../settings/model";
+import { SettingsPropertyManager } from "../settings/settingsPropertyManager";
 import { ExtensionManager } from "./extensionManager";
 
 enum ConanCommand {
@@ -29,6 +31,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
     private context: vscode.ExtensionContext;
     private outputChannel: vscode.OutputChannel;
     private conanApiManager: ConanAPIManager;
+    private settingsPropertyManager: SettingsPropertyManager;
 
     private statusBarConanVersion: vscode.StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
 
@@ -38,12 +41,16 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param outputChannel Output channel of the extension
      * @param conanApi Conan API
      */
-    public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel, conanApiManager: ConanAPIManager) {
+    public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel, 
+        conanApiManager: ConanAPIManager, 
+        settingsPropertyManager: SettingsPropertyManager) {
+
         super();
 
         this.context = context;
         this.outputChannel = outputChannel;
         this.conanApiManager = conanApiManager;
+        this.settingsPropertyManager = settingsPropertyManager;
 
         this.registerCommand("vsconan.conan.create", () => this.executeConanCommand(ConanCommand.create));
         this.registerCommand("vsconan.conan.install", () => this.executeConanCommand(ConanCommand.install));
@@ -62,17 +69,31 @@ export class VSConanWorkspaceManager extends ExtensionManager {
     }
 
     public refresh() {
-        // FIXME: Workaround
-        let conanVersion: string = vscode.workspace.getConfiguration("vsconan").get("conan.version")!;
-        this.statusBarConanVersion.text = `$(extensions) VSConan: Conan ${conanVersion}`
+        // // FIXME: Workaround
+
+        this.updateStatusBar();
     }
 
     private initStatusBarConanVersion() {
-        let conanVersion: string = vscode.workspace.getConfiguration("vsconan").get("conan.version")!;
-        this.statusBarConanVersion.command = "vsconan.conan.version.switch";
-        this.statusBarConanVersion.text = `$(extensions) VSConan: Conan ${conanVersion}`
+        this.updateStatusBar()
+
+        this.statusBarConanVersion.command = "vsconan.conan.profile.switch";
         this.statusBarConanVersion.show();
         this.context.subscriptions.push(this.statusBarConanVersion);
+    }
+
+    private updateStatusBar() {
+        let selectedProfile: string | undefined = this.settingsPropertyManager.getSelectedConanProfile();
+        let selectedProfileObject: ConanProfileConfiguration | undefined = this.settingsPropertyManager.getConanProfileObject(selectedProfile!);
+
+        if (selectedProfileObject && selectedProfileObject.isValid()) {
+            this.statusBarConanVersion.text = `$(extensions) VSConan: '${selectedProfile}' [${selectedProfileObject.conanVersion}]`;
+            this.statusBarConanVersion.color = "";
+        }
+        else {
+            this.statusBarConanVersion.text = `$(extensions) VSConan: -`;
+            this.statusBarConanVersion.color = "#FF3333"
+        }
     }
 
     /**
@@ -84,17 +105,21 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
         // Picking the conan workspace after filtering the workspace into conan workspace
         const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
-        let currentConanVersion = vscode.workspace.getConfiguration("vsconan").inspect("conan.version")
+
+        let profileList: Array<string> = this.settingsPropertyManager.getListOfConanProfiles();
+
         let quickPickItems = [];
-        let conanVersion = ["1", "2"]
-        for (let i = 0; i < conanVersion.length; i++) {
+
+        for (let i = 0; i < profileList.length; i++) {
+
+            let profileObject: ConanProfileConfiguration | undefined = this.settingsPropertyManager.getConanProfileObject(profileList[i]);
 
             quickPickItems.push({
-                label: `Conan ${conanVersion[i]}`,
-                description: `Switch Application to Conan version ${conanVersion[i]}.x`,
-                detail: "",
+                label: profileList[i],
+                description: `Conan Version ${profileObject?.conanVersion}`,
+                detail: profileObject?.conanExecutionMode,
                 index: i,
-                value: conanVersion[i],
+                conanVersion: profileObject?.conanVersion,
             });
         }
 
@@ -104,11 +129,9 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         const wsChoice = vscode.window.showQuickPick(quickPickItems);
 
         wsChoice.then(result => {
-            if (result != currentConanVersion) {
-                // TODO: Fix this, conan version is not relevant anymore
+            if (result) {
+                this.settingsPropertyManager.updateConanProfile(result?.label);
             }
-
-            this.statusBarConanVersion.text = `$(extensions) VSConan: Conan ${result!.value}`
         })
     }
 

@@ -1,5 +1,8 @@
 import * as vscode from "vscode";
 
+import { ConanProfileConfiguration } from "./model";
+import { plainToInstance } from "class-transformer";
+
 
 /**
  * Class to manage the extension configuration
@@ -75,5 +78,70 @@ export class SettingsPropertyManager {
 
     public getPackageFilterKey(): string | undefined {
         return this.context.workspaceState.get('package-filter-key');
+    }
+
+    public getListOfConanProfiles(): Array<string> {
+        let listOfConanProfile: Array<string> = []
+
+        // Get the object list with key value maps of the proxy objects
+        let profileConfigurations = vscode.workspace.getConfiguration("vsconan.conan.profile").get("configurations");
+
+        // Convert to generic objects
+        let profileConfigurationsObjectList: Object = Object.assign({}, profileConfigurations);
+
+        listOfConanProfile = Object.keys(profileConfigurationsObjectList);
+
+        return listOfConanProfile;
+    }
+
+    public getConanProfileObject(profileName: string): ConanProfileConfiguration | undefined {
+
+        let profileObject: ConanProfileConfiguration | undefined = undefined
+        
+        let profileConfigurations = vscode.workspace.getConfiguration("vsconan.conan.profile").get("configurations");
+
+        let profileConfigurationsObject: Object = Object.assign({}, profileConfigurations);
+
+        if (profileConfigurationsObject.hasOwnProperty(profileName!)) {
+            let selectedProfileObject: Object = Object.assign({}, profileConfigurationsObject[profileName as keyof typeof profileConfigurationsObject]);
+            
+            profileObject = plainToInstance(ConanProfileConfiguration, selectedProfileObject);
+        }
+
+        return profileObject;
+    }
+
+    public getSelectedConanProfile(): string | undefined {
+         return vscode.workspace.getConfiguration("vsconan.conan.profile").get("default");
+    }
+
+    public isProfileValid(profileName: string): boolean {
+        let valid: boolean = false;
+
+        let profileObject: ConanProfileConfiguration | undefined = this.getConanProfileObject(profileName);
+
+        if ((profileObject) && (profileObject.isValid())) {
+            valid = true;
+        }
+
+        return valid;
+
+    }
+
+    public getConanVersionOfProfile(profileName: string): string | null {
+
+        let conanVersion: string | null = null;
+
+        let profileObject: ConanProfileConfiguration | undefined = this.getConanProfileObject(profileName);
+
+        if ((profileObject) && (profileObject.isValid())) {
+            conanVersion = profileObject.conanVersion;
+        }
+
+        return conanVersion;
+    }
+
+    public updateConanProfile(profileName: string | undefined) {
+        vscode.workspace.getConfiguration("vsconan.conan.profile").update("default", profileName);
     }
 }

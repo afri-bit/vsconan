@@ -786,7 +786,7 @@
                     "vsconan.conan.profile.default": {
                         "type": "string",
                         "default": "default",
-                        "markdownDescription": "Conan profile default / selection",
+                        "markdownDescription": "Conan profile default / selection"
                     }
                 }
             },
