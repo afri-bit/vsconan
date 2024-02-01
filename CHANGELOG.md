@@ -1,11 +1,61 @@
 # Change Log
 
-## 1.0.0-beta - Unrelease
+## 1.0.0 - Unreleased
+
+### Breaking Changes
+
+Following settings in `settings.json` are **OBSOLETE**
+* `vsconan.general.pythonInterpreter`
+* `vsconan.general.conanExecutable`
+* `vsconan.general.conanExecutionMode`
+
+Instead, you can define multiple profiles according to your need in the `settings.json`. See example below:
+
+```json
+"vsconan.conan.profile.configurations": {
+  "myprofile_1": {
+    "conanVersion": "1",
+    "conanPythonInterpreter": "python",
+    "conanExecutable": "conan",
+    "conanExecutionMode": "pythonInterpreter",
+  },
+  "myprofile_2": {
+    "conanVersion": "2",
+    "conanPythonInterpreter": "/home/user/.venv/bin/conan",
+    "conanExecutable": "/home/user/.venv/bin/conan",
+    "conanExecutionMode": "conanExecutable",
+    "conanUserHome": "/home/user/your/path/to/.conan2"
+  }
+},
+"vsconan.conan.profile.default": "myprofile_2",
+```
+
+Using `vsconan.conan.profile.default` you can switch the profile easily, in case you have multiple conan setup or multiple python virtual environments with different conan versions. `conanUserHome` is optional parameter, in case you want to have a different location for `conan` home folder.
 
 ### Added
-* Conan 2 - Working with remotes with Tree view
+* Conan 2 - Browsing the recipe with UI
+  * Delete recipe
+  * Open in VSCode
+  * Open in explorer
+* Conan 2 - Browsing the packages with UI
+  * Delete Package
+  * Open in VSCode
+  * Open in explorer
+* Conan 2 - Browsing the package revisions with UI
+  * Delete package revision
+  * Open in VSCode
+  * Open in explorer
+* Conan 2 - Working with remotes with tree view
+  * Same functionality as conan1
 * Conan 2 - Working with profiles with Tree view
-* 
+  * Same functionality as conan1
+* Multiple profile definition for conan configuration in `settings.json`
+* Easy switch between conan configuration profile using status bar
+* Status bar view of selected conan configuration profile
+* Added new treeview for package revision (Only meant for conan2)
+
+### Changed
+* New color palette for the VSConan logo :) Adapted the color according to the new official conan logo (roughly)
 
 ## 0.4.0 - 2022-09-11
 

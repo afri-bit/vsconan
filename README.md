@@ -8,7 +8,7 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/afribit)
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/afri-bit/vsconan/feature/conan2-support-implementation/resources/icon/vsconan-logo.png" width="50%">
+<img src="https://raw.githubusercontent.com/afri-bit/vsconan/develop/resources/icon/vsconan-logo.png" width="50%">
 </p>
 
 ## Introduction 
