@@ -18,6 +18,8 @@ export class CommandBuilderConan1 extends CommandBuilder {
         // Initialized the command in array of string. Later on will be converted to plain string.
         let cmd: Array<string> = [];
 
+        cmd.push("create");
+
         // One of mandatory attributes is the path to the conanfile.py
         // If this is empty the whole command build process will be cancelled.
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
@@ -45,6 +47,8 @@ export class CommandBuilderConan1 extends CommandBuilder {
 
     public override buildCommandInstall(wsPath: string, cfg: ConfigCommandInstall): string | undefined {
         let cmd: Array<string> = [];
+
+        cmd.push("install");
 
         // One of mandatory attributes is the path to the conanfile.py
         // If this is empty the whole command build process will be cancelled.
@@ -74,6 +78,8 @@ export class CommandBuilderConan1 extends CommandBuilder {
 
     public override buildCommandBuild(wsPath: string, cfg: ConfigCommandBuild): string | undefined {
         let cmd: Array<string> = [];
+
+        cmd.push("build");
 
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
             cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
@@ -108,6 +114,8 @@ export class CommandBuilderConan1 extends CommandBuilder {
 
         let cmd: Array<string> = [];
 
+        cmd.push("source");
+
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
             cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
         }
@@ -128,6 +136,8 @@ export class CommandBuilderConan1 extends CommandBuilder {
 
     public override buildCommandPackage(wsPath: string, cfg: ConfigCommandPackage): string | undefined {
         let cmd: Array<string> = [];
+
+        cmd.push("package");
 
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
             cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
@@ -157,6 +167,8 @@ export class CommandBuilderConan1 extends CommandBuilder {
 
     public override buildCommandPackageExport(wsPath: string, cfg: ConfigCommandPackageExport): string | undefined {
         let cmd: Array<string> = [];
+
+        cmd.push("export-pkg");
 
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
             cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));

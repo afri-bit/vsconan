@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { CommandContainer } from "../cli/configCommand";
+import { CommandContainer } from "../command/configCommand";
 
 export class ConfigWorkspace {
     public commandContainer: CommandContainer;

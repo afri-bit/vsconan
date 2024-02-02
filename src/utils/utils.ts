@@ -8,7 +8,7 @@ import {
     CommandContainer, ConfigCommandBuild, ConfigCommandCreate,
     ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport,
     ConfigCommandSource
-} from "../conans/cli/configCommand";
+} from "../conans/command/configCommand";
 import { spawn } from "child_process";
 
 export namespace vsconan {
@@ -42,7 +42,7 @@ export namespace vsconan {
      * in the HOME folder, creating a temporary folder and creating a default global
      * config file
      */
-     export function initializeGlobalArea() {
+    export function initializeGlobalArea() {
         if (!fs.existsSync(vsconan.getVSConanHomeDir())) {
             fs.mkdirSync(vsconan.getVSConanHomeDir());
         }
@@ -63,21 +63,21 @@ export namespace vsconan {
             // const exec = util.promisify(require('child_process').exec);
             // const { stdout, stderr } = await spawn(cmd);
             channel.show();
-        
+
             const ls = spawn(cmd, [], { shell: true });
-        
+
             ls.stdout.on("data", data => {
                 channel.append(`${data}`);
             });
-        
+
             ls.stderr.on("data", data => {
                 channel.append(`${data}`);
             });
-        
+
             ls.on('error', (error) => {
                 channel.append(`ERROR: ${error.message}`);
             });
-        
+
             ls.on("close", code => {
                 channel.append(`\nProcess exited with code ${code}\n`);
             });
@@ -85,7 +85,7 @@ export namespace vsconan {
 
     }
 
-    export namespace config {    
+    export namespace config {
         /**
          * Function to create initial workspace configuration file with all conan commands
          * registered in the config files
@@ -128,7 +128,7 @@ export namespace conan {
         return ret;
     }
 }
-    
+
 export namespace editor {
     /**
      * Function to open file in the editor, with or without workspace.
