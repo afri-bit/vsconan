@@ -1,12 +1,10 @@
 import * as fs from "fs";
-import { CommandContainer } from "../cli/configCommand";
+import { CommandContainer } from "../command/configCommand";
 
 export class ConfigWorkspace {
-    public python: string;
     public commandContainer: CommandContainer;
 
-    constructor(python: string = "python", commandContainer: CommandContainer = new CommandContainer()) {
-        this.python = python;
+    constructor(commandContainer: CommandContainer = new CommandContainer()) {
         this.commandContainer = commandContainer;
     }
 

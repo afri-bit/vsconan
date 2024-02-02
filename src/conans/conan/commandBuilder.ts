@@ -13,18 +13,12 @@ import {
  * Static class to build command for some conan workflow based on the configuration. 
  */
 export class CommandBuilderConan1 extends CommandBuilder {
-    
-    public override buildCommandCreate(wsPath: string, python: string, cfg: ConfigCommandCreate): string | undefined {
+
+    public override buildCommandCreate(wsPath: string, cfg: ConfigCommandCreate): string | undefined {
         // Initialized the command in array of string. Later on will be converted to plain string.
         let cmd: Array<string> = [];
 
-        if (python !== "" && python !== undefined) {
-            cmd.push(python + " -m conans.conan");  // Standard CLI command for conan using python module
-            cmd.push("create");
-        }
-        else {
-            return undefined;
-        }
+        cmd.push("create");
 
         // One of mandatory attributes is the path to the conanfile.py
         // If this is empty the whole command build process will be cancelled.
@@ -51,16 +45,10 @@ export class CommandBuilderConan1 extends CommandBuilder {
         return cmd.join(" ");
     }
 
-    public override buildCommandInstall(wsPath: string, python: string, cfg: ConfigCommandInstall): string | undefined {
+    public override buildCommandInstall(wsPath: string, cfg: ConfigCommandInstall): string | undefined {
         let cmd: Array<string> = [];
 
-        if (python !== "" && python !== undefined) {
-            cmd.push(python + " -m conans.conan");
-            cmd.push("install");
-        }
-        else {
-            return undefined;
-        }
+        cmd.push("install");
 
         // One of mandatory attributes is the path to the conanfile.py
         // If this is empty the whole command build process will be cancelled.
@@ -88,16 +76,10 @@ export class CommandBuilderConan1 extends CommandBuilder {
         return cmd.join(" ");
     }
 
-    public override buildCommandBuild(wsPath: string, python: string, cfg: ConfigCommandBuild): string | undefined {
+    public override buildCommandBuild(wsPath: string, cfg: ConfigCommandBuild): string | undefined {
         let cmd: Array<string> = [];
 
-        if (python !== "" && python !== undefined) {
-            cmd.push(python + " -m conans.conan");
-            cmd.push("build");
-        }
-        else {
-            return undefined;
-        }
+        cmd.push("build");
 
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
             cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
@@ -128,17 +110,11 @@ export class CommandBuilderConan1 extends CommandBuilder {
 
     }
 
-    public override buildCommandSource(wsPath: string, python: string, cfg: ConfigCommandSource): string | undefined {
+    public override buildCommandSource(wsPath: string, cfg: ConfigCommandSource): string | undefined {
 
         let cmd: Array<string> = [];
 
-        if (python !== "" && python !== undefined) {
-            cmd.push(python + " -m conans.conan");
-            cmd.push("source");
-        }
-        else {
-            return undefined;
-        }
+        cmd.push("source");
 
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
             cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
@@ -158,16 +134,10 @@ export class CommandBuilderConan1 extends CommandBuilder {
         return cmd.join(" ");
     }
 
-    public override buildCommandPackage(wsPath: string, python: string, cfg: ConfigCommandPackage): string | undefined {
+    public override buildCommandPackage(wsPath: string, cfg: ConfigCommandPackage): string | undefined {
         let cmd: Array<string> = [];
 
-        if (python !== "" && python !== undefined) {
-            cmd.push(python + " -m conans.conan");
-            cmd.push("package");
-        }
-        else {
-            return undefined;
-        }
+        cmd.push("package");
 
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
             cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
@@ -195,16 +165,10 @@ export class CommandBuilderConan1 extends CommandBuilder {
         return cmd.join(" ");
     }
 
-    public override buildCommandPackageExport(wsPath: string, python: string, cfg: ConfigCommandPackageExport): string | undefined {
+    public override buildCommandPackageExport(wsPath: string, cfg: ConfigCommandPackageExport): string | undefined {
         let cmd: Array<string> = [];
 
-        if (python !== "" && python !== undefined) {
-            cmd.push(python + " -m conans.conan");
-            cmd.push("export-pkg");
-        }
-        else {
-            return undefined;
-        }
+        cmd.push("export-pkg");
 
         if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
             cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));

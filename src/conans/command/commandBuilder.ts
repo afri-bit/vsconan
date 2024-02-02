@@ -1,4 +1,3 @@
-import * as utils from "../../utils/utils";
 import {
     ConfigCommandBuild,
     ConfigCommandCreate,
@@ -15,38 +14,34 @@ export abstract class  CommandBuilder {
     /**
      * Build command for 'conan create'
      * @param wsPath Absolute path of conan workspace. This is needed since user can put a relative path, which means relative path to the workspace.
-     * @param python Path to python interpreter, where conan is installed
      * @param cfg Command configuration
      * @returns Full CLI command for 'conan create' | undefined on error
      */
-    public abstract buildCommandCreate(wsPath: string, python: string, cfg: ConfigCommandCreate): string | undefined;
+    public abstract buildCommandCreate(wsPath: string, cfg: ConfigCommandCreate): string | undefined;
 
     /**
      * Build command for 'conan install'
      * @param wsPath Absolute path of conan workspace. This is needed since user can put a relative path, which means relative path to the workspace.
-     * @param python Path to python interpreter, where conan is installed
      * @param cfg Command configuration
      * @returns Full CLI command for 'conan install' | undefined on error
      */
-    public abstract buildCommandInstall(wsPath: string, python: string, cfg: ConfigCommandInstall): string | undefined;
+    public abstract buildCommandInstall(wsPath: string, cfg: ConfigCommandInstall): string | undefined;
 
     /**
      * Build command for 'conan build'
      * @param wsPath Absolute path of conan workspace. This is needed since user can put a relative path, which means relative path to the workspace.
-     * @param python Path to python interpreter, where conan is installed
      * @param cfg Command configuration
      * @returns Full CLI command for 'conan build' | undefined on error
      */
-    public abstract buildCommandBuild(wsPath: string, python: string, cfg: ConfigCommandBuild): string | undefined;
+    public abstract buildCommandBuild(wsPath: string, cfg: ConfigCommandBuild): string | undefined;
 
     /**
      * Build command for 'conan source'
      * @param wsPath Absolute path of conan workspace. This is needed since user can put a relative path, which means relative path to the workspace.
-     * @param python Path to python interpreter, where conan is installed
      * @param cfg Command configuration
      * @returns Full CLI command for 'conan source' | undefined on error
      */
-    public abstract buildCommandSource(wsPath: string, python: string, cfg: ConfigCommandSource): string | undefined;
+    public abstract buildCommandSource(wsPath: string, cfg: ConfigCommandSource): string | undefined;
 
     /**
      * Build command for 'conan package'
@@ -55,7 +50,7 @@ export abstract class  CommandBuilder {
      * @param cfg Command configuration
      * @returns Full CLI command for 'conan package' | undefined on error
      */
-    public abstract buildCommandPackage(wsPath: string, python: string, cfg: ConfigCommandPackage): string | undefined;
+    public abstract buildCommandPackage(wsPath: string, cfg: ConfigCommandPackage): string | undefined;
 
     /**
      * Build command for 'conan export-pkg'
@@ -64,5 +59,5 @@ export abstract class  CommandBuilder {
      * @param cfg Command configuration
      * @returns Full CLI command for 'conan export-pkg' | undefined on error
      */
-    public abstract buildCommandPackageExport(wsPath: string, python: string, cfg: ConfigCommandPackageExport): string | undefined;
+    public abstract buildCommandPackageExport(wsPath: string, cfg: ConfigCommandPackageExport): string | undefined;
 }
