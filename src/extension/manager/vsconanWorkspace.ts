@@ -41,8 +41,8 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param outputChannel Output channel of the extension
      * @param conanApi Conan API
      */
-    public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel, 
-        conanApiManager: ConanAPIManager, 
+    public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel,
+        conanApiManager: ConanAPIManager,
         settingsPropertyManager: SettingsPropertyManager) {
 
         super();
@@ -69,8 +69,6 @@ export class VSConanWorkspaceManager extends ExtensionManager {
     }
 
     public refresh() {
-        // // FIXME: Workaround
-
         this.updateStatusBar();
     }
 
@@ -200,27 +198,27 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 configWorkspace = JSON.parse(configText);
                 switch (+cmdType) {
                     case ConanCommand.create: {
-                        this.executeCommandConanCreate(wsPath!, configWorkspace.python, configWorkspace.commandContainer.create);
+                        this.executeCommandConanCreate(wsPath!, configWorkspace.commandContainer.create);
                         break;
                     }
                     case ConanCommand.install: {
-                        this.executeCommandConanInstall(wsPath!, configWorkspace.python, configWorkspace.commandContainer.install);
+                        this.executeCommandConanInstall(wsPath!, configWorkspace.commandContainer.install);
                         break;
                     }
                     case ConanCommand.build: {
-                        this.executeCommandConanBuild(wsPath!, configWorkspace.python, configWorkspace.commandContainer.build);
+                        this.executeCommandConanBuild(wsPath!, configWorkspace.commandContainer.build);
                         break;
                     }
                     case ConanCommand.source: {
-                        this.executeCommandConanSource(wsPath!, configWorkspace.python, configWorkspace.commandContainer.source);
+                        this.executeCommandConanSource(wsPath!, configWorkspace.commandContainer.source);
                         break;
                     }
                     case ConanCommand.package: {
-                        this.executeCommandConanPackage(wsPath!, configWorkspace.python, configWorkspace.commandContainer.pkg);
+                        this.executeCommandConanPackage(wsPath!, configWorkspace.commandContainer.pkg);
                         break;
                     }
                     case ConanCommand.packageExport: {
-                        this.executeCommandConanPackageExport(wsPath!, configWorkspace.python, configWorkspace.commandContainer.pkgExport);
+                        this.executeCommandConanPackageExport(wsPath!, configWorkspace.commandContainer.pkgExport);
                         break;
                     }
                 }
@@ -275,27 +273,27 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param python Python interpreter (absolute path or predefined in the environment variables)
      * @param configList List of possible configurations
      */
-    private executeCommandConanCreate(wsPath: string, python: string, configList: Array<ConfigCommandCreate>) {
+    private executeCommandConanCreate(wsPath: string, configList: Array<ConfigCommandCreate>) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
-        promiseIndex.then(index => {
-            if (index !== undefined) {
-                let selectedConfig = configList[index];
-                let cmd = CommandBuilder.buildCommandCreate(wsPath, python, selectedConfig);
+        // promiseIndex.then(index => {
+        //     if (index !== undefined) {
+        //         let selectedConfig = configList[index];
+        //         let cmd = CommandBuilder.buildCommandCreate(wsPath, selectedConfig);
 
-                if (cmd !== undefined) {
-                    try {
-                        utils.vsconan.cmd.executeCommand(cmd, this.outputChannel);
-                    }
-                    catch (err) {
-                        vscode.window.showErrorMessage((err as Error).message);
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to execute conan CREATE command!");
-                }
-            }
-        });
+        //         if (cmd !== undefined) {
+        //             try {
+        //                 utils.vsconan.cmd.executeCommand(cmd, this.outputChannel);
+        //             }
+        //             catch (err) {
+        //                 vscode.window.showErrorMessage((err as Error).message);
+        //             }
+        //         }
+        //         else {
+        //             vscode.window.showErrorMessage("Unable to execute conan CREATE command!");
+        //         }
+        //     }
+        // });
     }
 
     /**
@@ -304,27 +302,27 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param python Python interpreter (absolute path or predefined in the environment variables)
      * @param configList List of possible configurations
      */
-    private executeCommandConanInstall(wsPath: string, python: string, configList: Array<ConfigCommandInstall>) {
+    private executeCommandConanInstall(wsPath: string, configList: Array<ConfigCommandInstall>) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
-        promiseIndex.then(index => {
-            if (index !== undefined) {
-                let selectedConfig = configList[index];
-                let cmd = CommandBuilder.buildCommandInstall(wsPath, python, selectedConfig);
+        // promiseIndex.then(index => {
+        //     if (index !== undefined) {
+        //         let selectedConfig = configList[index];
+        //         let cmd = CommandBuilder.buildCommandInstall(wsPath, selectedConfig);
 
-                if (cmd !== undefined) {
-                    try {
-                        utils.vsconan.cmd.executeCommand(cmd, this.outputChannel);
-                    }
-                    catch (err) {
-                        vscode.window.showErrorMessage((err as Error).message);
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to execute conan INSTALL command!");
-                }
-            }
-        });
+        //         if (cmd !== undefined) {
+        //             try {
+        //                 utils.vsconan.cmd.executeCommand(cmd, this.outputChannel);
+        //             }
+        //             catch (err) {
+        //                 vscode.window.showErrorMessage((err as Error).message);
+        //             }
+        //         }
+        //         else {
+        //             vscode.window.showErrorMessage("Unable to execute conan INSTALL command!");
+        //         }
+        //     }
+        // });
     }
 
     /**
@@ -333,27 +331,27 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param python Python interpreter (absolute path or predefined in the environment variables)
      * @param configList List of possible configurations
      */
-    private executeCommandConanBuild(wsPath: string, python: string, configList: Array<ConfigCommandBuild>) {
+    private executeCommandConanBuild(wsPath: string, configList: Array<ConfigCommandBuild>) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
-        promiseIndex.then(index => {
-            if (index !== undefined) {
-                let selectedConfig = configList[index];
-                let cmd = CommandBuilder.buildCommandBuild(wsPath, python, selectedConfig);
+        // promiseIndex.then(index => {
+        //     if (index !== undefined) {
+        //         let selectedConfig = configList[index];
+        //         let cmd = CommandBuilder.buildCommandBuild(wsPath, selectedConfig);
 
-                if (cmd !== undefined) {
-                    try {
-                        utils.vsconan.cmd.executeCommand(cmd, this.outputChannel);
-                    }
-                    catch (err) {
-                        vscode.window.showErrorMessage((err as Error).message);
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to execute conan BUILD command!");
-                }
-            }
-        });
+        //         if (cmd !== undefined) {
+        //             try {
+        //                 utils.vsconan.cmd.executeCommand(cmd, this.outputChannel);
+        //             }
+        //             catch (err) {
+        //                 vscode.window.showErrorMessage((err as Error).message);
+        //             }
+        //         }
+        //         else {
+        //             vscode.window.showErrorMessage("Unable to execute conan BUILD command!");
+        //         }
+        //     }
+        // });
     }
 
     /**
@@ -362,27 +360,27 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param python Python interpreter (absolute path or predefined in the environment variables)
      * @param configList List of possible configurations
      */
-    private executeCommandConanSource(wsPath: string, python: string, configList: Array<ConfigCommandSource>) {
+    private executeCommandConanSource(wsPath: string, configList: Array<ConfigCommandSource>) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
-        promiseIndex.then(index => {
-            if (index !== undefined) {
-                let selectedConfig = configList[index];
-                let cmd = CommandBuilder.buildCommandSource(wsPath, python, selectedConfig);
+        // promiseIndex.then(index => {
+        //     if (index !== undefined) {
+        //         let selectedConfig = configList[index];
+        //         let cmd = CommandBuilder.buildCommandSource(wsPath, selectedConfig);
 
-                if (cmd !== undefined) {
-                    try {
-                        utils.vsconan.cmd.executeCommand(cmd, this.outputChannel);
-                    }
-                    catch (err) {
-                        vscode.window.showErrorMessage((err as Error).message);
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to execute conan SOURCE command!");
-                }
-            }
-        });
+        //         if (cmd !== undefined) {
+        //             try {
+        //                 utils.vsconan.cmd.executeCommand(cmd, this.outputChannel);
+        //             }
+        //             catch (err) {
+        //                 vscode.window.showErrorMessage((err as Error).message);
+        //             }
+        //         }
+        //         else {
+        //             vscode.window.showErrorMessage("Unable to execute conan SOURCE command!");
+        //         }
+        //     }
+        // });
     }
 
     /**
@@ -391,27 +389,27 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param python Python interpreter (absolute path or predefined in the environment variables)
      * @param configList List of possible configurations
      */
-    private executeCommandConanPackage(wsPath: string, python: string, configList: Array<ConfigCommandPackage>) {
+    private executeCommandConanPackage(wsPath: string, configList: Array<ConfigCommandPackage>) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
-        promiseIndex.then(index => {
-            if (index !== undefined) {
-                let selectedConfig = configList[index];
-                let cmd = CommandBuilder.buildCommandPackage(wsPath, python, selectedConfig);
+        // promiseIndex.then(index => {
+        //     if (index !== undefined) {
+        //         let selectedConfig = configList[index];
+        //         let cmd = CommandBuilder.buildCommandPackage(wsPath, selectedConfig);
 
-                if (cmd !== undefined) {
-                    try {
-                        utils.vsconan.cmd.executeCommand(cmd, this.outputChannel);
-                    }
-                    catch (err) {
-                        vscode.window.showErrorMessage((err as Error).message);
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to execute conan PACKAGE command!");
-                }
-            }
-        });
+        //         if (cmd !== undefined) {
+        //             try {
+        //                 utils.vsconan.cmd.executeCommand(cmd, this.outputChannel);
+        //             }
+        //             catch (err) {
+        //                 vscode.window.showErrorMessage((err as Error).message);
+        //             }
+        //         }
+        //         else {
+        //             vscode.window.showErrorMessage("Unable to execute conan PACKAGE command!");
+        //         }
+        //     }
+        // });
     }
 
     /**
@@ -420,27 +418,27 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param python Python interpreter (absolute path or predefined in the environment variables)
      * @param configList List of possible configurations
      */
-    private executeCommandConanPackageExport(wsPath: string, python: string, configList: Array<ConfigCommandPackageExport>) {
+    private executeCommandConanPackageExport(wsPath: string, configList: Array<ConfigCommandPackageExport>) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
-        promiseIndex.then(index => {
-            if (index !== undefined) {
-                let selectedConfig = configList[index];
-                let cmd = CommandBuilder.buildCommandPackageExport(wsPath, python, selectedConfig);
+        // promiseIndex.then(index => {
+        //     if (index !== undefined) {
+        //         let selectedConfig = configList[index];
+        //         let cmd = CommandBuilder.buildCommandPackageExport(wsPath, selectedConfig);
 
-                if (cmd !== undefined) {
-                    try {
-                        utils.vsconan.cmd.executeCommand(cmd, this.outputChannel);
-                    }
-                    catch (err) {
-                        vscode.window.showErrorMessage((err as Error).message);
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to execute conan PACKAGE EXPORT command!");
-                }
-            }
-        });
+        //         if (cmd !== undefined) {
+        //             try {
+        //                 utils.vsconan.cmd.executeCommand(cmd, this.outputChannel);
+        //             }
+        //             catch (err) {
+        //                 vscode.window.showErrorMessage((err as Error).message);
+        //             }
+        //         }
+        //         else {
+        //             vscode.window.showErrorMessage("Unable to execute conan PACKAGE EXPORT command!");
+        //         }
+        //     }
+        // });
     }
 
     private async addEditablePackage() {

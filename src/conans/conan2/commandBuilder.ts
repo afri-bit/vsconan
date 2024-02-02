@@ -13,37 +13,23 @@ import {
  * Static class to build command for some conan workflow based on the configuration. 
  */
 export class CommandBuilderConan2 extends CommandBuilder {
-    
-    public override buildCommandCreate(wsPath: string, python: string, cfg: ConfigCommandCreate): string | undefined {
+
+    public override buildCommandCreate(wsPath: string, cfg: ConfigCommandCreate): string | undefined {
         // Initialized the command in array of string. Later on will be converted to plain string.
         let cmd: Array<string> = [];
 
-        if (python !== "" && python !== undefined) {
-            cmd.push(python + " -m conans.conan");  // Standard CLI command for conan using python module
-            cmd.push("create");
-        }
-        else {
-            return undefined;
-        }
-
-        // One of mandatory attributes is the path to the conanfile.py
-        // If this is empty the whole command build process will be cancelled.
-        if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
+        if (cfg.conanRecipe) {
             cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
         }
         else {
             return undefined;
         }
 
-        // Check if user and channel are specified
-        if ((cfg.user !== undefined && cfg.user !== "") && (cfg.channel !== undefined && cfg.channel !== "")) {
-            cmd.push(cfg.user + "/" + cfg.channel);
-        }
+        if (cfg.user) { cmd.push.apply(cmd, ["--user", cfg.user]); }
 
-        // Check if there is a specific profile define for this command
-        if (cfg.profile !== "" && cfg.profile !== undefined) {
-            cmd.push.apply(cmd, ["-pr", cfg.profile]);
-        }
+        if (cfg.channel) { cmd.push.apply(cmd, ["--channel", cfg.channel]); }
+
+        if (cfg.profile) { cmd.push.apply(cmd, ["-pr", cfg.profile]); }
 
         // Push additional arguments that user can define
         cmd.push.apply(cmd, cfg.args);
@@ -51,76 +37,44 @@ export class CommandBuilderConan2 extends CommandBuilder {
         return cmd.join(" ");
     }
 
-    public override buildCommandInstall(wsPath: string, python: string, cfg: ConfigCommandInstall): string | undefined {
+    public override buildCommandInstall(wsPath: string, cfg: ConfigCommandInstall): string | undefined {
         let cmd: Array<string> = [];
 
-        if (python !== "" && python !== undefined) {
-            cmd.push(python + " -m conans.conan");
-            cmd.push("install");
-        }
-        else {
-            return undefined;
-        }
-
-        // One of mandatory attributes is the path to the conanfile.py
-        // If this is empty the whole command build process will be cancelled.
-        if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
+        if (cfg.conanRecipe) {
             cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
         }
         else {
             return undefined;
         }
 
-        if ((cfg.user !== undefined && cfg.user !== "") && (cfg.channel !== undefined && cfg.channel !== "")) {
-            cmd.push(cfg.user + "/" + cfg.channel);
-        }
+        if (cfg.user) { cmd.push.apply(cmd, ["--user", cfg.user]); }
 
-        if (cfg.profile !== "" && cfg.profile !== undefined) {
-            cmd.push.apply(cmd, ["-pr", cfg.profile]);
-        }
+        if (cfg.channel) { cmd.push.apply(cmd, ["--channel", cfg.channel]); }
 
-        if (cfg.installFolder !== "" && cfg.installFolder !== undefined) {
-            cmd.push.apply(cmd, ["-if", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
-        }
+        if (cfg.profile) { cmd.push.apply(cmd, ["-pr", cfg.profile]); }
+
+        // NOTE: Install folder argument is ignored in conan2, conan will generate build folder automatically
 
         cmd.push.apply(cmd, cfg.args);
 
         return cmd.join(" ");
     }
 
-    public override buildCommandBuild(wsPath: string, python: string, cfg: ConfigCommandBuild): string | undefined {
+    public override buildCommandBuild(wsPath: string, cfg: ConfigCommandBuild): string | undefined {
         let cmd: Array<string> = [];
 
-        if (python !== "" && python !== undefined) {
-            cmd.push(python + " -m conans.conan");
-            cmd.push("build");
-        }
-        else {
-            return undefined;
-        }
-
-        if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
+        if (cfg.conanRecipe) {
             cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
         }
         else {
             return undefined;
         }
 
-        if (cfg.installFolder !== "" && cfg.installFolder !== undefined) {
-            cmd.push.apply(cmd, ["-if", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
-        }
-
-        if (cfg.buildFolder !== "" && cfg.buildFolder !== undefined) {
-            cmd.push.apply(cmd, ["-bf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.buildFolder)]);
-        }
-
-        if (cfg.packageFolder !== "" && cfg.packageFolder !== undefined) {
-            cmd.push.apply(cmd, ["-pf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.packageFolder)]);
-        }
-
-        if (cfg.sourceFolder !== "" && cfg.sourceFolder !== undefined) {
-            cmd.push.apply(cmd, ["-sf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.sourceFolder)]);
-        }
+        // NOTE: Ignore following input for now: (only works for conan 1)
+        // install Folder 
+        // build folder
+        // package folder
+        // source folder
 
         cmd.push.apply(cmd, cfg.args);
 
@@ -128,106 +82,48 @@ export class CommandBuilderConan2 extends CommandBuilder {
 
     }
 
-    public override buildCommandSource(wsPath: string, python: string, cfg: ConfigCommandSource): string | undefined {
+    public override buildCommandSource(wsPath: string, cfg: ConfigCommandSource): string | undefined {
 
         let cmd: Array<string> = [];
 
-        if (python !== "" && python !== undefined) {
-            cmd.push(python + " -m conans.conan");
-            cmd.push("source");
-        }
-        else {
-            return undefined;
-        }
-
-        if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
+        if (cfg.conanRecipe) {
             cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
         }
         else {
             return undefined;
         }
 
-        if (cfg.installFolder !== "" && cfg.installFolder !== undefined) {
-            cmd.push.apply(cmd, ["-if", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
-        }
+        if (cfg.user) { cmd.push.apply(cmd, ["--user", cfg.user]); }
 
-        if (cfg.sourceFolder !== "" && cfg.sourceFolder !== undefined) {
-            cmd.push.apply(cmd, ["-sf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.sourceFolder)]);
-        }
+        if (cfg.channel) { cmd.push.apply(cmd, ["--channel", cfg.channel]); }
+
+        // NOTE: Ignoring following input for now (only works for conan 1)
+        // Install Folder
+        // Source Folder
+
+        cmd.push.apply(cmd, cfg.args);
 
         return cmd.join(" ");
     }
 
-    public override buildCommandPackage(wsPath: string, python: string, cfg: ConfigCommandPackage): string | undefined {
-        let cmd: Array<string> = [];
-
-        if (python !== "" && python !== undefined) {
-            cmd.push(python + " -m conans.conan");
-            cmd.push("package");
-        }
-        else {
-            return undefined;
-        }
-
-        if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
-            cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
-        }
-        else {
-            return undefined;
-        }
-
-        if (cfg.installFolder !== "" && cfg.installFolder !== undefined) {
-            cmd.push.apply(cmd, ["-if", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
-        }
-
-        if (cfg.buildFolder !== "" && cfg.buildFolder !== undefined) {
-            cmd.push.apply(cmd, ["-bf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.buildFolder)]);
-        }
-
-        if (cfg.packageFolder !== "" && cfg.packageFolder !== undefined) {
-            cmd.push.apply(cmd, ["-pf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.packageFolder)]);
-        }
-
-        if (cfg.sourceFolder !== "" && cfg.sourceFolder !== undefined) {
-            cmd.push.apply(cmd, ["-sf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.sourceFolder)]);
-        }
-
-        return cmd.join(" ");
+    public override buildCommandPackage(wsPath: string, cfg: ConfigCommandPackage): string | undefined {
+        // No 'package' command in conan 2
+        return undefined;
     }
 
-    public override buildCommandPackageExport(wsPath: string, python: string, cfg: ConfigCommandPackageExport): string | undefined {
+    public override buildCommandPackageExport(wsPath: string, cfg: ConfigCommandPackageExport): string | undefined {
         let cmd: Array<string> = [];
 
-        if (python !== "" && python !== undefined) {
-            cmd.push(python + " -m conans.conan");
-            cmd.push("export-pkg");
-        }
-        else {
-            return undefined;
-        }
-
-        if (cfg.conanRecipe !== "" && cfg.conanRecipe !== undefined) {
+        if (cfg.conanRecipe) {
             cmd.push(utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.conanRecipe));
         }
         else {
             return undefined;
         }
 
-        if (cfg.installFolder !== "" && cfg.installFolder !== undefined) {
-            cmd.push.apply(cmd, ["-if", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.installFolder)]);
-        }
+        if (cfg.user) { cmd.push.apply(cmd, ["--user", cfg.user]); }
 
-        if (cfg.buildFolder !== "" && cfg.buildFolder !== undefined) {
-            cmd.push.apply(cmd, ["-bf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.buildFolder)]);
-        }
-
-        if (cfg.packageFolder !== "" && cfg.packageFolder !== undefined) {
-            cmd.push.apply(cmd, ["-pf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.packageFolder)]);
-        }
-
-        if (cfg.sourceFolder !== "" && cfg.sourceFolder !== undefined) {
-            cmd.push.apply(cmd, ["-sf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.sourceFolder)]);
-        }
+        if (cfg.channel) { cmd.push.apply(cmd, ["--channel", cfg.channel]); }
 
         cmd.push.apply(cmd, cfg.args);
 

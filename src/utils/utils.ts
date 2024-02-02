@@ -94,7 +94,7 @@ export namespace vsconan {
          *
          */
         export function createInitialWorkspaceConfig(configPath: string) {
-            let configWorkspace = new ConfigWorkspace("python", new CommandContainer(
+            let configWorkspace = new ConfigWorkspace(new CommandContainer(
                 [new ConfigCommandCreate()],
                 [new ConfigCommandInstall()],
                 [new ConfigCommandBuild()],
@@ -102,7 +102,7 @@ export namespace vsconan {
                 [new ConfigCommandPackage()],
                 [new ConfigCommandPackageExport()]
             ));
-    
+
             configWorkspace.writeToFile(path.join(configPath, constants.CONFIG_FILE));
         }
     }

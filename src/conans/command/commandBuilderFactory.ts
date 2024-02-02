@@ -2,7 +2,6 @@ import { CommandBuilderConan1 } from "../conan/commandBuilder";
 import { CommandBuilderConan2 } from "../conan2/commandBuilder";
 import { CommandBuilder } from "./commandBuilder";
 
-
 export class CommandBuilderFactory {
 
     public static getCommandBuilder(conanVersion: string): CommandBuilder | undefined {
@@ -13,9 +12,7 @@ export class CommandBuilderFactory {
             return new CommandBuilderConan2();
         }
         else {
-            undefined
+            return undefined;
         }
-
     }
-
 }
