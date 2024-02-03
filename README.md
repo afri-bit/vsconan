@@ -159,86 +159,93 @@ Currently supported conan command for configuration file:
 * package
 * export-pkg
 
+> The execution of the conan command will be done by the interpreter / conan executable from the profile that you selected. This configuration can be used for Conan version 1 and 2.
+
 The default configuration file can be seen as following. You can extend the list of each command to have different name, description, user, channel and many other details. 
 
 ```json
 {
-    "python": "python",
-    "commandContainer": {
-        "create": [
-            {
-                "name": "create",
-                "description": "Create command",
-                "detail": "Create command detail",
-                "conanRecipe": "conanfile.py",
-                "profile": "default",
-                "user": "",
-                "channel": "",
-                "args": []
-            }
-        ],
-        "install": [
-            {
-                "name": "install",
-                "description": "Install command",
-                "detail": "Install command detail",
-                "conanRecipe": "conanfile.py",
-                "installFolder": "install",
-                "profile": "default",
-                "user": "",
-                "channel": "",
-                "args": []
-            }
-        ],
-        "build": [
-            {
-                "name": "build",
-                "description": "Build command",
-                "detail": "Build command detail",
-                "conanRecipe": "conanfile.py",
-                "installFolder": "install",
-                "buildFolder": "build",
-                "packageFolder": "package",
-                "sourceFolder": "source",
-                "args": []
-            }
-        ],
-        "source": [
-            {
-                "name": "source",
-                "description": "Source command",
-                "detail": "Source command detail",
-                "conanRecipe": "conanfile.py",
-                "installFolder": "install",
-                "sourceFolder": "source"
-            }
-        ],
-        "pkg": [
-            {
-                "name": "pkg",
-                "description": "Package command",
-                "detail": "Package command detail",
-                "conanRecipe": "conanfile.py",
-                "installFolder": "install",
-                "buildFolder": "build",
-                "packageFolder": "package",
-                "sourceFolder": "source"
-            }
-        ],
-        "pkgExport": [
-            {
-                "name": "pkg_export",
-                "description": "Package export command",
-                "detail": "Package export command detail",
-                "conanRecipe": "conanfile.py",
-                "installFolder": "install",
-                "buildFolder": "build",
-                "packageFolder": "package",
-                "sourceFolder": "source",
-                "args": []
-            }
-        ]
-    }
+  "commandContainer": {
+    "create": [
+      {
+        "name": "create",
+        "description": "Create command",
+        "detail": "Create command detail",
+        "conanRecipe": "conanfile.py",
+        "profile": "default",
+        "user": "",
+        "channel": "",
+        "args": []
+      }
+    ],
+    "install": [
+      {
+        "name": "install",
+        "description": "Install command",
+        "detail": "Install command detail",
+        "conanRecipe": "conanfile.py",
+        "installFolder": "install",
+        "profile": "default",
+        "user": "",
+        "channel": "",
+        "args": []
+      }
+    ],
+    "build": [
+      {
+        "name": "build",
+        "description": "Build command",
+        "detail": "Build command detail",
+        "conanRecipe": "conanfile.py",
+        "installFolder": "install",
+        "buildFolder": "build",
+        "packageFolder": "package",
+        "sourceFolder": "source",
+        "args": []
+      }
+    ],
+    "source": [
+      {
+        "name": "source",
+        "description": "Source command",
+        "detail": "Source command detail",
+        "conanRecipe": "conanfile.py",
+        "installFolder": "install",
+        "sourceFolder": "source",
+        "version": "",
+        "user": "",
+        "channel": "",
+        "args": []
+      }
+    ],
+    "pkg": [
+      {
+        "name": "pkg",
+        "description": "Package command",
+        "detail": "Package command detail",
+        "conanRecipe": "conanfile.py",
+        "installFolder": "install",
+        "buildFolder": "build",
+        "packageFolder": "package",
+        "sourceFolder": "source"
+      }
+    ],
+    "pkgExport": [
+      {
+        "name": "pkg_export",
+        "description": "Package export command",
+        "detail": "Package export command detail",
+        "conanRecipe": "conanfile.py",
+        "installFolder": "install",
+        "buildFolder": "build",
+        "packageFolder": "package",
+        "sourceFolder": "source",
+        "user": "",
+        "channel": "",
+        "args": []
+      }
+    ]
+  }
 }
 ```
 

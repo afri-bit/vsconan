@@ -1,43 +1,97 @@
 # Change Log
 
-- [Change Log](#change-log)
-  - [1.0.0 - Unreleased](#100---unreleased)
-  - [0.4.0 - 2022-09-11](#040---2022-09-11)
-  - [0.3.0 - 2022-06-06](#030---2022-06-06)
-  - [0.2.0 - 2022-05-30](#020---2022-05-30)
-  - [0.1.0 - 2022-04-21](#010---2022-04-21)
-
-## 1.0.0 - Unreleased
+## 1.0.0 - 2024-02-03
 
 ### Breaking Changes
 
-Following settings in `settings.json` are **OBSOLETE**
-* `vsconan.general.pythonInterpreter`
-* `vsconan.general.conanExecutable`
-* `vsconan.general.conanExecutionMode`
+* Following settings in `settings.json` are **OBSOLETE**
+  * `vsconan.general.pythonInterpreter`
+  * `vsconan.general.conanExecutable`
+  * `vsconan.general.conanExecutionMode`
 
-Instead, you can define multiple profiles according to your need in the `settings.json`. See example below:
+  Instead, you can define multiple profiles according to your need in the `settings.json`. See example below:
 
-```json
-"vsconan.conan.profile.configurations": {
-  "myprofile_1": {
-    "conanVersion": "1",
-    "conanPythonInterpreter": "python",
-    "conanExecutable": "conan",
-    "conanExecutionMode": "pythonInterpreter",
+  ```json
+  "vsconan.conan.profile.configurations": {
+    "myprofile_1": {
+      "conanVersion": "1",
+      "conanPythonInterpreter": "python",
+      "conanExecutable": "conan",
+      "conanExecutionMode": "pythonInterpreter",
+    },
+    "myprofile_2": {
+      "conanVersion": "2",
+      "conanPythonInterpreter": "/home/user/.venv/bin/conan",
+      "conanExecutable": "/home/user/.venv/bin/conan",
+      "conanExecutionMode": "conanExecutable",
+      "conanUserHome": "/home/user/your/path/to/.conan2"
+    }
   },
-  "myprofile_2": {
-    "conanVersion": "2",
-    "conanPythonInterpreter": "/home/user/.venv/bin/conan",
-    "conanExecutable": "/home/user/.venv/bin/conan",
-    "conanExecutionMode": "conanExecutable",
-    "conanUserHome": "/home/user/your/path/to/.conan2"
-  }
-},
-"vsconan.conan.profile.default": "myprofile_2",
-```
+  "vsconan.conan.profile.default": "myprofile_2",
+  ```
 
-Using `vsconan.conan.profile.default` you can switch the profile easily, in case you have multiple conan setup or multiple python virtual environments with different conan versions. `conanUserHome` is optional parameter, in case you want to have a different location for `conan` home folder.
+  Using `vsconan.conan.profile.default` you can switch the profile easily, in case you have multiple conan setup or multiple python virtual environments with different conan versions. `conanUserHome` is optional parameter, in case you want to have a different location for `conan` home folder.
+
+* The workspace configuration to execute conan command, such as `build`, `install`, etc., is slightly changed, but it has a big impact to your workflow / usage of this configuration. 
+  > The `python` attribute is no longer available!
+
+  Instead of using hard coded `python` path inside this json file, it will rely on the selected conan configuration profile. So with this change, you can use the same json file but using in the different conan version (Easy switch between conan 1 and 2).
+
+  ```json
+  {
+    "commandContainer": {
+        "create": [
+            {
+                "name": "create",
+                "description": "Create command",
+                "detail": "Create command detail",
+                "conanRecipe": "conanfile.py",
+                "profile": "default",
+                "user": "",
+                "channel": "",
+                "args": []
+            }
+        ],
+        "install": [
+            {
+                "name": "install",
+                "description": "Install command",
+                "detail": "Install command detail",
+                "conanRecipe": "conanfile.py",
+                "installFolder": "install",
+                "profile": "default",
+                "user": "",
+                "channel": "",
+                "args": []
+            }
+        ],
+        .
+        .
+        .
+        .
+    }
+  }
+  ```
+
+  Due to the fact that there are some differences in the commands between conan 1 and 2, some attributes are added to some commands, that might not be used in one conan version or the other.
+  Following example might give you clarity.
+
+  * Conan 1 - `conan source`
+    ```shell
+    optional arguments:
+      -h, --help
+      -sf SOURCE_FOLDER, --source-folder SOURCE_FOLDER
+      -if INSTALL_FOLDER, --install-folder INSTALL_FOLDER
+    ```
+
+  * Conan 2 - `conan source`
+    ```shell
+    optional arguments:
+      --name NAME
+      --version VERSION
+      --user USER
+      --channel CHANNEL
+    ```
 
 ### Added
 * Conan 2 - Browsing the recipe with UI

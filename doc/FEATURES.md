@@ -4,10 +4,6 @@
 - [Features](#features)
   - [Table of Contents](#table-of-contents)
   - [Explorer](#explorer)
-    - [Conan - Recipe](#conan---recipe)
-    - [Conan - Package](#conan---package)
-    - [Conan - Profile](#conan---profile)
-    - [Conan - Remote](#conan---remote)
   - [Workspace](#workspace)
   - [General](#general)
 
@@ -22,14 +18,6 @@
   * Remove recipe from local cache
   * Remove editable package recipe from editable mode
 * Filter list of recipe based on a remote
-* Right click option to open following folders in explorer or VS Code from a recipe 
-  * Build
-  * Download
-  * Export
-  * Export Source
-  * Locks
-  * Source
-  * SCM Source
   
 ### Conan - Package
 * Show list of binary packages from a recipe
@@ -39,6 +27,13 @@
 * Dirty package
   * Show list of dirty packages
   * Open in Explorer
+* Filter list of binary packages that belong to a recipe based on a remote
+
+### Conan - Package Revision
+* Show list of binary packages revision from a package
+* Open in Explorer
+* Open in VS Code
+* Remove package
 * Filter list of binary packages that belong to a recipe based on a remote
 
 ### Conan - Profile
@@ -69,7 +64,26 @@
 * Remove editable package
 
 ## General
-* Option to overwrite the `CONAN_USER_HOME` environment variable within the VS Code using the setting `vsconan.general.conanUserHome` in `settings.json`. Possible input:
-  * `null`  
-    This is a default value of the configuration. If this is set, the predefined value for `CONAN_USER_HOME` will be used.
-  * `string` - User defined path
+* Define multiple conan profiles inside `settings.json` that you can use for the extension.
+  ```json
+  {
+    "vsconan.conan.profile.configurations": {
+        "my_conan1": {
+            "conanVersion": "1",
+            "conanExecutable": ".venv1/Scripts/conan.exe",
+            "conanPythonInterpreter": ".venv1/Scripts/python.exe",
+            "conanExecutionMode": "pythonInterpreter"
+        },
+        "my_conan2": {
+            "conanVersion": "2",
+            "conanExecutable": ".venv2/Scripts/conan.exe",
+            "conanPythonInterpreter": ".venv2/Scripts/python.exe",
+            "conanExecutionMode": "pythonInterpreter",
+            "conanUserHome": "/path/to/conan/home
+        },
+    },
+    "vsconan.conan.profile.default": "my_conan1"
+  }
+  ```
+* Overwrite conan home folder inside the profile with `conanUserHome`
+* Status bar to ease the switching between your predefined profiles
