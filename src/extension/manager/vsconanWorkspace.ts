@@ -87,11 +87,11 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         let selectedProfileObject: ConanProfileConfiguration | undefined = this.settingsPropertyManager.getConanProfileObject(selectedProfile!);
 
         if (selectedProfileObject && selectedProfileObject.isValid()) {
-            this.statusBarConanVersion.text = `$(extensions) VSConan: '${selectedProfile}' [${selectedProfileObject.conanVersion}]`;
+            this.statusBarConanVersion.text = `$(extensions) VSConan | conan${selectedProfileObject.conanVersion} - ${selectedProfile}`;
             this.statusBarConanVersion.color = "";
         }
         else {
-            this.statusBarConanVersion.text = `$(extensions) VSConan: -`;
+            this.statusBarConanVersion.text = `$(extensions) VSConan | -`;
             this.statusBarConanVersion.color = "#FF3333"
         }
     }
@@ -246,6 +246,11 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                         break;
                     }
                     case ConanCommand.package: {
+                        if (conanVersion == "2") {
+                            vscode.window.showErrorMessage("This command doesn't work on Conan 2");
+                            break;
+                        }
+
                         this.executeCommandConanPackage(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkg);
                         break;
                     }
