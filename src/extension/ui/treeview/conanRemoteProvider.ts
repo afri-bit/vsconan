@@ -1,7 +1,6 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
-import * as utils from '../../../utils/utils';
-import { ConanAPI } from '../../../conans/api/base/conanAPI';
+import * as vscode from 'vscode';
+import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 import { ConanRemote } from '../../../conans/model/conanRemote';
 
 export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRemoteItem> {
@@ -9,10 +8,10 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
     private _onDidChangeTreeData: vscode.EventEmitter<ConanRemoteItem | undefined | void> = new vscode.EventEmitter<ConanRemoteItem | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<ConanRemoteItem | undefined | void> = this._onDidChangeTreeData.event;
 
-    private conanApi: ConanAPI;
+    private conanApiManager: ConanAPIManager;
 
-    public constructor(conanApi: ConanAPI) {
-        this.conanApi = conanApi;
+    public constructor(conanApi: ConanAPIManager) {
+        this.conanApiManager = conanApi;
     }
 
     public refresh(): void {
@@ -25,15 +24,16 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
 
     public getChildren(element?: ConanRemoteItem): ConanRemoteItem[] {
         let remoteList: Array<ConanRemote> = [];
-
-        remoteList = this.conanApi.getRemotes();
-
         let remoteItemList: Array<ConanRemoteItem> = [];
 
-        for (let remote of remoteList) {
-            remoteItemList.push(new ConanRemoteItem(remote.name, vscode.TreeItemCollapsibleState.None, remote));
-        }
+        if (this.conanApiManager.conanApi) {
+            remoteList = this.conanApiManager.conanApi.getRemotes();
 
+            for (let remote of remoteList) {
+                remoteItemList.push(new ConanRemoteItem(remote.name, vscode.TreeItemCollapsibleState.None, remote));
+            }
+        }
+        
         return remoteItemList;
     }
 
@@ -68,7 +68,7 @@ export class ConanRemoteItem extends vscode.TreeItem {
 
         this.setRemoteEnableIcon(this.model.enabled);
     }
-    
+
     public setRemoteEnableIcon(state: boolean) {
         if (state) { // Remote is enabled
             this.iconPath = {

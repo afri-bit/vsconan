@@ -1,8 +1,8 @@
-import { ConanRecipe } from "../../model/conanRecipe";
-import { ConanPackage } from "../../model/conanPackage";
-import { ConanProfile } from "../../model/conanProfile";
-import { ConanRemote } from "../../model/conanRemote";
 import { RecipeFolderOption } from "../../conan/api/conanAPI";
+import { ConanPackage } from "../../model/conanPackage";
+import { ConanPackageRevision } from "../../model/conanPackageRevision";
+import { ConanRecipe } from "../../model/conanRecipe";
+import { ConanRemote } from "../../model/conanRemote";
 
 export enum ConanExecutionMode {
     python = 1,
@@ -301,4 +301,30 @@ export abstract class ConanAPI {
      * @param remote Remote name to filter the source of the binary packages
      */
     public abstract getPackagesByRemote(recipe: string, remote: string): Array<ConanPackage>;
+
+    /**
+     * Method to get all the package revisions from a package ID
+     * !!! Attention - this package revision only works on Conan 2 !!!
+     * @param recipe Recipe name to get the binary package from
+     * @param packageId Selected package Id to search package revision from
+     */
+    public abstract getPackageRevisions(recipe: string, packageId: string): Array<ConanPackageRevision>;
+
+    /**
+     * Method to get the path to the package revision in the local cache
+     * !!! Attention - this API only works for Conan 2 !!!
+     * @param recipe Recipe name to get the binary package from
+     * @param packageId Selected package id to search for the package revision
+     * @param revisionId Selected package revision id to get the path from
+     */
+    public abstract getPackageRevisionPath(recipe: string, packageId: string, revisionId: string): string | undefined;
+
+    /**
+     * Method to remove package revision
+     * !!! Attention - this API only works for conan 2 !!!
+     * @param recipe 
+     * @param packageId 
+     * @param revisionId 
+     */
+    public abstract removePackageRevision(recipe: string, packageId: string, revisionId: string): void;
 }

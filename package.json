@@ -2,7 +2,7 @@
     "name": "vsconan",
     "displayName": "VSConan",
     "description": "Conan local cache and workspace manager.",
-    "version": "0.4.0",
+    "version": "1.0.0",
     "publisher": "afri-bit",
     "repository": {
         "type": "git",
@@ -30,6 +30,7 @@
         "onView:vsconan-explorer.treeview.package",
         "onView:vsconan-explorer.treeview.profile",
         "onView:vsconan-explorer.treeview.remote",
+        "onView:vsconan-explorer.treeview.package.revision",
         "workspaceContains:conanfile.py",
         "workspaceContains:conanfile.txt",
         "onCommand:vsconan.conan.create",
@@ -65,6 +66,11 @@
                     "id": "vsconan-explorer.treeview.package",
                     "name": "Conan - Package",
                     "contextualTitle": "Conan Package"
+                },
+                {
+                    "id": "vsconan-explorer.treeview.package.revision",
+                    "name": "Conan - Package Revision",
+                    "contextualTitle": "Conan Package Revision"
                 },
                 {
                     "id": "vsconan-explorer.treeview.profile",
@@ -114,6 +120,10 @@
                 "title": "VSConan: Remove Editable"
             },
             {
+                "command": "vsconan.conan.profile.switch",
+                "title": "VSConan: Switch Conan Profile"
+            },
+            {
                 "command": "vsconan.config.workspace.create",
                 "title": "VSConan: Create Workspace Configuration (JSON)"
             },
@@ -147,6 +157,14 @@
             },
             {
                 "command": "vsconan.explorer.treeview.package.refresh",
+                "title": "Refresh",
+                "icon": {
+                    "light": "resources/icon/light/refresh.png",
+                    "dark": "resources/icon/dark/refresh.png"
+                }
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.revision.refresh",
                 "title": "Refresh",
                 "icon": {
                     "light": "resources/icon/light/refresh.png",
@@ -346,6 +364,42 @@
                 "title": "Copy Path to Clipboard"
             },
             {
+                "command": "vsconan.explorer.treeview.package.revision.item.information",
+                "title": "Information",
+                "icon": {
+                    "light": "resources/icon/light/info.png",
+                    "dark": "resources/icon/dark/info.png"
+                }
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.revision.item.open-explorer",
+                "title": "Open in File Explorer",
+                "icon": {
+                    "light": "resources/icon/light/goto.png",
+                    "dark": "resources/icon/dark/goto.png"
+                }
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.revision.item.open-vscode",
+                "title": "Open in VSCode",
+                "icon": {
+                    "light": "resources/icon/light/vscode.png",
+                    "dark": "resources/icon/dark/vscode.png"
+                }
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.revision.item.remove",
+                "title": "Remove Package",
+                "icon": {
+                    "light": "resources/icon/light/remove.png",
+                    "dark": "resources/icon/dark/remove.png"
+                }
+            },
+            {
+                "command": "vsconan.explorer.treeview.package.revision.item.copy-clipboard",
+                "title": "Copy Path to Clipboard"
+            },
+            {
                 "command": "vsconan.explorer.treeview.profile.item.remove",
                 "title": "Remove Profile",
                 "icon": {
@@ -449,6 +503,11 @@
                     "group": "navigation@3"
                 },
                 {
+                    "command": "vsconan.explorer.treeview.package.revision.refresh",
+                    "when": "view == vsconan-explorer.treeview.package.revision",
+                    "group": "navigation@3"
+                },
+                {
                     "command": "vsconan.explorer.treeview.package.filter.set",
                     "when": "view == vsconan-explorer.treeview.package && package-filtered == false",
                     "group": "navigation@2"
@@ -520,72 +579,72 @@
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.explorer.build",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "2-recipeContext@1"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.explorer.download",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "2-recipeContext@2"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.explorer.export",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "2-recipeContext@3"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.explorer.export-source",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "2-recipeContext@4"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.explorer.locks",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "2-recipeContext@5"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.explorer.source",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "2-recipeContext@6"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.explorer.scm-source",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "2-recipeContext@7"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.vscode.build",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "3-recipeContext@1"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.vscode.download",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "3-recipeContext@2"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.vscode.export",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "3-recipeContext@3"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.vscode.export-source",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "3-recipeContext@4"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.vscode.locks",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "3-recipeContext@5"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.vscode.source",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "3-recipeContext@6"
                 },
                 {
                     "command": "vsconan.explorer.treeview.recipe.item.open.vscode.scm-source",
-                    "when": "view == vsconan-explorer.treeview.recipe",
+                    "when": "view == vsconan-explorer.treeview.recipe && config.vsconan.conan.version == '1'",
                     "group": "3-recipeContext@7"
                 },
                 {
@@ -606,6 +665,25 @@
                 {
                     "command": "vsconan.explorer.treeview.package.item.copy-clipboard",
                     "when": "view == vsconan-explorer.treeview.package"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.package.revision.item.open-explorer",
+                    "when": "view == vsconan-explorer.treeview.package.revision",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.package.revision.item.open-vscode",
+                    "when": "view == vsconan-explorer.treeview.package.revision && viewItem == packageRevision",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.package.revision.item.remove",
+                    "when": "view == vsconan-explorer.treeview.package.revision && viewItem == packageRevision",
+                    "group": "inline"
+                },
+                {
+                    "command": "vsconan.explorer.treeview.package.revision.item.copy-clipboard",
+                    "when": "view == vsconan-explorer.treeview.package.revision"
                 },
                 {
                     "command": "vsconan.explorer.treeview.profile.item.edit",
@@ -659,34 +737,56 @@
                 }
             ]
         },
-        "configuration":[
+        "configuration": [
             {
-                "title": "General",
+                "title": "Conan",
                 "order": 1,
                 "properties": {
-                    "vsconan.general.pythonInterpreter": {
-                        "markdownDescription": "Python interpreter executable path.",
-                        "type": "string",
-                        "default": "python"
+                    "vsconan.conan.profile.configurations": {
+                        "type": "object",
+                        "properties": {
+                            "conanVersion": {
+                                "markdownDescription": "Define the version for the conan profile configuration",
+                                "type": "string",
+                                "default": "",
+                                "enum": [
+                                    "1",
+                                    "2"
+                                ]
+                            },
+                            "conanPythonInterpreter": {
+                                "markdownDescription": "Python interpreter executable path.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "conanExecutable": {
+                                "markdownDescription": "Conan executable path.",
+                                "type": "string",
+                                "default": ""
+                            },
+                            "conanExecutionMode": {
+                                "markdownDescription": "Option to choose how to execute the Conan CLI.",
+                                "type": "string",
+                                "enum": [
+                                    "pythonInterpreter",
+                                    "conanExecutable"
+                                ],
+                                "default": "conanExecutable"
+                            },
+                            "conanUserHome": {
+                                "markdownDescription": "Set and/or overwrite predefined path to conan home folder.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ],
+                                "default": null
+                            }
+                        }
                     },
-                    "vsconan.general.conanExecutable": {
-                        "markdownDescription": "Conan executable path.",
+                    "vsconan.conan.profile.default": {
                         "type": "string",
-                        "default": "conan"
-                    },
-                    "vsconan.general.conanExecutionMode": {
-                        "markdownDescription": "Option to choose how to execute the Conan CLI.",
-                        "type": "string",
-                        "enum": [
-                            "pythonInterpreter",
-                            "conanExecutable"
-                        ],
-                        "default": "conanExecutable"
-                    },
-                    "vsconan.general.conanUserHome": {
-                        "markdownDescription": "Set and/or overwrite predefined path to conan home folder.",
-                        "type": ["string", "null"],
-                        "default": null
+                        "default": "default",
+                        "markdownDescription": "Conan profile default / selection"
                     }
                 }
             },
@@ -709,24 +809,28 @@
         "watch": "tsc -watch -p ./",
         "pretest": "npm run compile && npm run lint",
         "lint": "eslint src --ext ts",
-        "test": "npm run e2etest && npm run unittest",
-        "e2etest": "node ./out/test/runTest.js",
-        "unittest": "tsc && mocha out/test/unit/**/*.test.js"
+        "test": "vscode-test"
     },
     "devDependencies": {
         "@types/vscode": "^1.56.0",
         "@types/glob": "^7.1.3",
         "@types/mocha": "^9.1.1",
         "@types/node": "16.x",
+        "ts-sinon": "^2.0.2",
         "eslint": "^8.18.0",
 		"@typescript-eslint/eslint-plugin": "^5.30.0",
 		"@typescript-eslint/parser": "^5.30.0",
         "@types/chai": "^4.3.0",
+        "class-transformer": "^0.5.1",
+        "class-validator": "^0.14.1",
+        "reflect-metadata": "^0.2.1",
         "chai": "^4.3.6",
         "glob": "^7.1.6",
         "mocha": "^10.0.0",
         "typescript": "^4.7.4",
-        "vscode-test": "^1.5.0"
+        "vscode-test": "^1.5.0",
+        "@vscode/test-cli": "^0.0.4",
+        "@vscode/test-electron": "^2.3.9"
     },
     "dependencies": {
         "child_process": "^1.0.2"

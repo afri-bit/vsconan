@@ -23,25 +23,40 @@ The **VSConan** extension helps you manage the conan local cache on your machine
 
 ## How To Start
 
-**VSConan** contributes to official VS Code configurations (`settings.json`), where you can configure the environment to use this extension. To start you can configure following settings  in the `settings.json`:
-  * `vsconan.general.pythonInterpreter": "python"`  
-    Path to the python interpreter executable. It doesn't have to be a path but can be also an alias as you can see in the default value above, in case you already defined python in your environment variables.  
-    Default value: `python`
-  * `vsconan.general.conanExecutable": "conan"`  
-    Path to the conan executable, in case you install conan using [alternative installations](https://conan.io/downloads.html).  
-    Defautl value: `conan`
-  * `vsconan.general.conanExecutionMode": "conanExecutable"`  
-    Setting to switch the mode how the extension executes conan command, either using python oder directly conan executable. We leave the conanExecutable as default, because even if you install conan using `pip`, python will create an 'executable' called `conan`, that can be executed globally.  
-    Based on the option selected, the chosen path will be used to interact with conan.  
-    Default value: `conanExecutable`  
-    Possible options: [`conanExecutable`, `pythonInterpreter`]
+**VSConan** contributes to official VS Code configurations (`settings.json`), where you can configure the environment to use this extension.
+As a starting point you can configure following settings, that are the core settings and provide you a high flexibility to use this extension:
+  * `vsconan.conan.profile.configurations`  
+    In this section of settings you can store multiple configuration profiles, that contain necessary information to use `conan` from your system. Let's take a look at the following example:
+    ```json
+    "vsconan.conan.profile.configurations": {
+        "foo": {
+            "conanVersion": "1",
+            "conanPythonInterpreter": "/home/user/.venv2/bin/python",
+            "conanExecutable": "/home/user/.venv2/bin/conan",
+            "conanExecutionMode": "pythonInterpreter",
+        },
+        "bar": {
+            "conanVersion": "2",
+            "conanPythonInterpreter": "python",
+            "conanExecutable": "conan",
+            "conanExecutionMode": "conanExecutable",
+            "conanUserHome": "/home/user/workspace/bar/.conan2"
+        }
+    }
+    ```
 
-If your system is set according to the default values of the settings, then you can start using the extension without tweaking the configurations.
+    In the example above, we defined the `foo` and `bar` profile to start using this extension. Each profile has different configuration for the python interpreter and the conan executable. One thing that we notice here is that we can select the conan version, we want to use, `1` or `2`. This information is crucial for the extension in order to get the correct API. 
 
-If your prefer GUI solution to tweak this configuration, go to `File` > `Preferences` > `Settings` > `Extensions` > `VSConan`, and you will get the following view
+    > **NOTE**: Make sure you combine the `conanVersion` and its binary accordingly. Otherwise it will have strange behaviours or things might even not work properly.
 
-![VSConan GUI Settings](https://raw.githubusercontent.com/afri-bit/vsconan/main/resources/img/vsconan_gui_settings.png)
+    Using `conanUserHome` we can overwrite the current conan user home directory. This attribute is optional and has default value of `null`. In the example of `foo`, `conanUserHome` is not defined, which means that the conan user home directory uses the default path or predefined environment variable (See [Environment Variables](https://docs.conan.io/2/reference/environment.html)). 
+    
+  * `vsconan.conan.profile.default`  
+    After defining `foo` and `bar` profiles, now it is time for us to choose which configuration we want to use currently.
 
+    ```json
+    "vsconan.conan.profile.default": "foo"
+    ```
 
 ## Extension Features
 The **VSConan** extension contains two major groups of features, one of them is the [Conan Explorer](#conan-explorer), where you can use to manage your local cache, and the other one is [Conan Workspace](#conan-workspace), where you can save your configuration of different conan flow commands in your VSCode workspace.
@@ -144,86 +159,93 @@ Currently supported conan command for configuration file:
 * package
 * export-pkg
 
+> The execution of the conan command will be done by the interpreter / conan executable from the profile that you selected. This configuration can be used for Conan version 1 and 2.
+
 The default configuration file can be seen as following. You can extend the list of each command to have different name, description, user, channel and many other details. 
 
 ```json
 {
-    "python": "python",
-    "commandContainer": {
-        "create": [
-            {
-                "name": "create",
-                "description": "Create command",
-                "detail": "Create command detail",
-                "conanRecipe": "conanfile.py",
-                "profile": "default",
-                "user": "",
-                "channel": "",
-                "args": []
-            }
-        ],
-        "install": [
-            {
-                "name": "install",
-                "description": "Install command",
-                "detail": "Install command detail",
-                "conanRecipe": "conanfile.py",
-                "installFolder": "install",
-                "profile": "default",
-                "user": "",
-                "channel": "",
-                "args": []
-            }
-        ],
-        "build": [
-            {
-                "name": "build",
-                "description": "Build command",
-                "detail": "Build command detail",
-                "conanRecipe": "conanfile.py",
-                "installFolder": "install",
-                "buildFolder": "build",
-                "packageFolder": "package",
-                "sourceFolder": "source",
-                "args": []
-            }
-        ],
-        "source": [
-            {
-                "name": "source",
-                "description": "Source command",
-                "detail": "Source command detail",
-                "conanRecipe": "conanfile.py",
-                "installFolder": "install",
-                "sourceFolder": "source"
-            }
-        ],
-        "pkg": [
-            {
-                "name": "pkg",
-                "description": "Package command",
-                "detail": "Package command detail",
-                "conanRecipe": "conanfile.py",
-                "installFolder": "install",
-                "buildFolder": "build",
-                "packageFolder": "package",
-                "sourceFolder": "source"
-            }
-        ],
-        "pkgExport": [
-            {
-                "name": "pkg_export",
-                "description": "Package export command",
-                "detail": "Package export command detail",
-                "conanRecipe": "conanfile.py",
-                "installFolder": "install",
-                "buildFolder": "build",
-                "packageFolder": "package",
-                "sourceFolder": "source",
-                "args": []
-            }
-        ]
-    }
+  "commandContainer": {
+    "create": [
+      {
+        "name": "create",
+        "description": "Create command",
+        "detail": "Create command detail",
+        "conanRecipe": "conanfile.py",
+        "profile": "default",
+        "user": "",
+        "channel": "",
+        "args": []
+      }
+    ],
+    "install": [
+      {
+        "name": "install",
+        "description": "Install command",
+        "detail": "Install command detail",
+        "conanRecipe": "conanfile.py",
+        "installFolder": "install",
+        "profile": "default",
+        "user": "",
+        "channel": "",
+        "args": []
+      }
+    ],
+    "build": [
+      {
+        "name": "build",
+        "description": "Build command",
+        "detail": "Build command detail",
+        "conanRecipe": "conanfile.py",
+        "installFolder": "install",
+        "buildFolder": "build",
+        "packageFolder": "package",
+        "sourceFolder": "source",
+        "args": []
+      }
+    ],
+    "source": [
+      {
+        "name": "source",
+        "description": "Source command",
+        "detail": "Source command detail",
+        "conanRecipe": "conanfile.py",
+        "installFolder": "install",
+        "sourceFolder": "source",
+        "version": "",
+        "user": "",
+        "channel": "",
+        "args": []
+      }
+    ],
+    "pkg": [
+      {
+        "name": "pkg",
+        "description": "Package command",
+        "detail": "Package command detail",
+        "conanRecipe": "conanfile.py",
+        "installFolder": "install",
+        "buildFolder": "build",
+        "packageFolder": "package",
+        "sourceFolder": "source"
+      }
+    ],
+    "pkgExport": [
+      {
+        "name": "pkg_export",
+        "description": "Package export command",
+        "detail": "Package export command detail",
+        "conanRecipe": "conanfile.py",
+        "installFolder": "install",
+        "buildFolder": "build",
+        "packageFolder": "package",
+        "sourceFolder": "source",
+        "user": "",
+        "channel": "",
+        "args": []
+      }
+    ]
+  }
 }
 ```
 

@@ -1,17 +1,16 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
-import * as utils from '../../../utils/utils';
-import { ConanAPI } from '../../../conans/api/base/conanAPI';
+import * as vscode from 'vscode';
+import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 
 export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanProfileItem> {
 
     private _onDidChangeTreeData: vscode.EventEmitter<ConanProfileItem | undefined | void> = new vscode.EventEmitter<ConanProfileItem | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<ConanProfileItem | undefined | void> = this._onDidChangeTreeData.event;
 
-    private conanApi: ConanAPI;
+    private conanApiManager: ConanAPIManager;
 
-    public constructor(conanApi: ConanAPI) {
-        this.conanApi = conanApi;
+    public constructor(conanApiManager: ConanAPIManager) {
+        this.conanApiManager = conanApiManager;
     }
 
     public refresh(): void {
@@ -24,13 +23,14 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
 
     public getChildren(element?: ConanProfileItem): ConanProfileItem[] {
         let profileList: string[] = [];
-
-        profileList = this.conanApi.getProfiles();
-
         let profileItemList: Array<ConanProfileItem> = [];
 
-        for (let profile of profileList) {
-            profileItemList.push(new ConanProfileItem(profile, vscode.TreeItemCollapsibleState.None));
+        if (this.conanApiManager.conanApi) {
+            profileList = this.conanApiManager.conanApi.getProfiles();
+
+            for (let profile of profileList) {
+                profileItemList.push(new ConanProfileItem(profile, vscode.TreeItemCollapsibleState.None));
+            }
         }
 
         return profileItemList;
