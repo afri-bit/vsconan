@@ -112,12 +112,25 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         this.recipeRefreshTreeview();
     }
 
+    public clean() {
+        this.recipeCleanTreeView();
+        this.packageCleanTreeView();
+        this.packageRevisionCleanTreeView();
+    }
+
     // ========== RECIPE TREEVIEW COMMANDS
 
     /**
      * Refresh the recipe treeview
      */
     private recipeRefreshTreeview() {
+        this.recipeCleanTreeView();        
+
+        // Refreshing the package treeview, following single responsibility principal
+        this.packageRefreshTreeview();
+    }
+
+    private recipeCleanTreeView() {
         this.nodeProviderConanRecipe.refresh();
 
         // Refreshing the recipe tree explorer will reset the recipe tree explorer and package tree explorer
@@ -130,9 +143,6 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         else {
             this.treeViewConanRecipe.title = "Conan - Recipe";
         }
-
-        // Refreshing the package treeview, following single responsibility principal
-        this.packageRefreshTreeview();
     }
 
     /**
@@ -350,8 +360,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
             this.treeViewConanPackage.title = this.nodeProviderConanRecipe.getSelectedRecipe();
         }
         else { // No selected Recipe "undefined"
-            this.nodeProviderConanPackage.refresh("", this.context.workspaceState.get("show-dirty")!); // Empty the binary package tree explorer
-            this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the treeview
+            this.packageCleanTreeView();
         }
 
         if (this.settingsPropertyManager.isPackageFiltered()) {
@@ -359,6 +368,11 @@ export class ConanCacheExplorerManager extends ExtensionManager {
         }
 
         this.packageRevisionRefreshTreeview();
+    }
+
+    private packageCleanTreeView() {
+        this.nodeProviderConanPackage.refresh("", this.context.workspaceState.get("show-dirty")!); // Empty the binary package tree explorer
+        this.treeViewConanPackage.title = "Conan - Package"; // Reset the title of the treeview
     }
 
     /**
@@ -530,9 +544,13 @@ export class ConanCacheExplorerManager extends ExtensionManager {
             this.nodeProviderConanPackageRevision.refresh(this.nodeProviderConanRecipe.getSelectedRecipe(), this.nodeProviderConanPackage.getSelectedPackage(), this.context.workspaceState.get("show-dirty")!);
         }
         else {
-            this.nodeProviderConanPackageRevision.refresh("", "", this.context.workspaceState.get("show-dirty")!);
-            this.treeViewConanPackageRevision.title = "Conan - Package Revision";
+            this.packageRevisionCleanTreeView();
         }
+    }
+
+    private packageRevisionCleanTreeView() {
+        this.nodeProviderConanPackageRevision.refresh("", "", this.context.workspaceState.get("show-dirty")!);
+        this.treeViewConanPackageRevision.title = "Conan - Package Revision";
     }
 
     private packageRevisionItemSelected() {

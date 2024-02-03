@@ -748,7 +748,7 @@
                             "conanVersion": {
                                 "markdownDescription": "Define the version for the conan profile configuration",
                                 "type": "string",
-                                "default": "1",
+                                "default": "",
                                 "enum": [
                                     "1",
                                     "2"
@@ -757,12 +757,12 @@
                             "conanPythonInterpreter": {
                                 "markdownDescription": "Python interpreter executable path.",
                                 "type": "string",
-                                "default": "python"
+                                "default": ""
                             },
                             "conanExecutable": {
                                 "markdownDescription": "Conan executable path.",
                                 "type": "string",
-                                "default": "conan"
+                                "default": ""
                             },
                             "conanExecutionMode": {
                                 "markdownDescription": "Option to choose how to execute the Conan CLI.",
@@ -809,7 +809,7 @@
         "watch": "tsc -watch -p ./",
         "pretest": "npm run compile && npm run lint",
         "lint": "eslint src --ext ts",
-        "test": "HEADLESS=true vscode-test --no-sandbox"
+        "test": "vscode-test"
     },
     "devDependencies": {
         "@types/vscode": "^1.56.0",

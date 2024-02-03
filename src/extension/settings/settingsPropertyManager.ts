@@ -125,7 +125,6 @@ export class SettingsPropertyManager {
         }
 
         return valid;
-
     }
 
     public getConanVersionOfProfile(profileName: string): string | null {
@@ -143,5 +142,17 @@ export class SettingsPropertyManager {
 
     public updateConanProfile(profileName: string | undefined) {
         vscode.workspace.getConfiguration("vsconan.conan.profile").update("default", profileName);
+    }
+
+    public isProfileAvailable(profileName: string): boolean {
+        let isAvailable: boolean = false;
+
+        let conanProfileList: Array<string> = this.getListOfConanProfiles();
+
+        if (conanProfileList.includes(profileName)) {
+            isAvailable = true;
+        }
+
+        return isAvailable;
     }
 }

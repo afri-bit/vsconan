@@ -46,6 +46,9 @@ export class ConanProfileExplorerManager extends ExtensionManager {
         this.refreshProfileTreeview();
     }
 
+    public clean () {
+        this.nodeProviderConanProfile.refresh();
+    }
 
     /**
      * Refresh conan profile treeview

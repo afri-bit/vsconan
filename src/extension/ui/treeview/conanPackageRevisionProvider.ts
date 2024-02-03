@@ -32,15 +32,17 @@ export class ConanPackageRevisionNodeProvider implements vscode.TreeDataProvider
     }
 
     public getChildren(element?: ConanPackageRevisionItem): ConanPackageRevisionItem[] {
+
         let packageRevisionList: Array<ConanPackageRevision> = [];
         let dirtyPackageList: Array<ConanPackageRevision> = [];
-
-        packageRevisionList = this.conanApiManager.conanApi.getPackageRevisions(this.recipeName, this.packageId);
-
         let packageRevisionItemList: Array<ConanPackageRevisionItem> = [];
 
-        for (let pkgRevision of packageRevisionList) {
-            packageRevisionItemList.push(new ConanPackageRevisionItem(pkgRevision.id, vscode.TreeItemCollapsibleState.None, pkgRevision));
+        if (this.conanApiManager.conanApi) {
+            packageRevisionList = this.conanApiManager.conanApi.getPackageRevisions(this.recipeName, this.packageId);
+
+            for (let pkgRevision of packageRevisionList) {
+                packageRevisionItemList.push(new ConanPackageRevisionItem(pkgRevision.id, vscode.TreeItemCollapsibleState.None, pkgRevision));
+            }
         }
 
         return packageRevisionItemList;

@@ -48,6 +48,10 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
         this.refreshRemoteTreeview();
     }
 
+    public clean() {
+        this.nodeProviderConanRemote.refresh();
+    }
+
     /**
      * Refresh the treeview of conan remote
      */

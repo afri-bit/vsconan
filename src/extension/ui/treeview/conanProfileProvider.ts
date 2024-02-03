@@ -23,13 +23,14 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
 
     public getChildren(element?: ConanProfileItem): ConanProfileItem[] {
         let profileList: string[] = [];
-
-        profileList = this.conanApiManager.conanApi.getProfiles();
-
         let profileItemList: Array<ConanProfileItem> = [];
 
-        for (let profile of profileList) {
-            profileItemList.push(new ConanProfileItem(profile, vscode.TreeItemCollapsibleState.None));
+        if (this.conanApiManager.conanApi) {
+            profileList = this.conanApiManager.conanApi.getProfiles();
+
+            for (let profile of profileList) {
+                profileItemList.push(new ConanProfileItem(profile, vscode.TreeItemCollapsibleState.None));
+            }
         }
 
         return profileItemList;
