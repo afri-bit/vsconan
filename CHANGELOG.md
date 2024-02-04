@@ -1,5 +1,14 @@
 # Change Log
 
+## 1.0.1 - 2024-02-04
+
+### Changed
+
+* [#35](https://github.com/afri-bit/vsconan/issues/35) Extension cannot be activated after installation  
+  Due to missing dependencies or unability to find the dependencies, the extension cannot be started. So I replaced the small function that I used from this dependency with internal utility function.
+  > Midnight programming mistake :P
+
+
 ## 1.0.0 - 2024-02-03
 
 ### Breaking Changes
