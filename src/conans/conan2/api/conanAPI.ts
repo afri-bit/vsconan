@@ -109,7 +109,7 @@ export class Conan2API extends ConanAPI {
         }
         catch (err) {
             console.log((err as Error).message);
-            listOfRecipes = []
+            listOfRecipes = [];
         }
 
         return listOfRecipes;
@@ -158,7 +158,7 @@ export class Conan2API extends ConanAPI {
         }
         catch (err) {
             console.log((err as Error).message);
-            listOfPackages = []
+            listOfPackages = [];
         }
 
         return listOfPackages;
