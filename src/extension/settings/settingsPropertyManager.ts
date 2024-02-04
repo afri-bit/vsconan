@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { ConanProfileConfiguration } from "./model";
-import { plainToInstance } from "class-transformer";
+import { general } from "../../utils/utils";
 
 
 /**
@@ -97,22 +97,22 @@ export class SettingsPropertyManager {
     public getConanProfileObject(profileName: string): ConanProfileConfiguration | undefined {
 
         let profileObject: ConanProfileConfiguration | undefined = undefined
-        
+
         let profileConfigurations = vscode.workspace.getConfiguration("vsconan.conan.profile").get("configurations");
 
         let profileConfigurationsObject: Object = Object.assign({}, profileConfigurations);
 
         if (profileConfigurationsObject.hasOwnProperty(profileName!)) {
             let selectedProfileObject: Object = Object.assign({}, profileConfigurationsObject[profileName as keyof typeof profileConfigurationsObject]);
-            
-            profileObject = plainToInstance(ConanProfileConfiguration, selectedProfileObject);
+
+            profileObject = general.plainObjectToClass(ConanProfileConfiguration, selectedProfileObject);
         }
 
         return profileObject;
     }
 
     public getSelectedConanProfile(): string | undefined {
-         return vscode.workspace.getConfiguration("vsconan.conan.profile").get("default");
+        return vscode.workspace.getConfiguration("vsconan.conan.profile").get("default");
     }
 
     public isProfileValid(profileName: string): boolean {

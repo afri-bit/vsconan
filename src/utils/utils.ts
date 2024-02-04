@@ -208,3 +208,17 @@ export namespace workspace {
         }
     }
 }
+
+export namespace general {
+    export function plainObjectToClass<T>(classType: new () => T, plainObject: Record<string, any>): T {
+        const instance: any = new classType();
+
+        for (const key in plainObject) {
+            if (Object.prototype.hasOwnProperty.call(plainObject, key)) {
+                instance[key] = plainObject[key];
+            }
+        }
+
+        return instance;
+    }
+}
