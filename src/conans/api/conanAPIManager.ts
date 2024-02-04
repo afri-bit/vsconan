@@ -14,10 +14,10 @@ export class ConanAPIManager {
     }
 
     public setApiInstance(conanVersion: string, pythonInterpreter: string, conanExecutable: string, conanExecutionMode: ConanExecutionMode) {
-        if (conanVersion == "1") {
+        if (conanVersion === "1") {
             this._conanApi = new Conan1API(pythonInterpreter, conanExecutable, conanExecutionMode);
         }
-        else if (conanVersion == "2") {
+        else if (conanVersion === "2") {
             this._conanApi = new Conan2API(pythonInterpreter, conanExecutable, conanExecutionMode);
         }
         else {
@@ -26,7 +26,7 @@ export class ConanAPIManager {
     }
 
     public get conanVersion(): string {
-        return this._conanVersion
+        return this._conanVersion;
     }
 
     public get conanApi(): ConanAPI {

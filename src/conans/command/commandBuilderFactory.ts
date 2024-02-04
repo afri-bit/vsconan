@@ -5,10 +5,10 @@ import { CommandBuilder } from "./commandBuilder";
 export class CommandBuilderFactory {
 
     public static getCommandBuilder(conanVersion: string): CommandBuilder | undefined {
-        if (conanVersion == "1") {
+        if (conanVersion === "1") {
             return new CommandBuilderConan1();
         }
-        else if (conanVersion == "2") {
+        else if (conanVersion === "2") {
             return new CommandBuilderConan2();
         }
         else {

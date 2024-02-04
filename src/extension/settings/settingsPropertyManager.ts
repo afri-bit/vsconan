@@ -81,7 +81,7 @@ export class SettingsPropertyManager {
     }
 
     public getListOfConanProfiles(): Array<string> {
-        let listOfConanProfile: Array<string> = []
+        let listOfConanProfile: Array<string> = [];
 
         // Get the object list with key value maps of the proxy objects
         let profileConfigurations = vscode.workspace.getConfiguration("vsconan.conan.profile").get("configurations");
@@ -96,7 +96,7 @@ export class SettingsPropertyManager {
 
     public getConanProfileObject(profileName: string): ConanProfileConfiguration | undefined {
 
-        let profileObject: ConanProfileConfiguration | undefined = undefined
+        let profileObject: ConanProfileConfiguration | undefined = undefined;
 
         let profileConfigurations = vscode.workspace.getConfiguration("vsconan.conan.profile").get("configurations");
 
