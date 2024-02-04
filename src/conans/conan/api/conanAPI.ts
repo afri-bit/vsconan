@@ -648,7 +648,7 @@ export class Conan1API extends ConanAPI {
     public override getPackageRevisions(recipe: string, packageId: string): Array<ConanPackageRevision> {
         // DO NOTHING
 
-        return []
+        return [];
     }
 
     public getPackageRevisionPath(recipe: string, packageId: string, revisionId: string): string | undefined {

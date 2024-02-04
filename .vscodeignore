@@ -17,3 +17,4 @@ out/*.d.ts
 out/*.js.map
 jest.config.js
 test/**
+.bak/**

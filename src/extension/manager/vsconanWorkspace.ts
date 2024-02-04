@@ -75,7 +75,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
     }
 
     private initStatusBarConanVersion() {
-        this.updateStatusBar()
+        this.updateStatusBar();
 
         this.statusBarConanVersion.command = "vsconan.conan.profile.switch";
         this.statusBarConanVersion.show();
@@ -92,7 +92,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         }
         else {
             this.statusBarConanVersion.text = `$(extensions) VSConan | -`;
-            this.statusBarConanVersion.color = "#FF3333"
+            this.statusBarConanVersion.color = "#FF3333";
         }
     }
 
@@ -132,7 +132,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
             if (result) {
                 this.settingsPropertyManager.updateConanProfile(result?.label);
             }
-        })
+        });
     }
 
     /**
@@ -201,7 +201,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
                 let conanCommand = "";
                 let commandBuilder: CommandBuilder | undefined;
-                let conanVersion: string | null = ""
+                let conanVersion: string | null = "";
 
                 // Get current profile
                 let currentConanProfile = this.settingsPropertyManager.getSelectedConanProfile();
@@ -212,11 +212,11 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
                     let conanProfileObject: ConanProfileConfiguration | undefined = this.settingsPropertyManager.getConanProfileObject(currentConanProfile!);
 
-                    if (conanProfileObject?.conanExecutionMode == "pythonInterpreter" && conanProfileObject.conanPythonInterpreter) {
+                    if (conanProfileObject?.conanExecutionMode === "pythonInterpreter" && conanProfileObject.conanPythonInterpreter) {
                         conanCommand = `${conanProfileObject.conanPythonInterpreter} -m conans.conan`;
                     }
-                    else if (conanProfileObject?.conanExecutionMode == "conanExecutable" && conanProfileObject.conanExecutable) {
-                        conanCommand = `${conanProfileObject.conanExecutable}`
+                    else if (conanProfileObject?.conanExecutionMode === "conanExecutable" && conanProfileObject.conanExecutable) {
+                        conanCommand = `${conanProfileObject.conanExecutable}`;
                     }
                     else {
                         vscode.window.showErrorMessage("Empty Conan Command");
@@ -246,7 +246,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                         break;
                     }
                     case ConanCommand.package: {
-                        if (conanVersion == "2") {
+                        if (conanVersion === "2") {
                             vscode.window.showErrorMessage("This command doesn't work on Conan 2");
                             break;
                         }

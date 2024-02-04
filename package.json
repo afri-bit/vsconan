@@ -2,7 +2,7 @@
     "name": "vsconan",
     "displayName": "VSConan",
     "description": "Conan local cache and workspace manager.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "publisher": "afri-bit",
     "repository": {
         "type": "git",
@@ -83,8 +83,7 @@
                     "contextualTitle": "Conan Remote"
                 }
             ],
-            "explorer": [
-            ]
+            "explorer": []
         },
         "commands": [
             {
@@ -294,7 +293,7 @@
             {
                 "command": "vsconan.explorer.treeview.recipe.item.open.explorer.source",
                 "title": "Open Source in Explorer"
-            }, 
+            },
             {
                 "command": "vsconan.explorer.treeview.recipe.item.open.explorer.scm-source",
                 "title": "Open SCM Source in Explorer"
@@ -322,7 +321,7 @@
             {
                 "command": "vsconan.explorer.treeview.recipe.item.open.vscode.source",
                 "title": "Open Source in VSCode"
-            }, 
+            },
             {
                 "command": "vsconan.explorer.treeview.recipe.item.open.vscode.scm-source",
                 "title": "Open SCM Source in VSCode"
@@ -818,11 +817,9 @@
         "@types/node": "16.x",
         "ts-sinon": "^2.0.2",
         "eslint": "^8.18.0",
-		"@typescript-eslint/eslint-plugin": "^5.30.0",
-		"@typescript-eslint/parser": "^5.30.0",
+        "@typescript-eslint/eslint-plugin": "^5.30.0",
+        "@typescript-eslint/parser": "^5.30.0",
         "@types/chai": "^4.3.0",
-        "class-transformer": "^0.5.1",
-        "class-validator": "^0.14.1",
         "reflect-metadata": "^0.2.1",
         "chai": "^4.3.6",
         "glob": "^7.1.6",

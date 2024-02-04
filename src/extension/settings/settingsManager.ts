@@ -58,7 +58,7 @@ export class SettingsManager {
         // Check if only vsconan configuration is changed, otherwise do nothing. Removing overhead.
         if (event.affectsConfiguration("vsconan")) {
             if (event.affectsConfiguration("vsconan.conan.profile")) {
-                this.changeConanProfile()
+                this.changeConanProfile();
             }
         }
     }
