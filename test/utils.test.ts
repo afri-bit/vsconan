@@ -1,17 +1,15 @@
 import * as vscode from "./mocks/vscode";
+jest.mock('vscode', () => vscode, { virtual: true });
 
-import { vsconan } from "../src/utils/utils";
-
+import * as utils from "../src/utils/utils";
 import * as os from "os";
 import * as path from "path";
-
-jest.mock('vscode', () => vscode, { virtual: true });
 
 import { ConanProfileConfiguration } from "../src/extension/settings/model";
 import { general } from "../src/utils/utils";
 
 
-describe("Plain Object to Class", () => {
+describe("General", () => {
     it("should convert plain object to class", () => {
         let plainObject: object = {
             "conanPythonInterpreter": "python",
@@ -50,19 +48,31 @@ describe("Plain Object to Class", () => {
     });
 });
 
-
-
-describe("Home Directory", () => {
-    it("should convert plain object to class", () => {
+describe("VSConan Utils", () => {
+    it("should return home directory of vsconan in user home directory", () => {
 
         jest.mock("os");
 
         const mockedHomedir = jest.spyOn(os, 'homedir').mockReturnValue(path.normalize('/home/user'));
 
-        let abc = vsconan.getVSConanHomeDir();
-        expect(abc).toEqual(path.normalize("/home/user/.vsconan"));
+        let homeDir = utils.vsconan.getVSConanHomeDir();
+        expect(homeDir).toEqual(path.normalize("/home/user/.vsconan"));
 
         expect(mockedHomedir).toHaveBeenCalled();
+
+        mockedHomedir.mockRestore();
+    });
+
+    it("should return path to temp directory of vsconan", () => {
+
+        jest.mock("os");
+        const mockedHomedir = jest.spyOn(os, 'homedir').mockReturnValue(path.normalize('/home/user'));
+
+        utils.vsconan.getVSConanHomeDir = jest.fn().mockImplementationOnce(() => "/home/user/.vsconan");
+
+        let tempDir = utils.vsconan.getVSConanHomeDirTemp();
+
+        expect(tempDir).toEqual(path.normalize("/home/user/.vsconan/temp"));
 
         mockedHomedir.mockRestore();
     });
