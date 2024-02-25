@@ -79,7 +79,7 @@ describe("Conan 1 Install method", () => {
     it("should return conan install command with additional args", () => {
         let conanInstall = new ConfigCommandInstall();
         conanInstall.installFolder = "bar";
-        conanInstall.args = ["-pr:b", "foo"]
+        conanInstall.args = ["-pr:b", "foo"];
 
         let cmd = commandBuilder.buildCommandInstall("/home/user/ws", conanInstall);
 
