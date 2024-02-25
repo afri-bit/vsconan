@@ -808,6 +808,7 @@
         "watch": "tsc -watch -p ./",
         "pretest": "npm run compile && npm run lint",
         "lint": "eslint -c .eslintrc.json --max-warnings 0 --ext .ts ./src ./test",
+        "package": "vsce package",
         "test": "jest --verbose",
         "test-and-coverage": "jest --verbose --coverage"
     },
