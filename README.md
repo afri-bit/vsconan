@@ -1,11 +1,19 @@
 # VSConan - Conan Extension for Visual Studio Code
-
 [![Marketplace VSConan](https://img.shields.io/visual-studio-marketplace/v/afri-bit.vsconan)](https://marketplace.visualstudio.com/items?itemName=afri-bit.vsconan)
+[![Build and Test](https://github.com/afri-bit/vsconan/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/afri-bit/vsconan/actions/workflows/build-and-test.yml/badge.svg)
 [![Rating](https://img.shields.io/visual-studio-marketplace/r/afri-bit.vsconan)](https://marketplace.visualstudio.com/items?itemName=afri-bit.vsconan&ssr=false#review-details)
 [![Install](https://img.shields.io/visual-studio-marketplace/i/afri-bit.vsconan)](https://marketplace.visualstudio.com/items?itemName=afri-bit.vsconan)
+[![Download](https://img.shields.io/visual-studio-marketplace/d/afri-bit.vsconan)](https://marketplace.visualstudio.com/items?itemName=afri-bit.vsconan)
 [![GitHub stars](https://img.shields.io/github/stars/afri-bit/vsconan?color=red&label=GitHub%20Stars)](https://github.com/afri-bit/vsconan/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/afribit)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-red.svg)](https://www.paypal.com/paypalme/afribit)
+
+
+[![VS Code](https://img.shields.io/badge/Vscode-007ACC?logo=visualstudiocode&logoColor=white)](https://img.shields.io/badge/Vscode-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)
+[![Windows](https://img.shields.io/badge/Windows-357ec7?logo=windows&logoColor=black)](https://img.shields.io/badge/Windows-555555?logo=windows&logoColor=black)
+[![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+[![Mac OS](https://shields.io/badge/MacOS-A2AAAD?logo=Apple&logoColor=white)](https://shields.io/badge/MacOS-A2AAAD?logo=Apple&logoColor=white)
+
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/afri-bit/vsconan/main/resources/icon/vsconan-logo.png" width="50%">
