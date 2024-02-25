@@ -10,7 +10,7 @@ on:
       - master
       - develop
 
-  workflow-dispatch:
+  workflow_dispatch:
 
 jobs:
   build:
