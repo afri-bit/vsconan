@@ -12,3 +12,4 @@ test/**/*.js
 *.js.map
 
 .bak/
+coverage

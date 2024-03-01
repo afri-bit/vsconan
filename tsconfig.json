@@ -14,7 +14,8 @@
 		// "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
 		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
 		"experimentalDecorators": true,
-    	"emitDecoratorMetadata": true
+    	"emitDecoratorMetadata": true,
+		"skipLibCheck": true
 	},
 	"exclude": [
 		"node_modules",

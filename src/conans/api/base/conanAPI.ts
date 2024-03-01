@@ -30,16 +30,7 @@ export abstract class ConanAPI {
         this.conanExecutable = conanExecutable;
         this.conanExecutionMode = conanExecutionMode;
     }
-
-    /**
-     * Method to the conan version
-     * @returns <string> Conan version
-     */
-    public getConanVersion(): string {
-        // TODO: Fill the implementation. This should either be same or different between conan version 1 and 2
-        return "";
-    }
-
+    
     /**
      * Method to switch execution mode of conan.
      * There are two options to install and use conan, python package or alternative installation.
