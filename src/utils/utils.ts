@@ -4,6 +4,7 @@ import * as os from "os";
 import * as constants from "./constants";
 import * as fs from "fs";
 import { ConfigWorkspace } from "../conans/workspace/configWorkspace";
+import { PythonExtension, ResolvedEnvironment } from '@vscode/python-extension';
 import {
     CommandContainer, ConfigCommandBuild, ConfigCommandCreate,
     ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport,
@@ -220,5 +221,27 @@ export namespace general {
         }
 
         return instance;
+    }
+}
+
+export namespace python {
+    let _api: PythonExtension | undefined;
+
+    async function getPythonExtensionAPI(): Promise<PythonExtension | undefined> {
+        if (_api) {
+            return _api;
+        }
+        _api = await PythonExtension.api();
+        return _api;
+    }
+
+    export async function getCurrentPythonInterpreter(): Promise<string | undefined> {
+        let pythonExtension = vscode.extensions.getExtension("ms-python.python");
+        if (!pythonExtension) {
+            return;
+        }
+        const api = await getPythonExtensionAPI();
+        const environment = await api?.environments.resolveEnvironment(api?.environments.getActiveEnvironmentPath());
+        return environment?.executable.uri?.fsPath;
     }
 }
