@@ -59,12 +59,12 @@ export namespace vsconan {
          * @param cmd Command in string format
          * @param channel VS Code output channel
          */
-        export async function executeCommand(cmd: string, channel: vscode.OutputChannel) {
+        export async function executeCommand(cmd: string, args: Array<string>, channel: vscode.OutputChannel) {
             // const exec = util.promisify(require('child_process').exec);
             // const { stdout, stderr } = await spawn(cmd);
             channel.show();
 
-            const ls = spawn(cmd, [], { shell: true });
+            const ls = spawn(cmd, args, { shell: true });
 
             ls.stdout.on("data", data => {
                 channel.append(`${data}`);

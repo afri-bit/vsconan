@@ -321,7 +321,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
                 if (cmd) {
                     try {
-                        utils.vsconan.cmd.executeCommand(`${conanCommand} ${cmd}`, this.outputChannel);
+                        utils.vsconan.cmd.executeCommand(`${conanCommand} create`, cmd, this.outputChannel);
                     }
                     catch (err) {
                         vscode.window.showErrorMessage((err as Error).message);
@@ -346,11 +346,11 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         promiseIndex.then(index => {
             if (index !== undefined) {
                 let selectedConfig = configList[index];
-                let cmd = commandBuilder.buildCommandInstall(wsPath, selectedConfig);
+                let cmdArgs = commandBuilder.buildCommandInstall(wsPath, selectedConfig);
 
-                if (cmd !== undefined) {
+                if (cmdArgs !== undefined) {
                     try {
-                        utils.vsconan.cmd.executeCommand(`${conanCommand} ${cmd}`, this.outputChannel);
+                        utils.vsconan.cmd.executeCommand(`${conanCommand} install`, cmdArgs, this.outputChannel);
                     }
                     catch (err) {
                         vscode.window.showErrorMessage((err as Error).message);
@@ -379,7 +379,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
                 if (cmd !== undefined) {
                     try {
-                        utils.vsconan.cmd.executeCommand(`${conanCommand} ${cmd}`, this.outputChannel);
+                        utils.vsconan.cmd.executeCommand(`${conanCommand} build`, cmd, this.outputChannel);
                     }
                     catch (err) {
                         vscode.window.showErrorMessage((err as Error).message);
@@ -408,7 +408,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
                 if (cmd !== undefined) {
                     try {
-                        utils.vsconan.cmd.executeCommand(`${conanCommand} ${cmd}`, this.outputChannel);
+                        utils.vsconan.cmd.executeCommand(`${conanCommand} source`, cmd, this.outputChannel);
                     }
                     catch (err) {
                         vscode.window.showErrorMessage((err as Error).message);
@@ -437,7 +437,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
                 if (cmd !== undefined) {
                     try {
-                        utils.vsconan.cmd.executeCommand(`${conanCommand} ${cmd}`, this.outputChannel);
+                        utils.vsconan.cmd.executeCommand(`${conanCommand} package`, cmd, this.outputChannel);
                     }
                     catch (err) {
                         vscode.window.showErrorMessage((err as Error).message);
@@ -466,7 +466,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
                 if (cmd !== undefined) {
                     try {
-                        utils.vsconan.cmd.executeCommand(`${conanCommand} ${cmd}`, this.outputChannel);
+                        utils.vsconan.cmd.executeCommand(`${conanCommand} export-pkg`, cmd, this.outputChannel);
                     }
                     catch (err) {
                         vscode.window.showErrorMessage((err as Error).message);

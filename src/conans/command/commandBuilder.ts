@@ -17,7 +17,7 @@ export abstract class  CommandBuilder {
      * @param cfg Command configuration
      * @returns Full CLI command for 'conan create' | undefined on error
      */
-    public abstract buildCommandCreate(wsPath: string, cfg: ConfigCommandCreate): string | undefined;
+    public abstract buildCommandCreate(wsPath: string, cfg: ConfigCommandCreate): Array<string> | undefined;
 
     /**
      * Build command for 'conan install'
@@ -25,7 +25,7 @@ export abstract class  CommandBuilder {
      * @param cfg Command configuration
      * @returns Full CLI command for 'conan install' | undefined on error
      */
-    public abstract buildCommandInstall(wsPath: string, cfg: ConfigCommandInstall): string | undefined;
+    public abstract buildCommandInstall(wsPath: string, cfg: ConfigCommandInstall): Array<string> | undefined;
 
     /**
      * Build command for 'conan build'
@@ -33,7 +33,7 @@ export abstract class  CommandBuilder {
      * @param cfg Command configuration
      * @returns Full CLI command for 'conan build' | undefined on error
      */
-    public abstract buildCommandBuild(wsPath: string, cfg: ConfigCommandBuild): string | undefined;
+    public abstract buildCommandBuild(wsPath: string, cfg: ConfigCommandBuild): Array<string> | undefined;
 
     /**
      * Build command for 'conan source'
@@ -41,7 +41,7 @@ export abstract class  CommandBuilder {
      * @param cfg Command configuration
      * @returns Full CLI command for 'conan source' | undefined on error
      */
-    public abstract buildCommandSource(wsPath: string, cfg: ConfigCommandSource): string | undefined;
+    public abstract buildCommandSource(wsPath: string, cfg: ConfigCommandSource): Array<string> | undefined;
 
     /**
      * Build command for 'conan package'
@@ -50,7 +50,7 @@ export abstract class  CommandBuilder {
      * @param cfg Command configuration
      * @returns Full CLI command for 'conan package' | undefined on error
      */
-    public abstract buildCommandPackage(wsPath: string, cfg: ConfigCommandPackage): string | undefined;
+    public abstract buildCommandPackage(wsPath: string, cfg: ConfigCommandPackage): Array<string> | undefined;
 
     /**
      * Build command for 'conan export-pkg'
@@ -59,5 +59,5 @@ export abstract class  CommandBuilder {
      * @param cfg Command configuration
      * @returns Full CLI command for 'conan export-pkg' | undefined on error
      */
-    public abstract buildCommandPackageExport(wsPath: string, cfg: ConfigCommandPackageExport): string | undefined;
+    public abstract buildCommandPackageExport(wsPath: string, cfg: ConfigCommandPackageExport): Array<string> | undefined;
 }
