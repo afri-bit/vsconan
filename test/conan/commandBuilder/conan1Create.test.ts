@@ -19,6 +19,8 @@ describe("Conan 1 Create method", () => {
 
         let cmd = commandBuilder.buildCommandCreate("/home/user/ws", new ConfigCommandCreate());
 
+        expect(cmd?.length).toBe(3);
+
         let cmdString = cmd?.join(" ");
 
         expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -pr default`);
@@ -32,6 +34,8 @@ describe("Conan 1 Create method", () => {
 
         let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
 
+        expect(cmd?.length).toBe(4);
+
         let cmdString = cmd?.join(" ");
 
         expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} user/channel -pr default`);
@@ -44,6 +48,8 @@ describe("Conan 1 Create method", () => {
 
         let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
 
+        expect(cmd?.length).toBe(3);
+
         let cmdString = cmd?.join(" ");
 
         expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -pr default`);
@@ -55,6 +61,8 @@ describe("Conan 1 Create method", () => {
         conanCreate.user = "user";
 
         let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
+
+        expect(cmd?.length).toBe(3);
 
         let cmdString = cmd?.join(" ");
 
@@ -78,6 +86,8 @@ describe("Conan 1 Create method", () => {
 
         let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
 
+        expect(cmd?.length).toBe(3);
+
         let cmdString = cmd?.join(" ");
 
         expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -pr myProfile`);
@@ -90,6 +100,8 @@ describe("Conan 1 Create method", () => {
         conanCreate.args = ["-pr:h", "host", "-pr:b", "build"];
 
         let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
+
+        expect(cmd?.length).toBe(7);
 
         let cmdString = cmd?.join(" ");
 
