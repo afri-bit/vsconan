@@ -22,15 +22,15 @@ export class ConanProfileConfiguration {
      */
     public escapeWhitespace(): void {
         if (this.conanPythonInterpreter) {
-            this.conanPythonInterpreter = this.conanPythonInterpreter.replace(/ /g, "\\ ");
+            this.conanPythonInterpreter = this.conanPythonInterpreter.replace(/(?<!\\)\s/g, "\\ ");
         }
 
         if (this.conanExecutable) {
-            this.conanExecutable = this.conanExecutable.replace(/ /g, "\\ ");
+            this.conanExecutable = this.conanExecutable.replace(/(?<!\\)\s/g, "\\ ");
         }
 
         if (this.conanUserHome) {
-            this.conanUserHome = this.conanUserHome.replace(/ /g, "\\ ");
+            this.conanUserHome = this.conanUserHome.replace(/(?<!\\)\s/g, "\\ ");
         }
     }
 }
