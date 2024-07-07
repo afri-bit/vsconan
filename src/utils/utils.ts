@@ -201,10 +201,10 @@ export namespace workspace {
      */
     export function getAbsolutePathFromWorkspace(wsPath: string, pathName: string): string {
         if (path.isAbsolute(pathName)) { // Absolute path from the path itself
-            return pathName;
+            return pathName.replace(/ /g, "\\ ");
         }
         else { // Absolute path in relative to workspace
-            return path.join(wsPath, pathName);
+            return path.join(wsPath, pathName).replace(/ /g, "\\ ");
         }
     }
 }

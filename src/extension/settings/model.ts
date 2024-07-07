@@ -16,4 +16,21 @@ export class ConanProfileConfiguration {
 
         return valid;
     }
+
+    /**
+     * Public function of the model to escaping the whitespace inside that path string.
+     */
+    public escapeWhitespace(): void {
+        if (this.conanPythonInterpreter) {
+            this.conanPythonInterpreter = this.conanPythonInterpreter.replace(/ /g, "\\ ");
+        }
+
+        if (this.conanExecutable) {
+            this.conanExecutable = this.conanExecutable.replace(/ /g, "\\ ");
+        }
+
+        if (this.conanUserHome) {
+            this.conanUserHome = this.conanUserHome.replace(/ /g, "\\ ");
+        }
+    }
 }

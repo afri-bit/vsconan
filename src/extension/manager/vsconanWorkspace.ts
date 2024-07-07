@@ -216,7 +216,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                         conanCommand = `${conanProfileObject.conanPythonInterpreter} -m conans.conan`;
                     }
                     else if (conanProfileObject?.conanExecutionMode === "conanExecutable" && conanProfileObject.conanExecutable) {
-                        conanCommand = `${conanProfileObject.conanExecutable}`;
+                        conanCommand = conanProfileObject.conanExecutable;
                     }
                     else {
                         vscode.window.showErrorMessage("Empty Conan Command");

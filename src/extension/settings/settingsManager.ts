@@ -81,8 +81,8 @@ export class SettingsManager {
 
             this.conanApiManager.setApiInstance(
                 profileObject!.conanVersion,
-                profileObject!.conanPythonInterpreter,
-                profileObject!.conanExecutable,
+                profileObject!.conanPythonInterpreter.replace(/ /g, "\\ "),
+                profileObject!.conanExecutable.replace(/ /g, "\\ "),
                 conanExecutionMode);
 
             this.conanCacheExplorerManager.refresh();
