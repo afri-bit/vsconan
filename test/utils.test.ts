@@ -6,7 +6,7 @@ import * as os from "os";
 import * as path from "path";
 
 import { ConanProfileConfiguration } from "../src/extension/settings/model";
-import { general } from "../src/utils/utils";
+import { general, workspace } from "../src/utils/utils";
 
 
 describe("General", () => {
@@ -75,5 +75,63 @@ describe("VSConan Utils", () => {
         expect(tempDir).toEqual(path.normalize("/home/user/.vsconan/temp"));
 
         mockedHomedir.mockRestore();
+    });
+});
+
+describe("Workspace", ()=>{
+
+    it("should get the absolute path", () => {
+        let workspacePath = "/path/to/workspace";
+
+        let pathName = "/absolute/path/to/some/file";
+
+        let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
+
+        expect(realPath).toEqual(pathName);
+        
+    });
+
+    it("should get the absolute path from the workspace", () => {
+        let workspacePath = "/path/to/workspace";
+
+        let pathName = "relative/path/to/some/file";
+
+        let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
+
+        expect(realPath).toEqual("/path/to/workspace/relative/path/to/some/file");
+        
+    });
+
+    it("should get the absolute path from the workspace (extra slash at the end)", () => {
+        let workspacePath = "/path/to/workspace/";
+
+        let pathName = "relative/path/to/some/file";
+
+        let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
+
+        expect(realPath).toEqual("/path/to/workspace/relative/path/to/some/file");
+        
+    });
+
+    it("should escape the white space with relative path", () => {
+        let workspacePath = "/path/to/workspace/";
+
+        let pathName = "relative/path/to/some file";
+
+        let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
+
+        expect(realPath).toEqual("/path/to/workspace/relative/path/to/some\\ file");
+        
+    });
+
+    it("should get the absolute path with escaped whitespace", () => {
+        let workspacePath = "/path/to/workspace";
+
+        let pathName = "/absolute/path/to/some file";
+
+        let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
+
+        expect(realPath).toEqual("/absolute/path/to/some\\ file");
+        
     });
 });

@@ -20,7 +20,11 @@ describe("Conan 1 Install method", () => {
 
         let cmd = commandBuilder.buildCommandInstall("/home/user/ws", new ConfigCommandInstall());
 
-        expect(cmd).toBe(`install ${path.normalize("/home/user/ws/conanfile.py")} -pr default -if ${path.normalize("/home/user/ws/install")}`);
+        expect(cmd?.length).toBe(5);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -pr default -if ${path.normalize("/home/user/ws/install")}`);
     });
 
     it("should return conan install command with custom profile", () => {
@@ -30,7 +34,11 @@ describe("Conan 1 Install method", () => {
 
         let cmd = commandBuilder.buildCommandInstall("/home/user/ws", conanInstall);
 
-        expect(cmd).toBe(`install ${path.normalize("/home/user/ws/conanfile.py")} -pr foo -if ${path.normalize("/home/user/ws/install")}`);
+        expect(cmd?.length).toBe(5);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -pr foo -if ${path.normalize("/home/user/ws/install")}`);
     });
 
     it("should return conan install command with user and channel", () => {
@@ -42,7 +50,11 @@ describe("Conan 1 Install method", () => {
 
         let cmd = commandBuilder.buildCommandInstall("/home/user/ws", conanInstall);
 
-        expect(cmd).toBe(`install ${path.normalize("/home/user/ws/conanfile.py")} user/channel -pr foo -if ${path.normalize("/home/user/ws/install")}`);
+        expect(cmd?.length).toBe(6);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} user/channel -pr foo -if ${path.normalize("/home/user/ws/install")}`);
     });
 
     it("should return conan install command without user and channel due to missing user", () => {
@@ -53,7 +65,11 @@ describe("Conan 1 Install method", () => {
 
         let cmd = commandBuilder.buildCommandInstall("/home/user/ws", conanInstall);
 
-        expect(cmd).toBe(`install ${path.normalize("/home/user/ws/conanfile.py")} -pr foo -if ${path.normalize("/home/user/ws/install")}`);
+        expect(cmd?.length).toBe(5);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -pr foo -if ${path.normalize("/home/user/ws/install")}`);
     });
 
     it("should return undefined due to missing conan recipe", () => {
@@ -73,7 +89,11 @@ describe("Conan 1 Install method", () => {
 
         let cmd = commandBuilder.buildCommandInstall("/home/user/ws", conanInstall);
 
-        expect(cmd).toBe(`install ${path.normalize("/home/user/ws/conanfile.py")} -pr default -if ${path.normalize("/home/user/ws/bar")}`);
+        expect(cmd?.length).toBe(5);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -pr default -if ${path.normalize("/home/user/ws/bar")}`);
     });
 
     it("should return conan install command with additional args", () => {
@@ -83,6 +103,10 @@ describe("Conan 1 Install method", () => {
 
         let cmd = commandBuilder.buildCommandInstall("/home/user/ws", conanInstall);
 
-        expect(cmd).toBe(`install ${path.normalize("/home/user/ws/conanfile.py")} -pr default -if ${path.normalize("/home/user/ws/bar")} -pr:b foo`);
+        expect(cmd?.length).toBe(7);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -pr default -if ${path.normalize("/home/user/ws/bar")} -pr:b foo`);
     });
 }); 

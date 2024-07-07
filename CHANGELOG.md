@@ -1,5 +1,15 @@
 # Change Log
 
+## 1.1.0 - Unreleased
+
+### Added
+
+* [#38](https://github.com/afri-bit/vsconan/issues/38) Support whitespace for project and configuration path  
+  You can now use whitespace in your configuration file and *VSConan* can still parse the path and use it for executing conan command.
+  > Additional to this feature, internal the command builder is changed to separate the command and arguments. For further detail of the issue please refer to [#38](https://github.com/afri-bit/vsconan/issues/38)  
+  
+  Thanks to [torsknod-the-caridian](https://github.com/torsknod-the-caridian).
+
 ## 1.0.1 - 2024-02-04
 
 ### Changed

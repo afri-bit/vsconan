@@ -19,8 +19,12 @@ describe("Conan 1 Package method", () => {
     it("should return conan package command with standard value", () => {
 
         let cmd = commandBuilder.buildCommandPackage("/home/user/ws", new ConfigCommandPackage());
+        
+        expect(cmd?.length).toBe(9);
 
-        expect(cmd).toBe(`package ${path.normalize("/home/user/ws/conanfile.py")} -if ${path.normalize("/home/user/ws/install")} -bf ${path.normalize("/home/user/ws/build")} -pf ${path.normalize("/home/user/ws/package")} -sf ${path.normalize("/home/user/ws/source")}`);
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -if ${path.normalize("/home/user/ws/install")} -bf ${path.normalize("/home/user/ws/build")} -pf ${path.normalize("/home/user/ws/package")} -sf ${path.normalize("/home/user/ws/source")}`);
     });
 
     it("should return undefined due to missing conan recipe", () => {
@@ -40,7 +44,11 @@ describe("Conan 1 Package method", () => {
 
         let cmd = commandBuilder.buildCommandPackage("/home/user/ws", conanPackage);
 
-        expect(cmd).toBe(`package ${path.normalize("/home/user/ws/conanfile.py")} -bf ${path.normalize("/home/user/ws/build")} -pf ${path.normalize("/home/user/ws/package")} -sf ${path.normalize("/home/user/ws/source")}`);
+        expect(cmd?.length).toBe(7);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -bf ${path.normalize("/home/user/ws/build")} -pf ${path.normalize("/home/user/ws/package")} -sf ${path.normalize("/home/user/ws/source")}`);
     });
 
     it("should return conan package command without build folder", () => {
@@ -51,7 +59,11 @@ describe("Conan 1 Package method", () => {
 
         let cmd = commandBuilder.buildCommandPackage("/home/user/ws", conanPackage);
 
-        expect(cmd).toBe(`package ${path.normalize("/home/user/ws/conanfile.py")} -pf ${path.normalize("/home/user/ws/package")} -sf ${path.normalize("/home/user/ws/source")}`);
+        expect(cmd?.length).toBe(5);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -pf ${path.normalize("/home/user/ws/package")} -sf ${path.normalize("/home/user/ws/source")}`);
     });
 
     it("should return conan package command without package folder", () => {
@@ -63,7 +75,11 @@ describe("Conan 1 Package method", () => {
 
         let cmd = commandBuilder.buildCommandPackage("/home/user/ws", conanPackage);
 
-        expect(cmd).toBe(`package ${path.normalize("/home/user/ws/conanfile.py")} -sf ${path.normalize("/home/user/ws/source")}`);
+        expect(cmd?.length).toBe(3);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -sf ${path.normalize("/home/user/ws/source")}`);
     });
 
     it("should return conan package without arguments", () => {
@@ -76,6 +92,10 @@ describe("Conan 1 Package method", () => {
 
         let cmd = commandBuilder.buildCommandPackage("/home/user/ws", conanPackage);
 
-        expect(cmd).toBe(`package ${path.normalize("/home/user/ws/conanfile.py")}`);
+        expect(cmd?.length).toBe(1);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")}`);
     });
 }); 

@@ -19,7 +19,11 @@ describe("Conan 2 Create method", () => {
 
         let cmd = commandBuilder.buildCommandCreate("/home/user/ws", new ConfigCommandCreate());
 
-        expect(cmd).toBe(`create ${path.normalize("/home/user/ws/conanfile.py")} -pr default`);
+        expect(cmd?.length).toBe(3);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -pr default`);
     });
 
     it("should return conan create command with user and channel", () => {
@@ -30,7 +34,11 @@ describe("Conan 2 Create method", () => {
 
         let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
 
-        expect(cmd).toBe(`create ${path.normalize("/home/user/ws/conanfile.py")} --user user --channel channel -pr default`);
+        expect(cmd?.length).toBe(7);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} --user user --channel channel -pr default`);
     });
 
     it("should return command string with only channel", () => {
@@ -40,7 +48,11 @@ describe("Conan 2 Create method", () => {
 
         let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
 
-        expect(cmd).toBe(`create ${path.normalize("/home/user/ws/conanfile.py")} --channel channel -pr default`);
+        expect(cmd?.length).toBe(5);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} --channel channel -pr default`);
     });
 
     it("should return command string with only user", () => {
@@ -50,7 +62,11 @@ describe("Conan 2 Create method", () => {
 
         let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
 
-        expect(cmd).toBe(`create ${path.normalize("/home/user/ws/conanfile.py")} --user user -pr default`);
+        expect(cmd?.length).toBe(5);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} --user user -pr default`);
     });
 
     it("should return undefined due to missing conan recipe", () => {
@@ -73,7 +89,11 @@ describe("Conan 2 Create method", () => {
 
         let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
 
-        expect(cmd).toBe(`create ${path.normalize("/home/user/ws/conanfile.py")} --user user --channel channel -pr myProfile -pr:h host -pr:b build`);
+        expect(cmd?.length).toBe(11);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} --user user --channel channel -pr myProfile -pr:h host -pr:b build`);
     });
 
 });
