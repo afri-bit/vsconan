@@ -106,6 +106,7 @@ export class SettingsPropertyManager {
             let selectedProfileObject: Object = Object.assign({}, profileConfigurationsObject[profileName as keyof typeof profileConfigurationsObject]);
 
             profileObject = general.plainObjectToClass(ConanProfileConfiguration, selectedProfileObject);
+            profileObject.escapeWhitespace();
         }
 
         return profileObject;
