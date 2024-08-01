@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.2.0 - unreleased
+
+### Added
+
+* [#39](https://github.com/afri-bit/vsconan/pull/39) Support detection of python interpreter by ms-python.python extension
+
 ## 1.1.0 - 2024-07-07
 
 ### Added

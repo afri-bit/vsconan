@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
 
-import { ConanProfileConfiguration } from "./model";
+import { existsSync } from "fs";
 import { general, python } from "../../utils/utils";
+import { ConanProfileConfiguration } from "./model";
 import path = require("path");
 
 /**
@@ -15,9 +16,11 @@ export class SettingsPropertyManager {
     // If there is no environment variable defined the path will be an empty string.
     private envConanUserHome: string | undefined = undefined; // CONAN 1
     private envConanHome: string | undefined = undefined; // CONAN 2
+    private outputChannel: vscode.OutputChannel | undefined = undefined;
 
-    public constructor(context: vscode.ExtensionContext) {
+    public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel) {
         this.context = context;
+        this.outputChannel = outputChannel;
     }
 
     public setEnvConanUserHome(envConanUserHome: string | undefined) {
@@ -111,15 +114,18 @@ export class SettingsPropertyManager {
 
         let pythonInterpreter = await python.getCurrentPythonInterpreter();
         if (pythonInterpreter !== undefined) {
+            this.outputChannel?.append(`Using Python interpreter: ${pythonInterpreter}\n`);
             if (!profileObject?.conanPythonInterpreter) {
                 profileObject!.conanPythonInterpreter = pythonInterpreter;
             }
             if (!profileObject?.conanExecutable) {
-                profileObject!.conanExecutable = path.join(path.dirname(pythonInterpreter), "conan");
+                const conanExecutable = path.join(path.dirname(pythonInterpreter), "conan");
+                if (existsSync(conanExecutable)) {
+                    profileObject!.conanExecutable = conanExecutable;
+                }
             }
         }
 
-        console.log(profileObject);
         return profileObject;
     }
 
