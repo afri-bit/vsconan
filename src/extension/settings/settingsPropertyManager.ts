@@ -112,17 +112,20 @@ export class SettingsPropertyManager {
             profileObject.escapeWhitespace();
         }
 
-        let pythonInterpreter = await python.getCurrentPythonInterpreter();
-        if (pythonInterpreter !== undefined) {
-            this.outputChannel?.append(`Using Python interpreter: ${pythonInterpreter}\n`);
-            if (!profileObject?.conanPythonInterpreter) {
-                profileObject!.conanPythonInterpreter = pythonInterpreter;
-            }
-            if (!profileObject?.conanExecutable) {
-                const conanExecutable = path.join(path.dirname(pythonInterpreter), "conan");
-                if (existsSync(conanExecutable)) {
-                    profileObject!.conanExecutable = conanExecutable;
+        if (profileObject) {
+            let pythonInterpreter = await python.getCurrentPythonInterpreter();
+            if (pythonInterpreter !== undefined) {
+                if (!profileObject.conanPythonInterpreter) {
+                    profileObject.conanPythonInterpreter = pythonInterpreter;
                 }
+                if (!profileObject.conanExecutable) {
+                    const conanExecutable = path.join(path.dirname(pythonInterpreter), "conan" + (process.platform === "win32" ? ".exe" : ""));
+                    if (existsSync(conanExecutable)) {
+                        profileObject.conanExecutable = conanExecutable;
+                    }
+                }
+                this.outputChannel?.append(`Using Python interpreter: ${profileObject.conanPythonInterpreter}\n`);
+                this.outputChannel?.append(`Using Conan executable: ${profileObject.conanExecutable}\n`);
             }
         }
 

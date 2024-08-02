@@ -88,6 +88,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
             if (selectedProfileObject && selectedProfileObject.isValid()) {
                 this.statusBarConanVersion.text = `$(extensions) VSConan | conan${selectedProfileObject.conanVersion} - ${selectedProfile}`;
                 this.statusBarConanVersion.color = "";
+                this.statusBarConanVersion.tooltip = new vscode.MarkdownString(`### Python Interpreter\n\`${selectedProfileObject.conanPythonInterpreter}\`\n### Conan Executable\n\`${selectedProfileObject.conanExecutable}\``);
             }
             else {
                 this.statusBarConanVersion.text = `$(extensions) VSConan | -`;
