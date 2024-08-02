@@ -84,16 +84,17 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
     private updateStatusBar() {
         let selectedProfile: string | undefined = this.settingsPropertyManager.getSelectedConanProfile();
-        let selectedProfileObject: ConanProfileConfiguration | undefined = this.settingsPropertyManager.getConanProfileObject(selectedProfile!);
-
-        if (selectedProfileObject && selectedProfileObject.isValid()) {
-            this.statusBarConanVersion.text = `$(extensions) VSConan | conan${selectedProfileObject.conanVersion} - ${selectedProfile}`;
-            this.statusBarConanVersion.color = "";
-        }
-        else {
-            this.statusBarConanVersion.text = `$(extensions) VSConan | -`;
-            this.statusBarConanVersion.color = "#FF3333";
-        }
+        this.settingsPropertyManager.getConanProfileObject(selectedProfile!).then(selectedProfileObject => {
+            if (selectedProfileObject && selectedProfileObject.isValid()) {
+                this.statusBarConanVersion.text = `$(extensions) VSConan | conan${selectedProfileObject.conanVersion} - ${selectedProfile}`;
+                this.statusBarConanVersion.color = "";
+                this.statusBarConanVersion.tooltip = new vscode.MarkdownString(`### Python Interpreter\n\`${selectedProfileObject.conanPythonInterpreter}\`\n### Conan Executable\n\`${selectedProfileObject.conanExecutable}\``);
+            }
+            else {
+                this.statusBarConanVersion.text = `$(extensions) VSConan | -`;
+                this.statusBarConanVersion.color = "#FF3333";
+            }
+        });
     }
 
     /**
@@ -108,30 +109,31 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
         let profileList: Array<string> = this.settingsPropertyManager.getListOfConanProfiles();
 
-        let quickPickItems = [];
+        (async () => {
+            let quickPickItems = [];
+            for (let i = 0; i < profileList.length; i++) {
+                let profileObject: ConanProfileConfiguration | undefined = await this.settingsPropertyManager.getConanProfileObject(profileList[i]);
 
-        for (let i = 0; i < profileList.length; i++) {
-
-            let profileObject: ConanProfileConfiguration | undefined = this.settingsPropertyManager.getConanProfileObject(profileList[i]);
-
-            quickPickItems.push({
-                label: profileList[i],
-                description: `Conan Version ${profileObject?.conanVersion}`,
-                detail: profileObject?.conanExecutionMode,
-                index: i,
-                conanVersion: profileObject?.conanVersion,
-            });
-        }
-
-        quickPickItems.map(label => ({ label }));
-        quickPick.items = quickPickItems;
-
-        const wsChoice = vscode.window.showQuickPick(quickPickItems);
-
-        wsChoice.then(result => {
-            if (result) {
-                this.settingsPropertyManager.updateConanProfile(result?.label);
+                quickPickItems.push({
+                    label: profileList[i],
+                    description: `Conan Version ${profileObject?.conanVersion}`,
+                    detail: profileObject?.conanExecutionMode,
+                    index: i,
+                    conanVersion: profileObject?.conanVersion,
+                });
             }
+            return quickPickItems;
+        })().then(quickPickItems => {
+            quickPickItems.map(label => ({ label }));
+            quickPick.items = quickPickItems;
+
+            const wsChoice = vscode.window.showQuickPick(quickPickItems);
+
+            wsChoice.then(result => {
+                if (result) {
+                    this.settingsPropertyManager.updateConanProfile(result?.label);
+                }
+            });
         });
     }
 
@@ -182,94 +184,91 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * Function to execute the selected Conan command
      * Since the flow of conan commands is similar, the flow of execution will be grouped within this function
      * Which command needs to be executed is determined using ENUM ConanCommand
-     * 
+     *
      * @param cmdType Enumeration type to determine which command to be executed
      */
-    private executeConanCommand(cmdType: ConanCommand): void {
+    private async executeConanCommand(cmdType: ConanCommand) {
         // The flow of following commands is the same by selecting the workspace first
         // Check the configuration and executed pre selected command based on this function argument
-        let ws = utils.workspace.selectWorkspace();
+        let wsPath = await utils.workspace.selectWorkspace();
 
-        ws.then(wsPath => {
+        let configPath = path.join(wsPath!, constants.VSCONAN_FOLDER, constants.CONFIG_FILE);
 
-            let configPath = path.join(wsPath!, constants.VSCONAN_FOLDER, constants.CONFIG_FILE);
+        if (fs.existsSync(configPath)) {
+            let configWorkspace = new ConfigWorkspace();
+            let configText = fs.readFileSync(configPath, 'utf8');
+            configWorkspace = JSON.parse(configText);
 
-            if (fs.existsSync(configPath)) {
-                let configWorkspace = new ConfigWorkspace();
-                let configText = fs.readFileSync(configPath, 'utf8');
-                configWorkspace = JSON.parse(configText);
+            let conanCommand = "";
+            let commandBuilder: CommandBuilder | undefined;
+            let conanVersion: string | null = "";
 
-                let conanCommand = "";
-                let commandBuilder: CommandBuilder | undefined;
-                let conanVersion: string | null = "";
+            // Get current profile
+            let currentConanProfile = this.settingsPropertyManager.getSelectedConanProfile();
 
-                // Get current profile
-                let currentConanProfile = this.settingsPropertyManager.getSelectedConanProfile();
+            if (currentConanProfile && await this.settingsPropertyManager.isProfileValid(currentConanProfile!)) {
+                conanVersion = await this.settingsPropertyManager.getConanVersionOfProfile(currentConanProfile!);
+                commandBuilder = CommandBuilderFactory.getCommandBuilder(conanVersion!);
 
-                if (currentConanProfile && this.settingsPropertyManager.isProfileValid(currentConanProfile!)) {
-                    conanVersion = this.settingsPropertyManager.getConanVersionOfProfile(currentConanProfile!);
-                    commandBuilder = CommandBuilderFactory.getCommandBuilder(conanVersion!);
+                let conanProfileObject: ConanProfileConfiguration | undefined = await this.settingsPropertyManager.getConanProfileObject(currentConanProfile!);
 
-                    let conanProfileObject: ConanProfileConfiguration | undefined = this.settingsPropertyManager.getConanProfileObject(currentConanProfile!);
-
-                    if (conanProfileObject?.conanExecutionMode === "pythonInterpreter" && conanProfileObject.conanPythonInterpreter) {
-                        conanCommand = `${conanProfileObject.conanPythonInterpreter} -m conans.conan`;
-                    }
-                    else if (conanProfileObject?.conanExecutionMode === "conanExecutable" && conanProfileObject.conanExecutable) {
-                        conanCommand = conanProfileObject.conanExecutable;
-                    }
-                    else {
-                        vscode.window.showErrorMessage("Empty Conan Command");
-                        return;
-                    }
+                if (conanProfileObject?.conanExecutionMode === "pythonInterpreter" && conanProfileObject.conanPythonInterpreter) {
+                    conanCommand = `${conanProfileObject.conanPythonInterpreter} -m conans.conan`;
+                }
+                else if (conanProfileObject?.conanExecutionMode === "conanExecutable" && conanProfileObject.conanExecutable) {
+                    conanCommand = `${conanProfileObject.conanExecutable}`;
                 }
                 else {
-                    vscode.window.showErrorMessage("");
+                    vscode.window.showErrorMessage("Empty Conan Command");
                     return;
-                }
-
-                switch (+cmdType) {
-                    case ConanCommand.create: {
-                        this.executeCommandConanCreate(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.create);
-                        break;
-                    }
-                    case ConanCommand.install: {
-                        this.executeCommandConanInstall(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.install);
-                        break;
-                    }
-                    case ConanCommand.build: {
-                        this.executeCommandConanBuild(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.build);
-                        break;
-                    }
-                    case ConanCommand.source: {
-                        this.executeCommandConanSource(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.source);
-                        break;
-                    }
-                    case ConanCommand.package: {
-                        if (conanVersion === "2") {
-                            vscode.window.showErrorMessage("This command doesn't work on Conan 2");
-                            break;
-                        }
-
-                        this.executeCommandConanPackage(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkg);
-                        break;
-                    }
-                    case ConanCommand.packageExport: {
-                        this.executeCommandConanPackageExport(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkgExport);
-                        break;
-                    }
                 }
             }
             else {
-                vscode.window.showWarningMessage(`Unable to find configuration file in the workspace '${wsPath}'`);
+                vscode.window.showErrorMessage("");
+                return;
             }
-        });
+
+            switch (+cmdType) {
+                case ConanCommand.create: {
+                    this.executeCommandConanCreate(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.create);
+                    break;
+                }
+                case ConanCommand.install: {
+                    this.executeCommandConanInstall(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.install);
+                    break;
+                }
+                case ConanCommand.build: {
+                    this.executeCommandConanBuild(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.build);
+                    break;
+                }
+                case ConanCommand.source: {
+                    this.executeCommandConanSource(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.source);
+                    break;
+                }
+                case ConanCommand.package: {
+                    if (conanVersion === "2") {
+                        vscode.window.showErrorMessage("This command doesn't work on Conan 2");
+                        break;
+                    }
+
+                    this.executeCommandConanPackage(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkg);
+                    break;
+                }
+                case ConanCommand.packageExport: {
+                    this.executeCommandConanPackageExport(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkgExport);
+                    break;
+                }
+            }
+        }
+        else {
+            vscode.window.showWarningMessage(`Unable to find configuration file in the workspace '${wsPath}'`);
+        }
     }
 
     /**
      * Helper method to get the index of selected command.
      * This method basically will pop up quick pick window to select configuration where the user has to choose.
-     * @param configList List of configuration 
+     * @param configList List of configuration
      * @returns Index of selected configuration | undefined on error or no selection
      */
     private getCommandConfigIndex(configList: Array<ConfigCommand>): Promise<number | undefined> {

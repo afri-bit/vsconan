@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
 
+import { existsSync } from "fs";
+import { general, python } from "../../utils/utils";
 import { ConanProfileConfiguration } from "./model";
-import { general } from "../../utils/utils";
-
+import path = require("path");
 
 /**
  * Class to manage the extension configuration
@@ -15,9 +16,11 @@ export class SettingsPropertyManager {
     // If there is no environment variable defined the path will be an empty string.
     private envConanUserHome: string | undefined = undefined; // CONAN 1
     private envConanHome: string | undefined = undefined; // CONAN 2
+    private outputChannel: vscode.OutputChannel | undefined = undefined;
 
-    public constructor(context: vscode.ExtensionContext) {
+    public constructor(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel) {
         this.context = context;
+        this.outputChannel = outputChannel;
     }
 
     public setEnvConanUserHome(envConanUserHome: string | undefined) {
@@ -94,7 +97,7 @@ export class SettingsPropertyManager {
         return listOfConanProfile;
     }
 
-    public getConanProfileObject(profileName: string): ConanProfileConfiguration | undefined {
+    public async getConanProfileObject(profileName: string): Promise<ConanProfileConfiguration | undefined> {
 
         let profileObject: ConanProfileConfiguration | undefined = undefined;
 
@@ -109,6 +112,23 @@ export class SettingsPropertyManager {
             profileObject.escapeWhitespace();
         }
 
+        if (profileObject) {
+            let pythonInterpreter = await python.getCurrentPythonInterpreter();
+            if (pythonInterpreter !== undefined) {
+                if (!profileObject.conanPythonInterpreter) {
+                    profileObject.conanPythonInterpreter = pythonInterpreter;
+                }
+                if (!profileObject.conanExecutable) {
+                    const conanExecutable = path.join(path.dirname(pythonInterpreter), "conan" + (process.platform === "win32" ? ".exe" : ""));
+                    if (existsSync(conanExecutable)) {
+                        profileObject.conanExecutable = conanExecutable;
+                    }
+                }
+                this.outputChannel?.append(`Using Python interpreter: ${profileObject.conanPythonInterpreter}\n`);
+                this.outputChannel?.append(`Using Conan executable: ${profileObject.conanExecutable}\n`);
+            }
+        }
+
         return profileObject;
     }
 
@@ -116,10 +136,10 @@ export class SettingsPropertyManager {
         return vscode.workspace.getConfiguration("vsconan.conan.profile").get("default");
     }
 
-    public isProfileValid(profileName: string): boolean {
+    public async isProfileValid(profileName: string): Promise<boolean> {
         let valid: boolean = false;
 
-        let profileObject: ConanProfileConfiguration | undefined = this.getConanProfileObject(profileName);
+        let profileObject: ConanProfileConfiguration | undefined = await this.getConanProfileObject(profileName);
 
         if ((profileObject) && (profileObject.isValid())) {
             valid = true;
@@ -128,11 +148,11 @@ export class SettingsPropertyManager {
         return valid;
     }
 
-    public getConanVersionOfProfile(profileName: string): string | null {
+    public async getConanVersionOfProfile(profileName: string): Promise<string | null> {
 
         let conanVersion: string | null = null;
 
-        let profileObject: ConanProfileConfiguration | undefined = this.getConanProfileObject(profileName);
+        let profileObject: ConanProfileConfiguration | undefined = await this.getConanProfileObject(profileName);
 
         if ((profileObject) && (profileObject.isValid())) {
             conanVersion = profileObject.conanVersion;

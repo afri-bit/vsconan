@@ -831,6 +831,7 @@
         "ts-jest": "29.1.2"
     },
     "dependencies": {
+        "@vscode/python-extension": "^1.0.5",
         "child_process": "^1.0.2"
     }
 }

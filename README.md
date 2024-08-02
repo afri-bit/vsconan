@@ -264,7 +264,7 @@ The default configuration file can be seen as following. You can extend the list
 * `VSConan: Open Workspace Configuration (JSON)`  
   Open the workspace configuration file in the editor
 
-Further information of currrent supported features is available [here](doc/FEATURES.md).
+Further information of current supported features is available [here](doc/FEATURES.md).
 
 ## Release Notes
 Detailed release notes are available [here](CHANGELOG.md).

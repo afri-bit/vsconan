@@ -62,6 +62,7 @@
   * export-pkg
 * Add editable package
 * Remove editable package
+* Automatic selection of Python interpreter using the ms-python.python extension
 
 ## General
 * Define multiple conan profiles inside `settings.json` that you can use for the extension.
