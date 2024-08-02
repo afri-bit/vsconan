@@ -63,12 +63,12 @@ export class SettingsManager {
         }
     }
 
-    private changeConanProfile() {
+    private async changeConanProfile() {
         let selectedProfile: string | undefined = vscode.workspace.getConfiguration("vsconan.conan.profile").get("default");
 
         if (this.settingsPropertyManager.isProfileAvailable(selectedProfile!) &&
-            this.settingsPropertyManager.isProfileValid(selectedProfile!)) {
-            let profileObject = this.settingsPropertyManager.getConanProfileObject(selectedProfile!);
+            await this.settingsPropertyManager.isProfileValid(selectedProfile!)) {
+            let profileObject = await this.settingsPropertyManager.getConanProfileObject(selectedProfile!);
 
             let conanExecutionMode: ConanExecutionMode = ConanExecutionMode.conan;
 

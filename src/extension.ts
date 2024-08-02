@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
     initContextState(context);
 
     // Create Configuration Manager object to store and get some configuration
-    let settingsPropertyManager = new SettingsPropertyManager(context);
+    let settingsPropertyManager = new SettingsPropertyManager(context, channelVSConan);
 
     let conanApiManager: ConanAPIManager = new ConanAPIManager();
 
