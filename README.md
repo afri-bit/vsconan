@@ -257,6 +257,25 @@ The default configuration file can be seen as following. You can extend the list
 }
 ```
 
+#### Application of Conan's buildEnv/runEnv (currently Conan 2 only)
+
+VSConan provides the commands
+
+* `VSConan: Activate BuildEnv`
+* `VSConan: Activate RunEnv`
+* `VSConan: Deactivate BuildEnv/RunEnv`
+
+to adjust VSCode's process and terminal environment to the respective Conan environment.
+
+This is useful if you have tool dependencies in your Conanfile, e.g. CMake, a specific Compiler toolchain, etc and want to use these tools also in VSCode, e.g. the [CMake Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools).
+
+##### A note if using the [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) in parallel
+
+The [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) overrides the `PATH` environment variable to add the currently selected Python interpreter.
+In order to use `PATH` modifications by Conan BuildEnv/RunEnv the VSConan extension provides the option to generate a `.env`-file which is respected by the Python extension.
+
+This option is enabled by default and can be managed by `vsconan.conan.env.dotenv`.
+
 ### Additional Support Features
 
 * `VSConan: Create Workspace Configuration (JSON)`  

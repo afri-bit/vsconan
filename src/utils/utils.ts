@@ -1,16 +1,16 @@
-import * as vscode from "vscode";
-import * as path from "path";
-import * as os from "os";
-import * as constants from "./constants";
+import { PythonExtension } from '@vscode/python-extension';
+import { execSync, spawn } from "child_process";
 import * as fs from "fs";
-import { ConfigWorkspace } from "../conans/workspace/configWorkspace";
-import { PythonExtension, ResolvedEnvironment } from '@vscode/python-extension';
+import * as os from "os";
+import * as path from "path";
+import * as vscode from "vscode";
 import {
     CommandContainer, ConfigCommandBuild, ConfigCommandCreate,
     ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport,
     ConfigCommandSource
 } from "../conans/command/configCommand";
-import { spawn } from "child_process";
+import { ConfigWorkspace } from "../conans/workspace/configWorkspace";
+import * as constants from "./constants";
 
 export namespace vsconan {
     /**
@@ -64,8 +64,9 @@ export namespace vsconan {
             // const exec = util.promisify(require('child_process').exec);
             // const { stdout, stderr } = await spawn(cmd);
             channel.show();
+            channel.appendLine(`Executing: "${cmd} ${args.join(' ')}`);
 
-            const ls = spawn(cmd, args, { shell: true });
+            const ls = spawn(cmd, args, { shell: true, 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined });
 
             ls.stdout.on("data", data => {
                 channel.append(`${data}`);
@@ -111,7 +112,15 @@ export namespace vsconan {
 
 export namespace conan {
     /**
-     * Utility function to determine whether a folder is a conan project 
+     * Enum to distinguish between different Conan environments.
+     */
+    export enum ConanEnv {
+        buildEnv = "BuildEnv",
+        runEnv = "RunEnv"
+    }
+
+    /**
+     * Utility function to determine whether a folder is a conan project
      * by checking if the folder contains conanfile.py or conanfile.txt
      * @param ws Absolute path to workspace to be checked
      * @returns 'true' the path contains conanfile.py or conanfile.txt, otherwise 'false'
@@ -128,13 +137,37 @@ export namespace conan {
 
         return ret;
     }
+
+    /**
+     * Read environment variables from Conan's VirtualBuildEnv/VirtualRunEnv.
+     *
+     * @param conanEnv Which environment to generate
+     * @param pythonInterpreter Path to python interpreter
+     * @param args Additional Conan arguments as given to `conan install`
+     * @returns Array of environment settings
+     */
+    export async function readEnvFromConan(conanEnv: ConanEnv, pythonInterpreter: string, args: string[]): Promise<[string, string][]> {
+        const envScript = path.join(path.dirname(__dirname), '..', 'resources', 'print_env.py');
+        const options = { timeout: 20000, cwd: vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+
+        const cmd = `${pythonInterpreter} ${envScript} ${conanEnv} ${args.join(' ')}`;
+        try {
+            const output = execSync(cmd, options);
+            const parsed = JSON.parse(`${output}`);
+            return Object.entries(parsed);
+        } catch (err) {
+            vscode.window.showErrorMessage((err as Error).message);
+            throw err;
+        }
+    }
+
 }
 
 export namespace editor {
     /**
      * Function to open file in the editor, with or without workspace.
      * This function is just to simplify the mechanism of opening file in the editor
-     * 
+     *
      * @param filePath File path to be opened
      */
     export async function openFileInEditor(filePath: string) {
@@ -147,8 +180,8 @@ export namespace editor {
 export namespace workspace {
     /**
      * Function to show quick pick to get a workspace path.
-     * This can list the multiple workspaces and user can select it using a quick pick menu. 
-     * 
+     * This can list the multiple workspaces and user can select it using a quick pick menu.
+     *
      * @returns Promise<string | undefined> Selected workspace path or undefined
      */
     export async function selectWorkspace(): Promise<string | undefined> {
@@ -195,10 +228,10 @@ export namespace workspace {
      * Helper function to get absolute path in relative to workspace path
      * If the path to be merged with workspace path is absolute it will return that path itself.
      * If the path is not absolute, it will return absolute path which is merge with workspace path.
-     * 
+     *
      * @param wsPath Absolute path from workspace
      * @param pathName Path to be merged with workspace
-     * @returns 
+     * @returns
      */
     export function getAbsolutePathFromWorkspace(wsPath: string, pathName: string): string {
         if (path.isAbsolute(pathName)) { // Absolute path from the path itself

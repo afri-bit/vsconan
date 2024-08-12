@@ -129,6 +129,17 @@ export class SettingsPropertyManager {
             }
         }
 
+        let pythonInterpreter = await python.getCurrentPythonInterpreter();
+        if (pythonInterpreter !== undefined) {
+            if (!profileObject?.conanPythonInterpreter) {
+                profileObject!.conanPythonInterpreter = pythonInterpreter;
+            }
+            if (!profileObject?.conanExecutable) {
+                const exePostfix = process.platform === 'win32' ? '.exe' : '';
+                profileObject!.conanExecutable = path.join(path.dirname(pythonInterpreter), `conan${exePostfix}`);
+            }
+        }
+
         return profileObject;
     }
 
@@ -175,5 +186,9 @@ export class SettingsPropertyManager {
         }
 
         return isAvailable;
+    }
+
+    public isUpdateDotEnv(): boolean | undefined {
+        return vscode.workspace.getConfiguration("vsconan.conan").get("env.dotenv");
     }
 }

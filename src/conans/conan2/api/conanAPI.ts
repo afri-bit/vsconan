@@ -1,5 +1,6 @@
 import { execSync } from "child_process";
 import * as fs from "fs";
+import * as vscode from 'vscode';
 import { ConanAPI, ConanExecutionMode } from "../../api/base/conanAPI";
 import { RecipeFolderOption } from "../../conan/api/conanAPI";
 import { ConanPackage } from "../../model/conanPackage";
@@ -47,8 +48,9 @@ export class Conan2API extends ConanAPI {
     }
 
     public override getConanHomePath(): string | undefined {
+        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
         try {
-            let homePath = execSync(`${this.conanExecutor} config home`).toString();
+            let homePath = execSync(`${this.conanExecutor} config home`, options).toString();
             return homePath.trim(); // Remove whitespace and new lines
         }
         catch (err) {
@@ -81,13 +83,15 @@ export class Conan2API extends ConanAPI {
     }
 
     public override getRecipePath(recipe: string): string | undefined {
-        let recipePath = execSync(`${this.conanExecutor} cache path ${recipe}`).toString().trim();
+        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+        let recipePath = execSync(`${this.conanExecutor} cache path ${recipe}`, options).toString().trim();
 
         return recipePath;
     }
 
     public override getPackagePath(recipe: string, packageId: string): string | undefined {
-        let packagePath = execSync(`${this.conanExecutor} cache path ${recipe}:${packageId}`).toString().trim();
+        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+        let packagePath = execSync(`${this.conanExecutor} cache path ${recipe}:${packageId}`, options).toString().trim();
 
         return packagePath;
     }
@@ -96,7 +100,8 @@ export class Conan2API extends ConanAPI {
         let listOfRecipes: Array<ConanRecipe> = [];
 
         try {
-            let jsonStdout = execSync(`${this.conanExecutor} list *#* --format json`);
+            const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+            let jsonStdout = execSync(`${this.conanExecutor} list *#* --format json`, options);
             let jsonObject = JSON.parse(jsonStdout.toString());
 
             let localCache = jsonObject["Local Cache"];
@@ -118,7 +123,8 @@ export class Conan2API extends ConanAPI {
     public override getProfiles(): string[] {
 
         try {
-            let stdout = execSync(`${this.conanExecutor} profile list --format json`);
+            const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+            let stdout = execSync(`${this.conanExecutor} profile list --format json`, options);
             let jsonObject = JSON.parse(stdout.toString());
             return jsonObject;
         }
@@ -133,7 +139,8 @@ export class Conan2API extends ConanAPI {
 
         try {
             if (recipe) {
-                let jsonStdout = execSync(`${this.conanExecutor} list ${recipe}:* --format json`);
+                const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+                let jsonStdout = execSync(`${this.conanExecutor} list ${recipe}:* --format json`, options);
                 let jsonObject = JSON.parse(jsonStdout.toString());
 
                 let recipeRevisionSplit = recipe.split("#");
@@ -202,11 +209,13 @@ export class Conan2API extends ConanAPI {
     }
 
     public override removePackage(recipe: string, packageId: string): void {
-        execSync(`${this.conanExecutor} remove ${recipe}:${packageId} -c`);
+        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+        execSync(`${this.conanExecutor} remove ${recipe}:${packageId} -c`, options);
     }
 
     public override removeRecipe(recipe: string): void {
-        execSync(`${this.conanExecutor} remove ${recipe} -c`);
+        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+        execSync(`${this.conanExecutor} remove ${recipe} -c`, options);
     }
 
     public override removeProfile(profile: string): void {
@@ -222,28 +231,33 @@ export class Conan2API extends ConanAPI {
     }
 
     public override addRemote(remote: string, url: string): void {
-        execSync(`${this.conanExecutor} remote add ${remote} ${url}`);
+        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+        execSync(`${this.conanExecutor} remote add ${remote} ${url}`, options);
     }
 
     public override removeRemote(remote: string): void {
-        execSync(`${this.conanExecutor} remote remove ${remote}`);
+        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+        execSync(`${this.conanExecutor} remote remove ${remote}`, options);
     }
 
     public override enableRemote(remote: string, enable: boolean): void {
+        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
         if (enable) {
-            execSync(`${this.conanExecutor} remote enable ${remote}`);
+            execSync(`${this.conanExecutor} remote enable ${remote}`, options);
         }
         else {
-            execSync(`${this.conanExecutor} remote disable ${remote}`);
+            execSync(`${this.conanExecutor} remote disable ${remote}`, options);
         }
     }
 
     public override renameRemote(remoteName: string, newName: string): void {
-        execSync(`${this.conanExecutor} remote rename ${remoteName} ${newName}`);
+        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+        execSync(`${this.conanExecutor} remote rename ${remoteName} ${newName}`, options);
     }
 
     public override updateRemoteURL(remoteName: string, url: string): void {
-        execSync(`${this.conanExecutor} remote update ${remoteName} --url ${url}`);
+        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+        execSync(`${this.conanExecutor} remote update ${remoteName} --url ${url}`, options);
     }
 
     public override renameProfile(oldProfileName: string, newProfileName: string): void {
@@ -324,7 +338,8 @@ export class Conan2API extends ConanAPI {
 
         try {
             if (recipe && packageId) {
-                let jsonStdout = execSync(`${this.conanExecutor} list ${recipe}:${packageId}#* --format json`);
+                const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+                let jsonStdout = execSync(`${this.conanExecutor} list ${recipe}:${packageId}#* --format json`, options);
                 let jsonObject = JSON.parse(jsonStdout.toString());
 
                 let recipeRevisionSplit = recipe.split("#");
@@ -356,7 +371,8 @@ export class Conan2API extends ConanAPI {
         let packageRevisionPath: string | undefined = undefined;
 
         try {
-            packageRevisionPath = execSync(`${this.conanExecutor} cache path ${recipe}:${packageId}#${revisionId}`).toString().trim();
+            const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+            packageRevisionPath = execSync(`${this.conanExecutor} cache path ${recipe}:${packageId}#${revisionId}`, options).toString().trim();
         }
         catch (err) {
             console.log((err as Error).message);
@@ -366,6 +382,7 @@ export class Conan2API extends ConanAPI {
     }
 
     public removePackageRevision(recipe: string, packageId: string, revisionId: string): void {
-        execSync(`${this.conanExecutor} remove ${recipe}:${packageId}#${revisionId} -c`);
+        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+        execSync(`${this.conanExecutor} remove ${recipe}:${packageId}#${revisionId} -c`, options);
     }
 }
