@@ -45,3 +45,21 @@ By contributing, you agree that your contributions will be licensed under its MI
 
 ## References
 This document was adapted from the open-source contribution guidelines for [Facebook's Draft]()
+
+## Setup
+
+This repository follows the standard layout of a VS Code extension.
+More information can be found [here](https://code.visualstudio.com/api/get-started/extension-anatomy).
+
+### Tests
+
+In addition to the standard setup for VS Code extension development [./test/conan/readEnv.test.ts](./test/conan/readEnv.test.ts) requires a proper Conan 2 installation.
+This can be achieved e.g. by using a Python virtual environment:
+
+```sh
+python -m venv .venv
+. .venv/bin/activate
+# or on Windows
+# .venv/Scripts/activate
+pip install "conan>=2"
+```

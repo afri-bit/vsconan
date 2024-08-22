@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.0 - unreleased
+
+* [#36](https://github.com/afri-bit/vsconan/issues/36) Support the application of Conan's BuildEnv/RunEnv (Conan 2 only)
+
 ## 1.2.0 - 2024-08-03
 
 ### Added
