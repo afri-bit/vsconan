@@ -93,32 +93,32 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
     private initStatusBarCommands() {
         this.statusBarCommands[0].text = "$(cloud-download)";
-        this.statusBarCommands[0].tooltip = "Install dependencies with 'conan install'";
+        this.statusBarCommands[0].tooltip = "VSConan - Install dependencies with 'conan install'";
         this.statusBarCommands[0].command = "vsconan.conan.install";
         this.statusBarCommands[0].show();
 
         this.statusBarCommands[1].text = "$(tasklist)";
-        this.statusBarCommands[1].tooltip = "Build project with 'conan build'";
+        this.statusBarCommands[1].tooltip = "VSConan - Build project with 'conan build'";
         this.statusBarCommands[1].command = "vsconan.conan.build";
         this.statusBarCommands[1].show();
 
         this.statusBarCommands[2].text = "$(package)";
-        this.statusBarCommands[2].tooltip = "Create package with 'conan create'";
+        this.statusBarCommands[2].tooltip = "VSConan - Create package with 'conan create'";
         this.statusBarCommands[2].command = "vsconan.conan.create";
         this.statusBarCommands[2].show();
 
         this.statusBarCommands[3].text = "B$(terminal)";
-        this.statusBarCommands[3].tooltip = "Activate conan BuildEnv";
+        this.statusBarCommands[3].tooltip = "VSConan - Activate conan BuildEnv";
         this.statusBarCommands[3].command = "vsconan.conan.buildenv";
         this.statusBarCommands[3].show();
 
         this.statusBarCommands[4].text = "R$(terminal)";
-        this.statusBarCommands[4].tooltip = "Activate conan RunEnv";
+        this.statusBarCommands[4].tooltip = "VSConan - Activate conan RunEnv";
         this.statusBarCommands[4].command = "vsconan.conan.runenv";
         this.statusBarCommands[4].show();
 
         this.statusBarCommands[5].text = "X$(terminal)";
-        this.statusBarCommands[5].tooltip = "Deactivate conan BuildEnv/RunEnv";
+        this.statusBarCommands[5].tooltip = "VSConan - Deactivate conan BuildEnv/RunEnv";
         this.statusBarCommands[5].command = "vsconan.conan.deactivateenv";
         this.statusBarCommands[5].show();
 
