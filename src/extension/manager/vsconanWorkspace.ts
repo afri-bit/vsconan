@@ -11,7 +11,7 @@ import * as utils from '../../utils/utils';
 import { ConanProfileConfiguration } from "../settings/model";
 import { SettingsPropertyManager } from "../settings/settingsPropertyManager";
 import { ExtensionManager } from "./extensionManager";
-
+import { VSConanWorkspaceEnvironment } from "./workspaceEnvironment";
 
 enum ConanCommand {
     create,
@@ -19,7 +19,10 @@ enum ConanCommand {
     build,
     source,
     package,
-    packageExport
+    packageExport,
+    activateBuildEnv,
+    activateRunEnv,
+    deactivateEnv
 }
 
 interface ConfigCommandQuickPickItem extends vscode.QuickPickItem {
@@ -34,8 +37,10 @@ export class VSConanWorkspaceManager extends ExtensionManager {
     private outputChannel: vscode.OutputChannel;
     private conanApiManager: ConanAPIManager;
     private settingsPropertyManager: SettingsPropertyManager;
+    private workspaceEnvironment: VSConanWorkspaceEnvironment;
 
     private statusBarConanVersion: vscode.StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+    private statusBarCommands: vscode.StatusBarItem[] = Array.from({ length: 6 }, _ => vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left));
 
     /**
      * Create the conan workspace manager
@@ -53,6 +58,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         this.outputChannel = outputChannel;
         this.conanApiManager = conanApiManager;
         this.settingsPropertyManager = settingsPropertyManager;
+        this.workspaceEnvironment = new VSConanWorkspaceEnvironment(context, settingsPropertyManager, outputChannel);
 
         this.registerCommand("vsconan.conan.create", () => this.executeConanCommand(ConanCommand.create));
         this.registerCommand("vsconan.conan.install", () => this.executeConanCommand(ConanCommand.install));
@@ -65,9 +71,12 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         this.registerCommand("vsconan.config.workspace.create", () => this.createWorkspaceConfig());
         this.registerCommand("vsconan.config.workspace.open", () => this.openWorkspaceConfig());
         this.registerCommand("vsconan.conan.profile.switch", () => this.switchConanProfile());
+        this.registerCommand("vsconan.conan.buildenv", () => this.executeConanCommand(ConanCommand.activateBuildEnv));
+        this.registerCommand("vsconan.conan.runenv", () => this.executeConanCommand(ConanCommand.activateRunEnv));
+        this.registerCommand("vsconan.conan.deactivateenv", () => this.executeConanCommand(ConanCommand.deactivateEnv));
 
         this.initStatusBarConanVersion();
-
+        this.initStatusBarCommands();
     }
 
     public refresh() {
@@ -82,11 +91,47 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         this.context.subscriptions.push(this.statusBarConanVersion);
     }
 
+    private initStatusBarCommands() {
+        this.statusBarCommands[0].text = "$(cloud-download)";
+        this.statusBarCommands[0].tooltip = "VSConan - Install dependencies with 'conan install'";
+        this.statusBarCommands[0].command = "vsconan.conan.install";
+        this.statusBarCommands[0].show();
+
+        this.statusBarCommands[1].text = "$(tasklist)";
+        this.statusBarCommands[1].tooltip = "VSConan - Build project with 'conan build'";
+        this.statusBarCommands[1].command = "vsconan.conan.build";
+        this.statusBarCommands[1].show();
+
+        this.statusBarCommands[2].text = "$(package)";
+        this.statusBarCommands[2].tooltip = "VSConan - Create package with 'conan create'";
+        this.statusBarCommands[2].command = "vsconan.conan.create";
+        this.statusBarCommands[2].show();
+
+        this.statusBarCommands[3].text = "B$(terminal)";
+        this.statusBarCommands[3].tooltip = "VSConan - Activate conan BuildEnv";
+        this.statusBarCommands[3].command = "vsconan.conan.buildenv";
+        this.statusBarCommands[3].show();
+
+        this.statusBarCommands[4].text = "R$(terminal)";
+        this.statusBarCommands[4].tooltip = "VSConan - Activate conan RunEnv";
+        this.statusBarCommands[4].command = "vsconan.conan.runenv";
+        this.statusBarCommands[4].show();
+
+        this.statusBarCommands[5].text = "X$(terminal)";
+        this.statusBarCommands[5].tooltip = "VSConan - Deactivate conan BuildEnv/RunEnv";
+        this.statusBarCommands[5].command = "vsconan.conan.deactivateenv";
+        this.statusBarCommands[5].show();
+
+        this.context.subscriptions.push(this.statusBarConanVersion);
+    }
+
     private updateStatusBar() {
         let selectedProfile: string | undefined = this.settingsPropertyManager.getSelectedConanProfile();
         this.settingsPropertyManager.getConanProfileObject(selectedProfile!).then(selectedProfileObject => {
             if (selectedProfileObject && selectedProfileObject.isValid()) {
-                this.statusBarConanVersion.text = `$(extensions) VSConan | conan${selectedProfileObject.conanVersion} - ${selectedProfile}`;
+                const activeEnv = this.workspaceEnvironment.activeEnv();
+                const activeEnvStr = activeEnv ? ` - ${activeEnv[1]}[${activeEnv[2]}]` : '';
+                this.statusBarConanVersion.text = `$(extensions) VSConan | conan${selectedProfileObject.conanVersion} - ${selectedProfile}${activeEnvStr}`;
                 this.statusBarConanVersion.color = "";
                 this.statusBarConanVersion.tooltip = new vscode.MarkdownString(`### Python Interpreter\n\`${selectedProfileObject.conanPythonInterpreter}\`\n### Conan Executable\n\`${selectedProfileObject.conanExecutable}\``);
             }
@@ -202,6 +247,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
             let conanCommand = "";
             let commandBuilder: CommandBuilder | undefined;
             let conanVersion: string | null = "";
+            let conanProfileObject: ConanProfileConfiguration | undefined;
 
             // Get current profile
             let currentConanProfile = this.settingsPropertyManager.getSelectedConanProfile();
@@ -210,7 +256,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 conanVersion = await this.settingsPropertyManager.getConanVersionOfProfile(currentConanProfile!);
                 commandBuilder = CommandBuilderFactory.getCommandBuilder(conanVersion!);
 
-                let conanProfileObject: ConanProfileConfiguration | undefined = await this.settingsPropertyManager.getConanProfileObject(currentConanProfile!);
+                conanProfileObject = await this.settingsPropertyManager.getConanProfileObject(currentConanProfile!);
 
                 if (conanProfileObject?.conanExecutionMode === "pythonInterpreter" && conanProfileObject.conanPythonInterpreter) {
                     conanCommand = `${conanProfileObject.conanPythonInterpreter} -m conans.conan`;
@@ -256,6 +302,30 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 }
                 case ConanCommand.packageExport: {
                     this.executeCommandConanPackageExport(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkgExport);
+                    break;
+                }
+                case ConanCommand.activateBuildEnv: {
+                    if (conanVersion === "1") {
+                        vscode.window.showErrorMessage("This command is not yet supported for Conan 1");
+                        break;
+                    }
+                    this.executeCommandActivateEnv(wsPath!, conanProfileObject.conanPythonInterpreter, utils.conan.ConanEnv.buildEnv, commandBuilder!, configWorkspace.commandContainer.install);
+                    break;
+                }
+                case ConanCommand.activateRunEnv: {
+                    if (conanVersion === "1") {
+                        vscode.window.showErrorMessage("This command is not yet supported for Conan 1");
+                        break;
+                    }
+                    this.executeCommandActivateEnv(wsPath!, conanProfileObject.conanPythonInterpreter, utils.conan.ConanEnv.runEnv, commandBuilder!, configWorkspace.commandContainer.install);
+                    break;
+                }
+                case ConanCommand.deactivateEnv: {
+                    if (conanVersion === "1") {
+                        vscode.window.showErrorMessage("This command is not yet supported for Conan 1");
+                        break;
+                    }
+                    this.executeCommandDeactivateEnv();
                     break;
                 }
             }
@@ -329,6 +399,36 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 else {
                     vscode.window.showErrorMessage("Unable to execute conan CREATE command!");
                 }
+            }
+        });
+    }
+
+    /**
+     * Deactivate Conan environment; i.e. restore original environment variables.
+     */
+    private executeCommandDeactivateEnv() {
+        this.workspaceEnvironment.restoreEnvironment();
+        this.updateStatusBar();
+    }
+
+    /**
+     * Activate given Conan environment.
+     *
+     * @param wsPath Absolute path of the workspace
+     * @param pythonInterpreter Python interpreter
+     * @param conanEnv Which Conan environment to activate
+     * @param commandBuilder Builder for Conan commands
+     * @param configList List of possible configurations
+     */
+    private executeCommandActivateEnv(wsPath: string, pythonInterpreter: string, whichEnv: utils.conan.ConanEnv, commandBuilder: CommandBuilder, configList: Array<ConfigCommandInstall>) {
+        let promiseIndex = this.getCommandConfigIndex(configList);
+
+        promiseIndex.then(index => {
+            if (index !== undefined) {
+                let selectedConfig = configList[index];
+                let cmd = commandBuilder.buildCommandInstall(wsPath, selectedConfig);
+                cmd = cmd?.slice(1) ?? []; // cut of "install" from cmd
+                this.workspaceEnvironment.activateEnvironment(whichEnv, selectedConfig.name, pythonInterpreter, cmd).then(this.updateStatusBar);
             }
         });
     }

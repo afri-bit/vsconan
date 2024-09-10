@@ -63,6 +63,7 @@
 * Add editable package
 * Remove editable package
 * Automatic selection of Python interpreter using the ms-python.python extension
+* Application of Conan's buildEnv/runEnv
 
 ## General
 * Define multiple conan profiles inside `settings.json` that you can use for the extension.
@@ -88,3 +89,10 @@
   ```
 * Overwrite conan home folder inside the profile with `conanUserHome`
 * Status bar to ease the switching between your predefined profiles
+* Status bar buttons for the following commands:
+  * `vsconan.conan.install`
+  * `vsconan.conan.build`
+  * `vsconan.conan.create`
+  * `vsconan.conan.buildenv`
+  * `vsconan.conan.runenv`
+  * `vsconan.conan.deactivateenv`

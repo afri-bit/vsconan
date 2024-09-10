@@ -13,3 +13,5 @@ test/**/*.js
 
 .bak/
 coverage
+
+.DS_Store

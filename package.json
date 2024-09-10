@@ -2,7 +2,7 @@
     "name": "vsconan",
     "displayName": "VSConan",
     "description": "Conan local cache and workspace manager.",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "publisher": "afri-bit",
     "repository": {
         "type": "git",
@@ -121,6 +121,18 @@
             {
                 "command": "vsconan.conan.profile.switch",
                 "title": "VSConan: Switch Conan Profile"
+            },
+            {
+                "command": "vsconan.conan.buildenv",
+                "title": "VSConan: Activate BuildEnv"
+            },
+            {
+                "command": "vsconan.conan.runenv",
+                "title": "VSConan: Activate RunEnv"
+            },
+            {
+                "command": "vsconan.conan.deactivateenv",
+                "title": "VSConan: Deactivate BuildEnv/RunEnv"
             },
             {
                 "command": "vsconan.config.workspace.create",
@@ -786,6 +798,11 @@
                         "type": "string",
                         "default": "default",
                         "markdownDescription": "Conan profile default / selection"
+                    },
+                    "vsconan.conan.env.dotenv": {
+                        "markdownDescription": "Manage `.env` file when activating Conan environments using `vsconan.conan.buildenv` or `vsconan.conan.runenv`. This is required if `ms-python.python` extension manages your terminal environment.",
+                        "type": "boolean",
+                        "default": true
                     }
                 }
             },
