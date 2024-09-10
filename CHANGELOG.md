@@ -1,8 +1,9 @@
 # Change Log
 
-## 1.3.0 - unreleased
+## 1.3.0 - 2024-09-10
 
 * [#36](https://github.com/afri-bit/vsconan/issues/36) Support the application of Conan's BuildEnv/RunEnv (Conan 2 only)
+* [#27](https://github.com/afri-bit/vsconan/issues/27) Added button in the status bar for frequently used conan commands
 
 ## 1.2.0 - 2024-08-03
 
