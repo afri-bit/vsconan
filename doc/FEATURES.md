@@ -89,3 +89,10 @@
   ```
 * Overwrite conan home folder inside the profile with `conanUserHome`
 * Status bar to ease the switching between your predefined profiles
+* Status bar buttons for the following commands:
+  * `vsconan.conan.install`
+  * `vsconan.conan.build`
+  * `vsconan.conan.create`
+  * `vsconan.conan.buildenv`
+  * `vsconan.conan.runenv`
+  * `vsconan.conan.deactivateenv`
