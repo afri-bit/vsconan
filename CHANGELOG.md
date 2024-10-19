@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.1 - 2024-10-19
+
+* Fix activation of BuildEnv/RunEnv
+
 ## 1.3.0 - 2024-09-10
 
 * [#36](https://github.com/afri-bit/vsconan/issues/36) Support the application of Conan's BuildEnv/RunEnv (Conan 2 only)
