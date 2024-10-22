@@ -426,8 +426,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         promiseIndex.then(index => {
             if (index !== undefined) {
                 let selectedConfig = configList[index];
-                let cmd = commandBuilder.buildCommandInstall(wsPath, selectedConfig);
-                cmd = cmd?.slice(1) ?? []; // cut of "install" from cmd
+                const cmd = commandBuilder.buildCommandInstall(wsPath, selectedConfig)!;
                 this.workspaceEnvironment.activateEnvironment(whichEnv, selectedConfig.name, pythonInterpreter, cmd).then(this.updateStatusBar);
             }
         });

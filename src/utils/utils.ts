@@ -147,7 +147,13 @@ export namespace conan {
      * @returns Array of environment settings
      */
     export async function readEnvFromConan(conanEnv: ConanEnv, pythonInterpreter: string, args: string[]): Promise<[string, string][]> {
-        const envScript = path.join(path.dirname(__dirname), '..', 'resources', 'print_env.py');
+        let envScript = path.join(path.dirname(__dirname), '..', '..', 'resources', 'print_env.py');
+        if (!fs.existsSync(envScript)) {
+            envScript = path.join(path.dirname(__dirname), '..', 'resources', 'print_env.py');
+        }
+        if (!fs.existsSync(envScript)) {
+            throw new Error('Unable to locate print_env.py');
+        }
         const options = { timeout: 20000, cwd: vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
 
         const cmd = `${pythonInterpreter} ${envScript} ${conanEnv} ${args.join(' ')}`;
