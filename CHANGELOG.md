@@ -1,6 +1,8 @@
 # Change Log
 
-## 1.3.1 - 2024-10-19
+## 1.3.1 - 2024-10-22
+
+### Fixed
 
 * Fix activation of BuildEnv/RunEnv
 
