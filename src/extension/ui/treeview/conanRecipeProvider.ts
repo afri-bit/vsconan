@@ -108,16 +108,16 @@ export class ConanRecipeItem extends vscode.TreeItem {
 
         if (this.model.editable) {
             this.iconPath = {
-                light: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe_editable.png'),
-                dark: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe_editable.png')
+                light: vscode.Uri.file(path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe_editable.png')),
+                dark: vscode.Uri.file(path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe_editable.png'))
             };
 
             this.contextValue = 'recipeEditable';
         }
         else {
             this.iconPath = {
-                light: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe.png'),
-                dark: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe.png')
+                light: vscode.Uri.file(path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe.png')),
+                dark: vscode.Uri.file(path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'recipe.png'))
             };
 
             this.contextValue = 'recipe';

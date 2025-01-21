@@ -99,16 +99,16 @@ export class ConanPackageItem extends vscode.TreeItem {
 
         if (this.model.dirty) {
             this.iconPath = {
-                light: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package_dirty.png'),
-                dark: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package_dirty.png')
+                light: vscode.Uri.file(path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package_dirty.png')),
+                dark: vscode.Uri.file(path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package_dirty.png'))
             };
 
             this.contextValue = 'packageDirty';
         }
         else {
             this.iconPath = {
-                light: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package.png'),
-                dark: path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package.png')
+                light: vscode.Uri.file(path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package.png')),
+                dark: vscode.Uri.file(path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package.png'))
             };
 
             this.contextValue = 'package';
