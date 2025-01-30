@@ -99,3 +99,9 @@ markdown_extensions:
 plugins:
     - search
     - awesome-pages
+
+extra_css:
+  - _stylesheets/extra.cs
+  
+hooks:
+  - docs/_hooks/changelog.py
