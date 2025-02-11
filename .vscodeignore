@@ -18,3 +18,12 @@ out/*.js.map
 jest.config.js
 test/**
 .bak/**
+
+.venv/**
+docs/**
+doc/** */
+mkdocs.yml
+doc-requirements.txt
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+.vscode-test.mjs
