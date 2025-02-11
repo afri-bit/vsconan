@@ -24,7 +24,7 @@ describe("Conan 1 Source method", () => {
 
         let cmdString = cmd?.join(" ");
 
-        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -if ${path.normalize("/home/user/ws/install")} -sf ${path.normalize("/home/user/ws/source")}`);
+        expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")} -if ${JSON.stringify("/home/user/ws/install")} -sf ${JSON.stringify("/home/user/ws/source")}`);
     });
 
     it("should return undefined due to missing conan recipe", () => {
