@@ -6,7 +6,7 @@ hide:
 
 # Change Log
 
-## 1.3.2 - tbd
+## 1.3.2 - 2025-02-11
 
 ### Fixed
 
