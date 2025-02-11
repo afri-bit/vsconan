@@ -87,7 +87,7 @@ describe("Workspace", ()=>{
 
         let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
 
-        expect(realPath).toEqual(pathName);
+        expect(realPath).toEqual(JSON.stringify(pathName));
         
     });
 
@@ -98,7 +98,7 @@ describe("Workspace", ()=>{
 
         let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
 
-        expect(realPath).toEqual("/path/to/workspace/relative/path/to/some/file");
+        expect(realPath).toEqual(JSON.stringify("/path/to/workspace/relative/path/to/some/file"));
         
     });
 
@@ -109,7 +109,7 @@ describe("Workspace", ()=>{
 
         let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
 
-        expect(realPath).toEqual("/path/to/workspace/relative/path/to/some/file");
+        expect(realPath).toEqual(JSON.stringify("/path/to/workspace/relative/path/to/some/file"));
         
     });
 
@@ -120,7 +120,7 @@ describe("Workspace", ()=>{
 
         let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
 
-        expect(realPath).toEqual("/path/to/workspace/relative/path/to/some\\ file");
+        expect(realPath).toEqual(JSON.stringify("/path/to/workspace/relative/path/to/some file"));
         
     });
 
@@ -131,7 +131,7 @@ describe("Workspace", ()=>{
 
         let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
 
-        expect(realPath).toEqual("/absolute/path/to/some\\ file");
+        expect(realPath).toEqual(JSON.stringify("/absolute/path/to/some file"));
         
     });
 });

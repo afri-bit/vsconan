@@ -1,3 +1,9 @@
+---
+title: Change Log
+hide:
+  - navigation
+---
+
 # Change Log
 
 ## 1.3.2 - 2025-02-11

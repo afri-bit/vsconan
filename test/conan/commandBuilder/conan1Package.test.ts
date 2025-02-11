@@ -24,7 +24,7 @@ describe("Conan 1 Package method", () => {
 
         let cmdString = cmd?.join(" ");
 
-        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -if ${path.normalize("/home/user/ws/install")} -bf ${path.normalize("/home/user/ws/build")} -pf ${path.normalize("/home/user/ws/package")} -sf ${path.normalize("/home/user/ws/source")}`);
+        expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")} -if ${JSON.stringify("/home/user/ws/install")} -bf ${JSON.stringify("/home/user/ws/build")} -pf ${JSON.stringify("/home/user/ws/package")} -sf ${JSON.stringify("/home/user/ws/source")}`);
     });
 
     it("should return undefined due to missing conan recipe", () => {
@@ -48,7 +48,7 @@ describe("Conan 1 Package method", () => {
 
         let cmdString = cmd?.join(" ");
 
-        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -bf ${path.normalize("/home/user/ws/build")} -pf ${path.normalize("/home/user/ws/package")} -sf ${path.normalize("/home/user/ws/source")}`);
+        expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")} -bf ${JSON.stringify("/home/user/ws/build")} -pf ${JSON.stringify("/home/user/ws/package")} -sf ${JSON.stringify("/home/user/ws/source")}`);
     });
 
     it("should return conan package command without build folder", () => {
@@ -63,7 +63,7 @@ describe("Conan 1 Package method", () => {
 
         let cmdString = cmd?.join(" ");
 
-        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -pf ${path.normalize("/home/user/ws/package")} -sf ${path.normalize("/home/user/ws/source")}`);
+        expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")} -pf ${JSON.stringify("/home/user/ws/package")} -sf ${JSON.stringify("/home/user/ws/source")}`);
     });
 
     it("should return conan package command without package folder", () => {
@@ -79,7 +79,7 @@ describe("Conan 1 Package method", () => {
 
         let cmdString = cmd?.join(" ");
 
-        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -sf ${path.normalize("/home/user/ws/source")}`);
+        expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")} -sf ${JSON.stringify("/home/user/ws/source")}`);
     });
 
     it("should return conan package without arguments", () => {
@@ -96,6 +96,6 @@ describe("Conan 1 Package method", () => {
 
         let cmdString = cmd?.join(" ");
 
-        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")}`);
+        expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")}`);
     });
 }); 
