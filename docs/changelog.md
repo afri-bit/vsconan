@@ -6,6 +6,12 @@ hide:
 
 # Change Log
 
+## 1.3.2 - tbd
+
+### Fixed
+
+* [#49](https://github.com/afri-bit/vsconan/issues/49) Fix path issue with whitespaces
+
 ## 1.3.1 - 2024-10-22
 
 ### Fixed
