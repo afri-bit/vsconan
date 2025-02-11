@@ -23,7 +23,7 @@ describe("Conan 2 Create method", () => {
 
         let cmdString = cmd?.join(" ");
 
-        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} -pr default`);
+        expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")} -pr default`);
     });
 
     it("should return conan create command with user and channel", () => {
@@ -38,7 +38,7 @@ describe("Conan 2 Create method", () => {
 
         let cmdString = cmd?.join(" ");
 
-        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} --user user --channel channel -pr default`);
+        expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")} --user user --channel channel -pr default`);
     });
 
     it("should return command string with only channel", () => {
@@ -52,7 +52,7 @@ describe("Conan 2 Create method", () => {
 
         let cmdString = cmd?.join(" ");
 
-        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} --channel channel -pr default`);
+        expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")} --channel channel -pr default`);
     });
 
     it("should return command string with only user", () => {
@@ -66,7 +66,7 @@ describe("Conan 2 Create method", () => {
 
         let cmdString = cmd?.join(" ");
 
-        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} --user user -pr default`);
+        expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")} --user user -pr default`);
     });
 
     it("should return undefined due to missing conan recipe", () => {
@@ -93,7 +93,7 @@ describe("Conan 2 Create method", () => {
 
         let cmdString = cmd?.join(" ");
 
-        expect(cmdString).toBe(`${path.normalize("/home/user/ws/conanfile.py")} --user user --channel channel -pr myProfile -pr:h host -pr:b build`);
+        expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")} --user user --channel channel -pr myProfile -pr:h host -pr:b build`);
     });
 
 });
