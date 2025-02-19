@@ -49,11 +49,14 @@ body:
       label: "Priority Level"
       description: "How important is this feature?"
       options:
-        - Optional
+        - Nice to have
         - Low
         - Medium
         - High
         - Critical
+    validations:
+      required: true
+    value: Medium
 
   - type: textarea
     id: additional_information
