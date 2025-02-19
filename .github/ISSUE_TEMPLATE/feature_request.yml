@@ -54,9 +54,9 @@ body:
         - Medium
         - High
         - Critical
+      default: Medium
     validations:
       required: true
-    value: Medium
 
   - type: textarea
     id: additional_information
