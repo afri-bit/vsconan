@@ -54,7 +54,7 @@ body:
         - Medium
         - High
         - Critical
-      default: Medium
+      default: 2
     validations:
       required: true
 
