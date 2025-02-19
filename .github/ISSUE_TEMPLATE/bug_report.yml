@@ -15,6 +15,8 @@ body:
       label: "Issue Summary"
       description: "Briefly describe the bug (1-2 sentences)."
       placeholder: "Example: The login button does not respond when clicked."
+    validations:
+      required: true
 
   - type: textarea
     id: actual_behavior
@@ -22,6 +24,8 @@ body:
       label: "Actual Behavior"
       description: "Describe what actually happens, including error messages."
       placeholder: "Example: The login button does nothing and shows a console error."
+    validations:
+      required: true
 
   - type: textarea
     id: steps
@@ -42,38 +46,17 @@ body:
       label: "Expected Behavior"
       description: "Describe what should have happened."
       placeholder: "Example: The login button should redirect to the dashboard."
-
-  - type: textarea
-    id: screenshots
-    attributes:
-      label: "Screenshots or Videos (if applicable)"
-      description: "Attach screenshots or videos to illustrate the issue."
-
-  - type: dropdown
-    id: environment
-    attributes:
-      label: "Environment Details"
-      description: "Select the affected platform."
-      multiple: true
-      options:
-        - Windows
-        - macOS
-        - Linux
-        - Other
+    validations:
+      required: true
 
   - type: input
-    id: browser
+    id: technical_details
     attributes:
-      label: "Browser & Version"
-      description: "If applicable, specify the browser and version."
-      placeholder: "Example: Chrome 120.0.1"
-
-  - type: input
-    id: extension_version
-    attributes:
-      label: "Extension Version"
-      description: "Specify the extension version (if applicable)."
-      placeholder: "Example: v2.3.1"
+      label: "Technical Details"
+      description: "Provide any relevant technical details."
+      placeholder: "Example: OS version, extension version"
+    validations:
+      required: true
 
   - type: textarea
     id: logs
