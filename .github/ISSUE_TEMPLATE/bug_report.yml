@@ -36,7 +36,6 @@ body:
         1. Go to '...'
         2. Click on '...'
         3. Observe '...'
-      value: ""
     validations:
       required: true
 
