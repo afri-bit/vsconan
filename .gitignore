@@ -24,3 +24,5 @@ bak
 __pycache__/
 *.pyc
 dist/
+
+test/conan/conanfile.py

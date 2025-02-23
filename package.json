@@ -2,7 +2,7 @@
     "name": "vsconan",
     "displayName": "VSConan",
     "description": "Conan local cache and workspace manager.",
-    "version": "1.3.2",
+    "version": "1.4.0",
     "publisher": "afri-bit",
     "repository": {
         "type": "git",
@@ -427,14 +427,6 @@
                 }
             },
             {
-                "command": "vsconan.explorer.treeview.profile.item.edit",
-                "title": "Edit",
-                "icon": {
-                    "light": "resources/icon/light/edit.png",
-                    "dark": "resources/icon/dark/edit.png"
-                }
-            },
-            {
                 "command": "vsconan.explorer.treeview.profile.item.duplicate",
                 "title": "Duplicate",
                 "icon": {
@@ -695,11 +687,6 @@
                 {
                     "command": "vsconan.explorer.treeview.package.revision.item.copy-clipboard",
                     "when": "view == vsconan-explorer.treeview.package.revision"
-                },
-                {
-                    "command": "vsconan.explorer.treeview.profile.item.edit",
-                    "when": "view == vsconan-explorer.treeview.profile",
-                    "group": "inline@0"
                 },
                 {
                     "command": "vsconan.explorer.treeview.profile.item.open-explorer",

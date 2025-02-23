@@ -35,7 +35,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
 
         this.registerCommand("vsconan.explorer.treeview.profile.refresh", () => this.refreshProfileTreeview());
         this.registerCommand("vsconan.explorer.treeview.profile.add", () => this.addProfile());
-        this.registerCommand("vsconan.explorer.treeview.profile.item.edit", (node: ConanProfileItem) => this.editProfile(node));
+        this.registerCommand("vsconan.explorer.treeview.profile.item.selected", () => this.showProfile());
         this.registerCommand("vsconan.explorer.treeview.profile.item.remove", (node: ConanProfileItem) => this.removeProfile(node));
         this.registerCommand("vsconan.explorer.treeview.profile.item.open-explorer", (node: ConanProfileItem) => this.openProfileInExplorer(node));
         this.registerCommand("vsconan.explorer.treeview.profile.item.rename", (node: ConanProfileItem) => this.renameProfile(node));
@@ -58,18 +58,22 @@ export class ConanProfileExplorerManager extends ExtensionManager {
     }
 
     /**
-     * Edit selected profile in VSCode, open this as file to be edited
-     * @param node Selected conan profile node item
+     * Show the conan profile content in the editor
      */
-    private editProfile(node: ConanProfileItem) {
+    private showProfile() {
         // Get the list of the profile from the treeview in string format
         let conanProfileList = this.nodeProviderConanProfile.getChildrenString();
 
-        if (conanProfileList.includes(node.label)) {
-            utils.editor.openFileInEditor(this.conanApiManager.conanApi.getProfileFilePath(node.label)!);
+        // Get the selected profile name
+        let profileName: string = this.treeViewConanProfile.selection[0].label;
+        
+        // This check is necessary since the refresh progress needs to be done manually.
+        // TODO: This can be improved using watcher of the conan profile (considering the performance)
+        if (conanProfileList.includes(profileName)) {
+            utils.editor.openFileInEditor(this.conanApiManager.conanApi.getProfileFilePath(profileName)!);
         }
         else {
-            vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
+            vscode.window.showErrorMessage(`Unable to find the profile with name '${profileName}'.`);
         }
     }
 
