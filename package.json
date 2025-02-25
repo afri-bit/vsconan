@@ -671,7 +671,7 @@
                 },
                 {
                     "command": "vsconan.explorer.treeview.package.revision.item.open-explorer",
-                    "when": "view == vsconan-explorer.treeview.package.revision",
+                    "when": "view == vsconan-explorer.treeview.package.revision && viewItem == packageRevision",
                     "group": "inline"
                 },
                 {
