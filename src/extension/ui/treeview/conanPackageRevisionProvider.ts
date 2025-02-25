@@ -1,5 +1,6 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as fs from 'fs';
 import { ConanAPIManager } from '../../../conans/api/conanAPIManager';
 import { ConanPackageRevision } from '../../../conans/model/conanPackageRevision';
 import { SettingsPropertyManager } from '../../settings/settingsPropertyManager';
@@ -14,6 +15,8 @@ export class ConanPackageRevisionNodeProvider implements vscode.TreeDataProvider
     private showDirtyPackage: boolean = false;
     private conanApiManager: ConanAPIManager;
     private settingsPropertyManager: SettingsPropertyManager;
+
+    private expandedNodes = new Set<string>();
 
     public constructor(conanApiManager: ConanAPIManager, settingsPropertyManager: SettingsPropertyManager) {
         this.conanApiManager = conanApiManager;
@@ -33,19 +36,61 @@ export class ConanPackageRevisionNodeProvider implements vscode.TreeDataProvider
 
     public getChildren(element?: ConanPackageRevisionItem): ConanPackageRevisionItem[] {
 
-        let packageRevisionList: Array<ConanPackageRevision> = [];
-        let dirtyPackageList: Array<ConanPackageRevision> = [];
-        let packageRevisionItemList: Array<ConanPackageRevisionItem> = [];
+        if (!element) {
 
-        if (this.conanApiManager.conanApi) {
-            packageRevisionList = this.conanApiManager.conanApi.getPackageRevisions(this.recipeName, this.packageId);
+            let packageRevisionList: Array<ConanPackageRevision> = [];
+            let dirtyPackageList: Array<ConanPackageRevision> = [];
+            let packageRevisionItemList: Array<ConanPackageRevisionItem> = [];
+    
+            if (this.conanApiManager.conanApi) {
+                packageRevisionList = this.conanApiManager.conanApi.getPackageRevisions(this.recipeName, this.packageId);
+    
+                for (let pkgRevision of packageRevisionList) {
+                    let packageRevisionPath = this.conanApiManager.conanApi.getPackageRevisionPath(this.recipeName, this.packageId, pkgRevision.id);
 
-            for (let pkgRevision of packageRevisionList) {
-                packageRevisionItemList.push(new ConanPackageRevisionItem(pkgRevision.id, vscode.TreeItemCollapsibleState.None, pkgRevision));
+
+                    packageRevisionItemList.push(new ConanPackageRevisionItem(pkgRevision.id,
+                        vscode.Uri.file(packageRevisionPath!),
+                        vscode.TreeItemCollapsibleState.Collapsed,
+                        pkgRevision, true, true));
+                }
             }
+
+            return packageRevisionItemList;
         }
 
-        return packageRevisionItemList;
+        // Load subfolders/files only if the folder is expanded
+        if (!this.expandedNodes.has(element.resourceUri.fsPath)) {
+            return [];
+        }
+        
+        return this.getFilesAndFolders(element.resourceUri.fsPath);
+
+    }
+
+    private getFilesAndFolders(directoryPath: string): ConanPackageRevisionItem[] {
+        if (!fs.existsSync(directoryPath)) {
+            return [];
+        }
+
+        const files = fs.readdirSync(directoryPath).map(file => {
+            const filePath = path.join(directoryPath, file);
+            const stat = fs.statSync(filePath);
+
+            return new ConanPackageRevisionItem(
+                file,
+                vscode.Uri.file(filePath),
+                stat.isDirectory() ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+                new ConanPackageRevision("",123),
+                false,
+                stat.isDirectory()
+            );
+        });
+
+        // Sort: Folders first, then files
+        files.sort((a, b) => Number(b.isDirectory) - Number(a.isDirectory));
+
+        return files;
     }
 
     public getChildrenString(): string[] {
@@ -57,33 +102,42 @@ export class ConanPackageRevisionNodeProvider implements vscode.TreeDataProvider
 
         return childStringList;
     }
+
+    expandFolder(uri: vscode.Uri): void {
+        this.expandedNodes.add(uri.fsPath);
+        this.refresh(this.recipeName, this.packageId, this.showDirtyPackage);
+    }
 }
 
 export class ConanPackageRevisionItem extends vscode.TreeItem {
-    public model: ConanPackageRevision;
+    public model!: ConanPackageRevision;
+    isDirectory: boolean; // To check if it's a folder
 
-    constructor(
-        public readonly label: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        model: ConanPackageRevision) {
+    constructor(public readonly label: string, public readonly resourceUri: vscode.Uri, public readonly collapsibleState: vscode.TreeItemCollapsibleState, model: ConanPackageRevision, isRoot: boolean, isDirectory: boolean = false) {
 
-        super(label, collapsibleState);
+        super(resourceUri=resourceUri, collapsibleState=collapsibleState);
 
-        this.model = model;
+        this.label = label;
 
-        this.tooltip = JSON.stringify(this.model, null, 4);
+        this.isDirectory = isDirectory;
 
         this.command = {
             "title": "Conan Package Revision Selected",
             "command": "vsconan.explorer.treeview.package.revision.item.selected",
         };
 
+        if (isRoot) {
+            this.iconPath = {
+                light: vscode.Uri.file(path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package_revision.png')),
+                dark: vscode.Uri.file(path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package_revision.png'))
+            };
 
-        this.iconPath = {
-            light: vscode.Uri.file(path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package_revision.png')),
-            dark: vscode.Uri.file(path.join(__filename, '..', '..', '..', '..', '..', '..', 'resources', 'icon', 'package_revision.png'))
-        };
+            this.contextValue = 'packageRevision';
+            this.model = model;
 
-        this.contextValue = 'packageRevision';
+            this.tooltip = JSON.stringify(this.model, null, 4);
+        }
+
+        
     }
 }

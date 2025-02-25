@@ -60,6 +60,20 @@ export class ConanCacheExplorerManager extends ExtensionManager {
             treeDataProvider: this.nodeProviderConanPackageRevision
         });
 
+        this.treeViewConanPackageRevision.onDidChangeSelection(event => {
+            if (event.selection.length === 1) {
+                const selectedItem = event.selection[0] as ConanPackageRevisionItem;
+    
+                if (selectedItem.isDirectory) {
+                    // Expand the folder if it is double-clicked
+                    this.nodeProviderConanPackageRevision.expandFolder(selectedItem.resourceUri);
+                } else {
+                    // Open the file if it is double-clicked
+                    vscode.window.showTextDocument(selectedItem.resourceUri);
+                }
+            }
+        })
+
         // Register command for recipe treeview
         this.registerCommand("vsconan.explorer.treeview.recipe.refresh", () => this.recipeRefreshTreeview());
         this.registerCommand("vsconan.explorer.treeview.recipe.filter.set", () => this.recipeSetFilter());
