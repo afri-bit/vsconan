@@ -72,7 +72,7 @@ export class ConanCacheExplorerManager extends ExtensionManager {
                     vscode.window.showTextDocument(selectedItem.resourceUri);
                 }
             }
-        })
+        });
 
         // Register command for recipe treeview
         this.registerCommand("vsconan.explorer.treeview.recipe.refresh", () => this.recipeRefreshTreeview());
