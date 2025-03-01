@@ -2,6 +2,11 @@
 
 ## 1.4.0 - tbd
 
+### Added
+
+* [#50](https://github.com/afri-bit/vsconan/issues/50) Conan Package Revision directory structure  
+  Show content of package revision in the treeview, basically recreating the file explorer for the conan package revision
+
 ### Changed
 
 * [#43](https://github.com/afri-bit/vsconan/issues/43) Improved the UX on conan profile selection  
