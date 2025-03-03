@@ -1,0 +1,71 @@
+name: "🐞 Bug Report"
+description: "Report a bug to help improve the project."
+title: "[Bug]: <Describe the issue here shortly>"
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: "### 🐞 Please fill out the details below to report a bug."
+
+  - type: input
+    id: summary
+    attributes:
+      label: "Issue Summary"
+      description: "Briefly describe the bug (1-2 sentences)."
+      placeholder: "Example: The login button does not respond when clicked."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual_behavior
+    attributes:
+      label: "Actual Behavior"
+      description: "Describe what actually happens, including error messages."
+      placeholder: "Example: The login button does nothing and shows a console error."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to Reproduce"
+      description: "Provide step-by-step instructions to reproduce the issue."
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Observe '...'
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: "Expected Behavior"
+      description: "Describe what should have happened."
+      placeholder: "Example: The login button should redirect to the dashboard."
+    validations:
+      required: true
+
+  - type: input
+    id: technical_details
+    attributes:
+      label: "Technical Details"
+      description: "Provide any relevant technical details."
+      placeholder: "Example: OS version, extension version"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Error Logs (if any)"
+      description: "Paste any relevant logs or console errors."
+      render: shell
+
+  - type: textarea
+    id: additional_information
+    attributes:
+      label: "Additional Information"
+      description: "Any other relevant details?"

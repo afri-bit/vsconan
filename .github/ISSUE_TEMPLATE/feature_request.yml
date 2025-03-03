@@ -1,0 +1,65 @@
+name: "✨ Feature Request"
+description: "Suggest a new feature or improvement."
+title: "[Feature]: <Title of the feature request>"
+labels: ["enhancement", "feature request"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: "### ✨ Thank you for your feature request! Please fill out the details below."
+
+  - type: input
+    id: summary
+    attributes:
+      label: "Feature Summary"
+      description: "Briefly describe the new feature or improvement."
+      placeholder: "Example: Add dark mode support."
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problem Statement"
+      description: "Describe the problem this feature will solve. Why is it needed?"
+      placeholder: "Example: The current interface is too bright at night, making it difficult to use."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Proposed Solution"
+      description: "Describe how you think this feature should be implemented."
+      placeholder: "Example: Add a toggle button in settings to switch between light and dark mode."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered"
+      description: "Have you considered any alternative solutions or workarounds?"
+      placeholder: "Example: Using a browser extension for dark mode, but it doesn't work well."
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority Level"
+      description: "How important is this feature?"
+      options:
+        - Nice to have
+        - Low
+        - Medium
+        - High
+        - Critical
+      default: 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional_information
+    attributes:
+      label: "Additional Information"
+      description: "Provide any additional details, mockups, or links that may help."
