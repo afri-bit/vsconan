@@ -1,5 +1,17 @@
 # Change Log
 
+## 1.4.0 - tbd
+
+### Added
+
+* [#50](https://github.com/afri-bit/vsconan/issues/50) Conan Package Revision directory structure  
+  Show content of package revision in the treeview, basically recreating the file explorer for the conan package revision
+
+### Changed
+
+* [#43](https://github.com/afri-bit/vsconan/issues/43) Improved the UX on conan profile selection  
+  Removed the edit button, and replace it with native VS code click interface. User can open the conan profile in the editor by double clicking / single clicking (depends on the configuration.)
+
 ## 1.3.2 - 2025-02-11
 
 ### Fixed
