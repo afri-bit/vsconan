@@ -3,17 +3,17 @@
  */
 
 import {
-    CommandContainer,
-    ConfigCommand, ConfigCommandBuild,
-    ConfigCommandCreate, ConfigCommandInstall,
-    ConfigCommandPackage, ConfigCommandPackageExport,
-    ConfigCommandSource
+    commandContainerSchema,
+    configCommandSchema, configCommandBuildSchema,
+    configCommandCreateSchema, configCommandInstallSchema,
+    configCommandPackageSchema, configCommandPackageExportSchema,
+    configCommandSourceSchema
 } from "../../src/conans/command/configCommand";
 
 describe("Conan Config Command basic class ", () => {
 
     it("should return original value", () => {
-        let cfgCommand = new ConfigCommand();
+        let cfgCommand = configCommandSchema.parse({});
         expect(cfgCommand.name).toBe("");
         expect(cfgCommand.description).toBe("");
         expect(cfgCommand.detail).toBe("");
@@ -25,7 +25,7 @@ describe("Conan Config Command basic class ", () => {
 describe("Conan Create", () => {
 
     it("should return original value", () => {
-        let cfg = new ConfigCommandCreate();
+        let cfg = configCommandCreateSchema.parse({});
 
         expect(cfg.name).toBe("create");
         expect(cfg.description).toBe("Create command");
@@ -42,11 +42,12 @@ describe("Conan Create", () => {
 describe("Conan Install", () => {
 
     it("should return original value", () => {
-        let cfg = new ConfigCommandInstall();
+        let cfg = configCommandInstallSchema.parse({});
 
         expect(cfg.name).toBe("install");
         expect(cfg.description).toBe("Install command");
         expect(cfg.detail).toBe("Install command detail");
+        expect(cfg.installFolder).toBe("install");
         expect(cfg.profile).toBe("default");
         expect(cfg.user).toBe("");
         expect(cfg.channel).toBe("");
@@ -59,7 +60,7 @@ describe("Conan Install", () => {
 describe("Conan Build", () => {
 
     it("should return original value", () => {
-        let cfg = new ConfigCommandBuild();
+        let cfg = configCommandBuildSchema.parse({});
 
         expect(cfg.name).toBe("build");
         expect(cfg.description).toBe("Build command");
@@ -77,7 +78,7 @@ describe("Conan Build", () => {
 describe("Conan Source", () => {
 
     it("should return original value", () => {
-        let cfg = new ConfigCommandSource();
+        let cfg = configCommandSourceSchema.parse({});
 
         expect(cfg.name).toBe("source");
         expect(cfg.description).toBe("Source command");
@@ -96,7 +97,7 @@ describe("Conan Source", () => {
 describe("Conan Package", () => {
 
     it("should return original value", () => {
-        let cfg = new ConfigCommandPackage();
+        let cfg = configCommandPackageSchema.parse({});
 
         expect(cfg.name).toBe("pkg");
         expect(cfg.description).toBe("Package command");
@@ -112,7 +113,7 @@ describe("Conan Package", () => {
 describe("Conan Package Export", () => {
 
     it("should return original value", () => {
-        let cfg = new ConfigCommandPackageExport();
+        let cfg = configCommandPackageExportSchema.parse({});
 
         expect(cfg.name).toBe("pkg_export");
         expect(cfg.description).toBe("Package export command");
@@ -131,7 +132,7 @@ describe("Conan Package Export", () => {
 describe("Conan Command Container", () => {
 
     it("should initialize with empty list", () => {
-        let ctn = new CommandContainer();
+        let ctn = commandContainerSchema.parse({});
 
         expect(ctn.create.length).toBe(0);
         expect(ctn.install.length).toBe(0);
@@ -143,7 +144,7 @@ describe("Conan Command Container", () => {
     });
 
     it("should have certain type of array", () => {
-        let ctn = new CommandContainer();
+        let ctn = commandContainerSchema.parse({});
 
         expect(ctn.create.length).toBe(0);
         expect(ctn.install.length).toBe(0);

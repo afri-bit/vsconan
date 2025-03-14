@@ -1,7 +1,8 @@
 import * as vscode from "../../mocks/vscode";
 
-import { ConfigCommandBuild } from "../../../src/conans/command/configCommand";
+import { configCommandBuildSchema } from "../../../src/conans/command/configCommand";
 import { CommandBuilderConan1 } from "../../../src/conans/conan/commandBuilder";
+
 import path = require("path");
 
 jest.mock('vscode', () => vscode, { virtual: true });
@@ -18,7 +19,7 @@ describe("Conan 1 Build method", () => {
 
     it("should return conan build command with standard value", () => {
 
-        let cmd = commandBuilder.buildCommandBuild("/home/user/ws", new ConfigCommandBuild());
+        let cmd = commandBuilder.buildCommandBuild("/home/user/ws", configCommandBuildSchema.parse({}));
 
         expect(cmd?.length).toBe(9);
 
@@ -29,7 +30,7 @@ describe("Conan 1 Build method", () => {
 
     it("should return undefined due to missing conan recipe", () => {
 
-        let conanBuild = new ConfigCommandBuild();
+        let conanBuild = configCommandBuildSchema.parse({});
         conanBuild.conanRecipe = "";
 
         let cmd = commandBuilder.buildCommandBuild("/home/user/ws", conanBuild);
@@ -39,7 +40,7 @@ describe("Conan 1 Build method", () => {
 
     it("should return conan build command without install folder", () => {
 
-        let conanBuild = new ConfigCommandBuild();
+        let conanBuild = configCommandBuildSchema.parse({});
         conanBuild.installFolder = "";
 
         let cmd = commandBuilder.buildCommandBuild("/home/user/ws", conanBuild);
@@ -53,7 +54,7 @@ describe("Conan 1 Build method", () => {
 
     it("should return conan build command without build folder", () => {
 
-        let conanBuild = new ConfigCommandBuild();
+        let conanBuild = configCommandBuildSchema.parse({});
         conanBuild.buildFolder = "";
 
         let cmd = commandBuilder.buildCommandBuild("/home/user/ws", conanBuild);
@@ -67,13 +68,13 @@ describe("Conan 1 Build method", () => {
 
     it("should return conan build command without package folder", () => {
 
-        let conanBuild = new ConfigCommandBuild();
+        let conanBuild = configCommandBuildSchema.parse({});
         conanBuild.packageFolder = "";
 
         let cmd = commandBuilder.buildCommandBuild("/home/user/ws", conanBuild);
 
         expect(cmd?.length).toBe(7);
-    
+
         let cmdString = cmd?.join(" ");
 
         expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")} -if ${JSON.stringify("/home/user/ws/install")} -bf ${JSON.stringify("/home/user/ws/build")} -sf ${JSON.stringify("/home/user/ws/source")}`);
@@ -81,7 +82,7 @@ describe("Conan 1 Build method", () => {
 
     it("should return conan build command without source folder", () => {
 
-        let conanBuild = new ConfigCommandBuild();
+        let conanBuild = configCommandBuildSchema.parse({});
         conanBuild.sourceFolder = "";
 
         let cmd = commandBuilder.buildCommandBuild("/home/user/ws", conanBuild);
@@ -95,7 +96,7 @@ describe("Conan 1 Build method", () => {
 
     it("should return conan build command without folder definitions", () => {
 
-        let conanBuild = new ConfigCommandBuild();
+        let conanBuild = configCommandBuildSchema.parse({});
         conanBuild.installFolder = "";
         conanBuild.sourceFolder = "";
         conanBuild.packageFolder = "";
@@ -112,7 +113,7 @@ describe("Conan 1 Build method", () => {
 
     it("should return conan build command with additional args", () => {
 
-        let conanBuild = new ConfigCommandBuild();
+        let conanBuild = configCommandBuildSchema.parse({});
         conanBuild.installFolder = "";
         conanBuild.sourceFolder = "";
         conanBuild.packageFolder = "";

@@ -1,13 +1,12 @@
 import * as vscode from "../../mocks/vscode";
 
 import { CommandBuilderConan2 } from "../../../src/conans/conan2/commandBuilder";
-import { ConfigCommandCreate } from "../../../src/conans/command/configCommand";
+import { configCommandCreateSchema } from "../../../src/conans/command/configCommand";
 import path = require("path");
 
 jest.mock('vscode', () => vscode, { virtual: true });
 
 let commandBuilder: CommandBuilderConan2;
-
 
 beforeAll(() => {
     commandBuilder = new CommandBuilderConan2();
@@ -16,8 +15,8 @@ beforeAll(() => {
 describe("Conan 2 Create method", () => {
 
     it("should return conan create command with standard value", () => {
-
-        let cmd = commandBuilder.buildCommandCreate("/home/user/ws", new ConfigCommandCreate());
+        let cfg = configCommandCreateSchema.parse({});
+        let cmd = commandBuilder.buildCommandCreate("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(3);
 
@@ -27,12 +26,12 @@ describe("Conan 2 Create method", () => {
     });
 
     it("should return conan create command with user and channel", () => {
+        let cfg = configCommandCreateSchema.parse({
+            user: "user",
+            channel: "channel"
+        });
 
-        let conanCreate = new ConfigCommandCreate();
-        conanCreate.user = "user";
-        conanCreate.channel = "channel";
-
-        let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
+        let cmd = commandBuilder.buildCommandCreate("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(7);
 
@@ -42,11 +41,11 @@ describe("Conan 2 Create method", () => {
     });
 
     it("should return command string with only channel", () => {
+        let cfg = configCommandCreateSchema.parse({
+            channel: "channel"
+        });
 
-        let conanCreate = new ConfigCommandCreate();
-        conanCreate.channel = "channel";
-
-        let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
+        let cmd = commandBuilder.buildCommandCreate("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(5);
 
@@ -56,11 +55,11 @@ describe("Conan 2 Create method", () => {
     });
 
     it("should return command string with only user", () => {
+        let cfg = configCommandCreateSchema.parse({
+            user: "user"
+        });
 
-        let conanCreate = new ConfigCommandCreate();
-        conanCreate.user = "user";
-
-        let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
+        let cmd = commandBuilder.buildCommandCreate("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(5);
 
@@ -70,24 +69,24 @@ describe("Conan 2 Create method", () => {
     });
 
     it("should return undefined due to missing conan recipe", () => {
+        let cfg = configCommandCreateSchema.parse({
+            conanRecipe: ""
+        });
 
-        let conanCreate = new ConfigCommandCreate();
-        conanCreate.conanRecipe = "";
-
-        let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
+        let cmd = commandBuilder.buildCommandCreate("/home/user/ws", cfg);
 
         expect(cmd).toBe(undefined);
     });
 
     it("should return command additional flags from args", () => {
+        let cfg = configCommandCreateSchema.parse({
+            user: "user",
+            channel: "channel",
+            profile: "myProfile",
+            args: ["-pr:h", "host", "-pr:b", "build"]
+        });
 
-        let conanCreate = new ConfigCommandCreate();
-        conanCreate.user = "user";
-        conanCreate.channel = "channel";
-        conanCreate.profile = "myProfile";
-        conanCreate.args = ["-pr:h", "host", "-pr:b", "build"];
-
-        let cmd = commandBuilder.buildCommandCreate("/home/user/ws", conanCreate);
+        let cmd = commandBuilder.buildCommandCreate("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(11);
 

@@ -1,24 +1,22 @@
 import * as vscode from "../../mocks/vscode";
 
 import { CommandBuilderConan1 } from "../../../src/conans/conan/commandBuilder";
-import { ConfigCommandInstall } from "../../../src/conans/command/configCommand";
+import { configCommandInstallSchema } from "../../../src/conans/command/configCommand";
 import path = require("path");
 
 jest.mock('vscode', () => vscode, { virtual: true });
 
 let commandBuilder: CommandBuilderConan1;
 
-
 beforeAll(() => {
     commandBuilder = new CommandBuilderConan1();
 });
 
-
 describe("Conan 1 Install method", () => {
 
     it("should return conan install command with standard value", () => {
-
-        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", new ConfigCommandInstall());
+        let cfg = configCommandInstallSchema.parse({});
+        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(5);
 
@@ -28,11 +26,11 @@ describe("Conan 1 Install method", () => {
     });
 
     it("should return conan install command with custom profile", () => {
+        let cfg = configCommandInstallSchema.parse({
+            profile: "foo"
+        });
 
-        let conanInstall = new ConfigCommandInstall();
-        conanInstall.profile = "foo";
-
-        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", conanInstall);
+        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(5);
 
@@ -42,13 +40,13 @@ describe("Conan 1 Install method", () => {
     });
 
     it("should return conan install command with user and channel", () => {
+        let cfg = configCommandInstallSchema.parse({
+            profile: "foo",
+            user: "user",
+            channel: "channel"
+        });
 
-        let conanInstall = new ConfigCommandInstall();
-        conanInstall.profile = "foo";
-        conanInstall.user = "user";
-        conanInstall.channel = "channel";
-
-        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", conanInstall);
+        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(6);
 
@@ -58,12 +56,12 @@ describe("Conan 1 Install method", () => {
     });
 
     it("should return conan install command without user and channel due to missing user", () => {
+        let cfg = configCommandInstallSchema.parse({
+            profile: "foo",
+            channel: "channel"
+        });
 
-        let conanInstall = new ConfigCommandInstall();
-        conanInstall.profile = "foo";
-        conanInstall.channel = "channel";
-
-        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", conanInstall);
+        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(5);
 
@@ -73,21 +71,21 @@ describe("Conan 1 Install method", () => {
     });
 
     it("should return undefined due to missing conan recipe", () => {
+        let cfg = configCommandInstallSchema.parse({
+            conanRecipe: ""
+        });
 
-        let conanInstall = new ConfigCommandInstall();
-        conanInstall.conanRecipe = "";
-
-        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", conanInstall);
+        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", cfg);
 
         expect(cmd).toBe(undefined);
     });
 
     it("should return conan install command with custom install folder", () => {
+        let cfg = configCommandInstallSchema.parse({
+            installFolder: "bar"
+        });
 
-        let conanInstall = new ConfigCommandInstall();
-        conanInstall.installFolder = "bar";
-
-        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", conanInstall);
+        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(5);
 
@@ -97,11 +95,12 @@ describe("Conan 1 Install method", () => {
     });
 
     it("should return conan install command with additional args", () => {
-        let conanInstall = new ConfigCommandInstall();
-        conanInstall.installFolder = "bar";
-        conanInstall.args = ["-pr:b", "foo"];
+        let cfg = configCommandInstallSchema.parse({
+            installFolder: "bar",
+            args: ["-pr:b", "foo"]
+        });
 
-        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", conanInstall);
+        let cmd = commandBuilder.buildCommandInstall("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(7);
 
@@ -109,4 +108,4 @@ describe("Conan 1 Install method", () => {
 
         expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")} -pr default -if ${JSON.stringify("/home/user/ws/bar")} -pr:b foo`);
     });
-}); 
+});

@@ -5,9 +5,9 @@ import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 import {
-    CommandContainer, ConfigCommandBuild, ConfigCommandCreate,
-    ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport,
-    ConfigCommandSource
+    commandContainerSchema, configCommandBuildSchema, configCommandCreateSchema,
+    configCommandInstallSchema, configCommandPackageSchema, configCommandPackageExportSchema,
+    configCommandSourceSchema
 } from "../conans/command/configCommand";
 import { ConfigWorkspace } from "../conans/workspace/configWorkspace";
 import * as constants from "./constants";
@@ -96,14 +96,14 @@ export namespace vsconan {
          *
          */
         export function createInitialWorkspaceConfig(configPath: string) {
-            let configWorkspace = new ConfigWorkspace(new CommandContainer(
-                [new ConfigCommandCreate()],
-                [new ConfigCommandInstall()],
-                [new ConfigCommandBuild()],
-                [new ConfigCommandSource()],
-                [new ConfigCommandPackage()],
-                [new ConfigCommandPackageExport()]
-            ));
+            let configWorkspace = new ConfigWorkspace(commandContainerSchema.parse({
+                create: [configCommandCreateSchema.parse({})],
+                install: [configCommandInstallSchema.parse({})],
+                build: [configCommandBuildSchema.parse({})],
+                source: [configCommandSourceSchema.parse({})],
+                pkg: [configCommandPackageSchema.parse({})],
+                pkgExport: [configCommandPackageExportSchema.parse({})]
+            }));
 
             configWorkspace.writeToFile(path.join(configPath, constants.CONFIG_FILE));
         }

@@ -1,10 +1,10 @@
 import * as fs from "fs";
-import { CommandContainer } from "../command/configCommand";
+import { commandContainerSchema, CommandContainer } from "../command/configCommand";
 
 export class ConfigWorkspace {
     public commandContainer: CommandContainer;
 
-    constructor(commandContainer: CommandContainer = new CommandContainer()) {
+    constructor(commandContainer: CommandContainer = commandContainerSchema.parse({})) {
         this.commandContainer = commandContainer;
     }
 
@@ -14,9 +14,9 @@ export class ConfigWorkspace {
     }
 
     /**
-     * Save current configuration to JSON file with give file name
+     * Save current configuration to JSON file with given file name
      * 
-     * @param filename
+     * @param filename - The name of the file to save the configuration to.
      */
     public writeToFile(filename: string) {
         let jsonString = JSON.stringify(this, null, 4);

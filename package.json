@@ -836,6 +836,7 @@
     },
     "dependencies": {
         "@vscode/python-extension": "^1.0.5",
-        "child_process": "^1.0.2"
+        "child_process": "^1.0.2",
+        "zod": "^3.24.2"
     }
 }
