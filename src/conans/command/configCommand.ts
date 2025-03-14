@@ -7,6 +7,21 @@ const configCommandSchema = z.object({
     conanRecipe: z.string().default("conanfile.py")
 });
 
+const taskSchema = z.object({
+    name: z.string(),
+    description: z.string().default("").optional(),
+    command: z.string(),
+    args: z.array(z.string()).default([]).optional(),
+    continueOnError: z.boolean().default(false).optional(),
+    context: z.string().optional(),
+    env: z.record(z.string()).optional()
+});
+
+const withTaskSchema = z.object({
+    preTask: z.array(taskSchema).default([]).optional(),
+    postTask: z.array(taskSchema).default([]).optional()
+});
+
 const configCommandCreateSchema = configCommandSchema.extend({
     name: z.string().default("create"),
     description: z.string().default("Create command"),
@@ -15,7 +30,7 @@ const configCommandCreateSchema = configCommandSchema.extend({
     user: z.string().default(""),
     channel: z.string().default(""),
     args: z.array(z.string()).default([])
-});
+}).extend(withTaskSchema.shape);
 
 const configCommandInstallSchema = configCommandSchema.extend({
     name: z.string().default("install"),
@@ -26,7 +41,7 @@ const configCommandInstallSchema = configCommandSchema.extend({
     user: z.string().default(""),
     channel: z.string().default(""),
     args: z.array(z.string()).default([])
-});
+}).extend(withTaskSchema.shape);
 
 const configCommandBuildSchema = configCommandSchema.extend({
     name: z.string().default("build"),
@@ -37,7 +52,7 @@ const configCommandBuildSchema = configCommandSchema.extend({
     packageFolder: z.string().default("package"),
     sourceFolder: z.string().default("source"),
     args: z.array(z.string()).default([])
-});
+}).extend(withTaskSchema.shape);
 
 const configCommandSourceSchema = configCommandSchema.extend({
     name: z.string().default("source"),
@@ -49,7 +64,7 @@ const configCommandSourceSchema = configCommandSchema.extend({
     user: z.string().default(""),
     channel: z.string().default(""),
     args: z.array(z.string()).default([])
-});
+}).extend(withTaskSchema.shape);
 
 const configCommandPackageSchema = configCommandSchema.extend({
     name: z.string().default("pkg"),
@@ -59,7 +74,7 @@ const configCommandPackageSchema = configCommandSchema.extend({
     buildFolder: z.string().default("build"),
     packageFolder: z.string().default("package"),
     sourceFolder: z.string().default("source")
-});
+}).extend(withTaskSchema.shape);
 
 const configCommandPackageExportSchema = configCommandSchema.extend({
     name: z.string().default("pkg_export"),
@@ -72,7 +87,7 @@ const configCommandPackageExportSchema = configCommandSchema.extend({
     user: z.string().default(""),
     channel: z.string().default(""),
     args: z.array(z.string()).default([])
-});
+}).extend(withTaskSchema.shape);
 
 const commandContainerSchema = z.object({
     create: z.array(configCommandCreateSchema).default([]),
