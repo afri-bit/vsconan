@@ -4,14 +4,14 @@ import * as vscode from 'vscode';
 import { ConanAPIManager } from '../../conans/api/conanAPIManager';
 import { CommandBuilder } from "../../conans/command/commandBuilder";
 import { CommandBuilderFactory } from "../../conans/command/commandBuilderFactory";
-import { ConfigCommand, ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from '../../conans/command/configCommand';
-import { ConfigWorkspace } from '../../conans/workspace/configWorkspace';
+import { commandContainerSchema, ConfigCommand, ConfigCommandBuild, configCommandBuildSchema, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from '../../conans/command/configCommand';
 import * as constants from "../../utils/constants";
 import * as utils from '../../utils/utils';
 import { ConanProfileConfiguration } from "../settings/model";
 import { SettingsPropertyManager } from "../settings/settingsPropertyManager";
 import { ExtensionManager } from "./extensionManager";
 import { VSConanWorkspaceEnvironment } from "./workspaceEnvironment";
+import { ConfigWorkspace, configWorkspaceSchema } from "../../conans/workspace/configWorkspace";
 
 enum ConanCommand {
     create,
@@ -199,7 +199,14 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 vscode.window.showInformationMessage("Config file already exists in the workspace.");
             }
             else {
-                utils.vsconan.config.createInitialWorkspaceConfig(vsconanPath);
+                try {
+                    utils.vsconan.config.createInitialWorkspaceConfig(vsconanPath);
+
+                }
+                catch (err) {
+                    console.log(err);
+                }
+
 
                 // Open configuration file after being created
                 utils.editor.openFileInEditor(configFilePath);
@@ -240,9 +247,27 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         let configPath = path.join(wsPath!, constants.VSCONAN_FOLDER, constants.CONFIG_FILE);
 
         if (fs.existsSync(configPath)) {
-            let configWorkspace = new ConfigWorkspace();
-            let configText = fs.readFileSync(configPath, 'utf8');
-            configWorkspace = JSON.parse(configText);
+            let configWorkspace: ConfigWorkspace;
+            
+            try {
+                let configText = fs.readFileSync(configPath, 'utf8');
+                let configJson = JSON.parse(configText);
+
+                // Validate the schema
+                configWorkspace = configWorkspaceSchema.parse(configJson);
+
+                // if (!validationResult.success) {
+                //     vscode.window.showErrorMessage("Invalid configuration schema.");
+                //     return;
+                // }
+
+                // configWorkspace = validationResult.data;
+            }
+            catch (err) {
+                vscode.window.showErrorMessage(`Invalid configuration Schema\n\n${(err as Error).message}`);
+                return;
+            }
+
 
             let conanCommand = "";
             let commandBuilder: CommandBuilder | undefined;
@@ -270,25 +295,25 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 }
             }
             else {
-                vscode.window.showErrorMessage("");
+                vscode.window.showErrorMessage("Invalid Conan Profile");
                 return;
             }
 
             switch (+cmdType) {
                 case ConanCommand.create: {
-                    this.executeCommandConanCreate(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.create);
+                    this.executeCommandConanCreate(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.create!);
                     break;
                 }
                 case ConanCommand.install: {
-                    this.executeCommandConanInstall(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.install);
+                    this.executeCommandConanInstall(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.install!);
                     break;
                 }
                 case ConanCommand.build: {
-                    this.executeCommandConanBuild(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.build);
+                    this.executeCommandConanBuild(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.build!);
                     break;
                 }
                 case ConanCommand.source: {
-                    this.executeCommandConanSource(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.source);
+                    this.executeCommandConanSource(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.source!);
                     break;
                 }
                 case ConanCommand.package: {
@@ -297,11 +322,11 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                         break;
                     }
 
-                    this.executeCommandConanPackage(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkg);
+                    this.executeCommandConanPackage(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkg!);
                     break;
                 }
                 case ConanCommand.packageExport: {
-                    this.executeCommandConanPackageExport(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkgExport);
+                    this.executeCommandConanPackageExport(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkgExport!);
                     break;
                 }
                 case ConanCommand.activateBuildEnv: {
@@ -309,7 +334,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                         vscode.window.showErrorMessage("This command is not yet supported for Conan 1");
                         break;
                     }
-                    this.executeCommandActivateEnv(wsPath!, conanProfileObject.conanPythonInterpreter, utils.conan.ConanEnv.buildEnv, commandBuilder!, configWorkspace.commandContainer.install);
+                    this.executeCommandActivateEnv(wsPath!, conanProfileObject.conanPythonInterpreter, utils.conan.ConanEnv.buildEnv, commandBuilder!, configWorkspace.commandContainer.install!);
                     break;
                 }
                 case ConanCommand.activateRunEnv: {
@@ -317,7 +342,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                         vscode.window.showErrorMessage("This command is not yet supported for Conan 1");
                         break;
                     }
-                    this.executeCommandActivateEnv(wsPath!, conanProfileObject.conanPythonInterpreter, utils.conan.ConanEnv.runEnv, commandBuilder!, configWorkspace.commandContainer.install);
+                    this.executeCommandActivateEnv(wsPath!, conanProfileObject.conanPythonInterpreter, utils.conan.ConanEnv.runEnv, commandBuilder!, configWorkspace.commandContainer.install!);
                     break;
                 }
                 case ConanCommand.deactivateEnv: {

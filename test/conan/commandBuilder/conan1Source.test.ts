@@ -1,7 +1,7 @@
 import * as vscode from "../../mocks/vscode";
 
 import { CommandBuilderConan1 } from "../../../src/conans/conan/commandBuilder";
-import { configCommandSourceSchema } from "../../../src/conans/command/configCommand";
+import { configCommandSourceSchemaDefault } from "../../../src/conans/command/configCommand";
 import path = require("path");
 
 jest.mock('vscode', () => vscode, { virtual: true });
@@ -15,7 +15,7 @@ beforeAll(() => {
 describe("Conan 1 Source method", () => {
 
     it("should return conan source command with standard value", () => {
-        let cfg = configCommandSourceSchema.parse({});
+        let cfg = configCommandSourceSchemaDefault.parse({});
         let cmd = commandBuilder.buildCommandSource("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(5);
@@ -26,7 +26,7 @@ describe("Conan 1 Source method", () => {
     });
 
     it("should return undefined due to missing conan recipe", () => {
-        let cfg = configCommandSourceSchema.parse({
+        let cfg = configCommandSourceSchemaDefault.parse({
             conanRecipe: ""
         });
 

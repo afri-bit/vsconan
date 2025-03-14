@@ -1,7 +1,7 @@
 import * as vscode from "../../mocks/vscode";
 
 import { CommandBuilderConan2 } from "../../../src/conans/conan2/commandBuilder";
-import { configCommandCreateSchema } from "../../../src/conans/command/configCommand";
+import { configCommandCreateSchemaDefault } from "../../../src/conans/command/configCommand";
 import path = require("path");
 
 jest.mock('vscode', () => vscode, { virtual: true });
@@ -15,7 +15,7 @@ beforeAll(() => {
 describe("Conan 2 Create method", () => {
 
     it("should return conan create command with standard value", () => {
-        let cfg = configCommandCreateSchema.parse({});
+        let cfg = configCommandCreateSchemaDefault.parse({});
         let cmd = commandBuilder.buildCommandCreate("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(3);
@@ -26,7 +26,7 @@ describe("Conan 2 Create method", () => {
     });
 
     it("should return conan create command with user and channel", () => {
-        let cfg = configCommandCreateSchema.parse({
+        let cfg = configCommandCreateSchemaDefault.parse({
             user: "user",
             channel: "channel"
         });
@@ -41,7 +41,7 @@ describe("Conan 2 Create method", () => {
     });
 
     it("should return command string with only channel", () => {
-        let cfg = configCommandCreateSchema.parse({
+        let cfg = configCommandCreateSchemaDefault.parse({
             channel: "channel"
         });
 
@@ -55,7 +55,7 @@ describe("Conan 2 Create method", () => {
     });
 
     it("should return command string with only user", () => {
-        let cfg = configCommandCreateSchema.parse({
+        let cfg = configCommandCreateSchemaDefault.parse({
             user: "user"
         });
 
@@ -69,7 +69,7 @@ describe("Conan 2 Create method", () => {
     });
 
     it("should return undefined due to missing conan recipe", () => {
-        let cfg = configCommandCreateSchema.parse({
+        let cfg = configCommandCreateSchemaDefault.parse({
             conanRecipe: ""
         });
 
@@ -79,7 +79,7 @@ describe("Conan 2 Create method", () => {
     });
 
     it("should return command additional flags from args", () => {
-        let cfg = configCommandCreateSchema.parse({
+        let cfg = configCommandCreateSchemaDefault.parse({
             user: "user",
             channel: "channel",
             profile: "myProfile",

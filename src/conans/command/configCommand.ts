@@ -1,127 +1,245 @@
-import { z } from 'zod';
+// zod-schemas.ts
+import { z, ZodRawShape } from 'zod';
 
-const configCommandSchema = z.object({
-    name: z.string().default(""),
-    description: z.string().default(""),
-    detail: z.string().default(""),
-    conanRecipe: z.string().default("conanfile.py")
-});
+// --- Reusable Helper ---
+export function createDualSchema<T extends ZodRawShape>(rawShape: T, defaults: Partial<Record<keyof T, any>> = {}) {
+    const strictSchema = z.object(rawShape).strict();
 
-const taskSchema = z.object({
+    const shapeWithDefaults: ZodRawShape = { ...rawShape };
+
+    for (const key in defaults) {
+        if (shapeWithDefaults[key]) {
+            shapeWithDefaults[key] = shapeWithDefaults[key].default(defaults[key]);
+        }
+    }
+
+    const defaultSchema = z.object(shapeWithDefaults).strict();
+
+    return {
+        strictSchema,
+        defaultSchema
+    };
+}
+
+// --- Base Task Schema ---
+const taskBaseShape = {
     name: z.string(),
-    description: z.string().default("").optional(),
+    description: z.string(),
     command: z.string(),
-    args: z.array(z.string()).default([]).optional(),
-    continueOnError: z.boolean().default(false).optional(),
+    args: z.array(z.string()),
+    continueOnError: z.boolean(),
     context: z.string().optional(),
     env: z.record(z.string()).optional()
-});
-
-const withTaskSchema = z.object({
-    preTask: z.array(taskSchema).default([]).optional(),
-    postTask: z.array(taskSchema).default([]).optional()
-});
-
-const configCommandCreateSchema = configCommandSchema.extend({
-    name: z.string().default("create"),
-    description: z.string().default("Create command"),
-    detail: z.string().default("Create command detail"),
-    profile: z.string().default("default"),
-    user: z.string().default(""),
-    channel: z.string().default(""),
-    args: z.array(z.string()).default([])
-}).extend(withTaskSchema.shape);
-
-const configCommandInstallSchema = configCommandSchema.extend({
-    name: z.string().default("install"),
-    description: z.string().default("Install command"),
-    detail: z.string().default("Install command detail"),
-    installFolder: z.string().default("install"),
-    profile: z.string().default("default"),
-    user: z.string().default(""),
-    channel: z.string().default(""),
-    args: z.array(z.string()).default([])
-}).extend(withTaskSchema.shape);
-
-const configCommandBuildSchema = configCommandSchema.extend({
-    name: z.string().default("build"),
-    description: z.string().default("Build command"),
-    detail: z.string().default("Build command detail"),
-    installFolder: z.string().default("install"),
-    buildFolder: z.string().default("build"),
-    packageFolder: z.string().default("package"),
-    sourceFolder: z.string().default("source"),
-    args: z.array(z.string()).default([])
-}).extend(withTaskSchema.shape);
-
-const configCommandSourceSchema = configCommandSchema.extend({
-    name: z.string().default("source"),
-    description: z.string().default("Source command"),
-    detail: z.string().default("Source command detail"),
-    installFolder: z.string().default("install"),
-    sourceFolder: z.string().default("source"),
-    version: z.string().default(""),
-    user: z.string().default(""),
-    channel: z.string().default(""),
-    args: z.array(z.string()).default([])
-}).extend(withTaskSchema.shape);
-
-const configCommandPackageSchema = configCommandSchema.extend({
-    name: z.string().default("pkg"),
-    description: z.string().default("Package command"),
-    detail: z.string().default("Package command detail"),
-    installFolder: z.string().default("install"),
-    buildFolder: z.string().default("build"),
-    packageFolder: z.string().default("package"),
-    sourceFolder: z.string().default("source")
-}).extend(withTaskSchema.shape);
-
-const configCommandPackageExportSchema = configCommandSchema.extend({
-    name: z.string().default("pkg_export"),
-    description: z.string().default("Package export command"),
-    detail: z.string().default("Package export command detail"),
-    installFolder: z.string().default("install"),
-    buildFolder: z.string().default("build"),
-    packageFolder: z.string().default("package"),
-    sourceFolder: z.string().default("source"),
-    user: z.string().default(""),
-    channel: z.string().default(""),
-    args: z.array(z.string()).default([])
-}).extend(withTaskSchema.shape);
-
-const commandContainerSchema = z.object({
-    create: z.array(configCommandCreateSchema).default([]),
-    install: z.array(configCommandInstallSchema).default([]),
-    build: z.array(configCommandBuildSchema).default([]),
-    source: z.array(configCommandSourceSchema).default([]),
-    pkg: z.array(configCommandPackageSchema).default([]),
-    pkgExport: z.array(configCommandPackageExportSchema).default([])
-});
-
-type ConfigCommand = z.infer<typeof configCommandSchema>;
-type ConfigCommandCreate = z.infer<typeof configCommandCreateSchema>;
-type ConfigCommandInstall = z.infer<typeof configCommandInstallSchema>;
-type ConfigCommandBuild = z.infer<typeof configCommandBuildSchema>;
-type ConfigCommandSource = z.infer<typeof configCommandSourceSchema>;
-type ConfigCommandPackage = z.infer<typeof configCommandPackageSchema>;
-type ConfigCommandPackageExport = z.infer<typeof configCommandPackageExportSchema>;
-type CommandContainer = z.infer<typeof commandContainerSchema>;
-
-export {
-    configCommandSchema,
-    configCommandCreateSchema,
-    configCommandInstallSchema,
-    configCommandBuildSchema,
-    configCommandSourceSchema,
-    configCommandPackageSchema,
-    configCommandPackageExportSchema,
-    commandContainerSchema,
-    ConfigCommand,
-    ConfigCommandCreate,
-    ConfigCommandInstall,
-    ConfigCommandBuild,
-    ConfigCommandSource,
-    ConfigCommandPackage,
-    ConfigCommandPackageExport,
-    CommandContainer
 };
+
+const taskDefaults = {
+    description: "",
+    args: [],
+    continueOnError: false
+};
+
+export const { strictSchema: taskSchema, defaultSchema: defaultTaskSchema } = createDualSchema(taskBaseShape, taskDefaults);
+
+export const withTaskSchema = z.object({
+    preTask: z.array(taskSchema).default([]),
+    postTask: z.array(taskSchema).default([])
+}).strict();
+
+// --- Base Command Schema ---
+const commandBaseShape = {
+    name: z.string(),
+    description: z.string().optional(),
+    detail: z.string().optional(),
+    conanRecipe: z.string()
+};
+
+const commandDefaults = {
+    name: "",
+    description: "",
+    detail: "",
+    conanRecipe: "conanfile.py"
+};
+
+export const { strictSchema: configCommandSchema, defaultSchema: configCommandSchemaDefault } = createDualSchema(commandBaseShape, commandDefaults);
+
+// --- Command Variants ---
+function createCommandVariant(base: typeof configCommandSchema, extraShape: ZodRawShape, defaults: Record<string, any>) {
+    return createDualSchema(
+        base.extend({ ...extraShape, ...withTaskSchema.shape }).shape,
+        defaults
+    );
+}
+
+export const { strictSchema: configCommandCreateSchema, defaultSchema: configCommandCreateSchemaDefault } = createCommandVariant(
+    configCommandSchema,
+    {
+        profile: z.string(),
+        user: z.string(),
+        channel: z.string(),
+        args: z.array(z.string())
+    },
+    {
+        name: "create",
+        description: "Create command",
+        detail: "Create command detail",
+        conanRecipe: "conanfile.py",
+        profile: "default",
+        user: "",
+        channel: "",
+        args: [],
+        preTask: [],
+        postTask: []
+    }
+);
+
+export const { strictSchema: configCommandInstallSchema, defaultSchema: configCommandInstallSchemaDefault } = createCommandVariant(
+    configCommandSchema,
+    {
+        installFolder: z.string(),
+        profile: z.string(),
+        user: z.string(),
+        channel: z.string(),
+        args: z.array(z.string())
+    },
+    {
+        name: "install",
+        description: "Install command",
+        detail: "Install command detail",
+        conanRecipe: "conanfile.py",
+        installFolder: "install",
+        profile: "default",
+        user: "",
+        channel: "",
+        args: [],
+        preTask: [],
+        postTask: []
+    }
+);
+
+export const { strictSchema: configCommandBuildSchema, defaultSchema: configCommandBuildSchemaDefault } = createCommandVariant(
+    configCommandSchema,
+    {
+        installFolder: z.string(),
+        buildFolder: z.string(),
+        packageFolder: z.string(),
+        sourceFolder: z.string(),
+        args: z.array(z.string())
+    },
+    {
+        name: "build",
+        description: "Build command",
+        detail: "Build command detail",
+        conanRecipe: "conanfile.py",
+        installFolder: "install",
+        buildFolder: "build",
+        packageFolder: "package",
+        sourceFolder: "source",
+        args: [],
+        preTask: [],
+        postTask: []
+    }
+);
+
+export const { strictSchema: configCommandSourceSchema, defaultSchema: configCommandSourceSchemaDefault } = createCommandVariant(
+    configCommandSchema,
+    {
+        installFolder: z.string(),
+        sourceFolder: z.string(),
+        version: z.string(),
+        user: z.string(),
+        channel: z.string(),
+        args: z.array(z.string())
+    },
+    {
+        name: "source",
+        description: "Source command",
+        detail: "Source command detail",
+        conanRecipe: "conanfile.py",
+        installFolder: "install",
+        sourceFolder: "source",
+        version: "",
+        user: "",
+        channel: "",
+        args: [],
+        preTask: [],
+        postTask: []
+    }
+);
+
+export const { strictSchema: configCommandPackageSchema, defaultSchema: configCommandPackageSchemaDefault } = createCommandVariant(
+    configCommandSchema,
+    {
+        installFolder: z.string(),
+        buildFolder: z.string(),
+        packageFolder: z.string(),
+        sourceFolder: z.string()
+    },
+    {
+        name: "pkg",
+        description: "Package command",
+        detail: "Package command detail",
+        conanRecipe: "conanfile.py",
+        installFolder: "install",
+        buildFolder: "build",
+        packageFolder: "package",
+        sourceFolder: "source",
+        preTask: [],
+        postTask: []
+    }
+);
+
+export const { strictSchema: configCommandPackageExportSchema, defaultSchema: configCommandPackageExportSchemaDefault } = createCommandVariant(
+    configCommandSchema,
+    {
+        installFolder: z.string(),
+        buildFolder: z.string(),
+        packageFolder: z.string(),
+        sourceFolder: z.string(),
+        user: z.string(),
+        channel: z.string(),
+        args: z.array(z.string())
+    },
+    {
+        name: "pkg_export",
+        description: "Package export command",
+        detail: "Package export command detail",
+        conanRecipe: "conanfile.py",
+        installFolder: "install",
+        buildFolder: "build",
+        packageFolder: "package",
+        sourceFolder: "source",
+        user: "",
+        channel: "",
+        args: [],
+        preTask: [],
+        postTask: []
+    }
+);
+
+export const commandContainerSchema = z.object({
+    create: z.array(configCommandCreateSchema).optional(),
+    install: z.array(configCommandInstallSchema).optional(),
+    build: z.array(configCommandBuildSchema).optional(),
+    source: z.array(configCommandSourceSchema).optional(),
+    pkg: z.array(configCommandPackageSchema).optional(),
+    pkgExport: z.array(configCommandPackageExportSchema).optional()
+}).strict();
+
+export const commandContainerSchemaDefault = z.object({
+    create: z.array(configCommandCreateSchemaDefault).default([]),
+    install: z.array(configCommandInstallSchemaDefault).default([]),
+    build: z.array(configCommandBuildSchemaDefault).default([]),
+    source: z.array(configCommandSourceSchemaDefault).default([]),
+    pkg: z.array(configCommandPackageSchemaDefault).default([]),
+    pkgExport: z.array(configCommandPackageExportSchemaDefault).default([])
+}).strict();
+
+// --- Types ---
+export type ConfigCommand = z.infer<typeof configCommandSchemaDefault>;
+export type ConfigCommandCreate = z.infer<typeof configCommandCreateSchemaDefault>;
+export type ConfigCommandInstall = z.infer<typeof configCommandInstallSchemaDefault>;
+export type ConfigCommandBuild = z.infer<typeof configCommandBuildSchemaDefault>;
+export type ConfigCommandSource = z.infer<typeof configCommandSourceSchemaDefault>;
+export type ConfigCommandPackage = z.infer<typeof configCommandPackageSchemaDefault>;
+export type ConfigCommandPackageExport = z.infer<typeof configCommandPackageExportSchemaDefault>;
+export type CommandContainer = z.infer<typeof commandContainerSchemaDefault>;

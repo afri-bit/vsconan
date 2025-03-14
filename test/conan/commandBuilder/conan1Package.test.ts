@@ -1,7 +1,7 @@
 import * as vscode from "../../mocks/vscode";
 
 import { CommandBuilderConan1 } from "../../../src/conans/conan/commandBuilder";
-import { configCommandPackageSchema } from "../../../src/conans/command/configCommand";
+import { configCommandPackageSchemaDefault } from "../../../src/conans/command/configCommand";
 import path = require("path");
 
 jest.mock('vscode', () => vscode, { virtual: true });
@@ -15,7 +15,7 @@ beforeAll(() => {
 describe("Conan 1 Package method", () => {
 
     it("should return conan package command with standard value", () => {
-        let cfg = configCommandPackageSchema.parse({});
+        let cfg = configCommandPackageSchemaDefault.parse({});
         let cmd = commandBuilder.buildCommandPackage("/home/user/ws", cfg);
 
         expect(cmd?.length).toBe(9);
@@ -26,7 +26,7 @@ describe("Conan 1 Package method", () => {
     });
 
     it("should return undefined due to missing conan recipe", () => {
-        let cfg = configCommandPackageSchema.parse({
+        let cfg = configCommandPackageSchemaDefault.parse({
             conanRecipe: ""
         });
 
@@ -36,7 +36,7 @@ describe("Conan 1 Package method", () => {
     });
 
     it("should return conan package command without install folder", () => {
-        let cfg = configCommandPackageSchema.parse({
+        let cfg = configCommandPackageSchemaDefault.parse({
             installFolder: ""
         });
 
@@ -50,7 +50,7 @@ describe("Conan 1 Package method", () => {
     });
 
     it("should return conan package command without build folder", () => {
-        let cfg = configCommandPackageSchema.parse({
+        let cfg = configCommandPackageSchemaDefault.parse({
             installFolder: "",
             buildFolder: ""
         });
@@ -65,7 +65,7 @@ describe("Conan 1 Package method", () => {
     });
 
     it("should return conan package command without package folder", () => {
-        let cfg = configCommandPackageSchema.parse({
+        let cfg = configCommandPackageSchemaDefault.parse({
             installFolder: "",
             buildFolder: "",
             packageFolder: ""
@@ -81,7 +81,7 @@ describe("Conan 1 Package method", () => {
     });
 
     it("should return conan package without arguments", () => {
-        let cfg = configCommandPackageSchema.parse({
+        let cfg = configCommandPackageSchemaDefault.parse({
             installFolder: "",
             buildFolder: "",
             packageFolder: "",

@@ -5,11 +5,15 @@ import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 import {
-    commandContainerSchema, configCommandBuildSchema, configCommandCreateSchema,
-    configCommandInstallSchema, configCommandPackageSchema, configCommandPackageExportSchema,
-    configCommandSourceSchema
+    commandContainerSchema,
+    configCommandBuildSchemaDefault,
+    configCommandCreateSchemaDefault,
+    configCommandInstallSchemaDefault,
+    configCommandPackageExportSchemaDefault,
+    configCommandPackageSchemaDefault,
+    configCommandSourceSchemaDefault
 } from "../conans/command/configCommand";
-import { ConfigWorkspace } from "../conans/workspace/configWorkspace";
+import { configWorkspaceSchema } from "../conans/workspace/configWorkspace";
 import * as constants from "./constants";
 
 export namespace vsconan {
@@ -96,16 +100,18 @@ export namespace vsconan {
          *
          */
         export function createInitialWorkspaceConfig(configPath: string) {
-            let configWorkspace = new ConfigWorkspace(commandContainerSchema.parse({
-                create: [configCommandCreateSchema.parse({})],
-                install: [configCommandInstallSchema.parse({})],
-                build: [configCommandBuildSchema.parse({})],
-                source: [configCommandSourceSchema.parse({})],
-                pkg: [configCommandPackageSchema.parse({})],
-                pkgExport: [configCommandPackageExportSchema.parse({})]
-            }));
+            let configWorkspace = configWorkspaceSchema.parse({
+                commandContainer: commandContainerSchema.parse({
+                    create: [configCommandCreateSchemaDefault.parse({})],
+                    install: [configCommandInstallSchemaDefault.parse({})],
+                    build: [configCommandBuildSchemaDefault.parse({})],
+                    source: [configCommandSourceSchemaDefault.parse({})],
+                    pkg: [configCommandPackageSchemaDefault.parse({})],
+                    pkgExport: [configCommandPackageExportSchemaDefault.parse({})]
+                })
+            });
 
-            configWorkspace.writeToFile(path.join(configPath, constants.CONFIG_FILE));
+            fs.writeFileSync(path.join(configPath, constants.CONFIG_FILE), JSON.stringify(configWorkspace, null, 4));
         }
     }
 }
