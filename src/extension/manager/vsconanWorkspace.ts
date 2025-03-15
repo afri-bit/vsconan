@@ -4,14 +4,14 @@ import * as vscode from 'vscode';
 import { ConanAPIManager } from '../../conans/api/conanAPIManager';
 import { CommandBuilder } from "../../conans/command/commandBuilder";
 import { CommandBuilderFactory } from "../../conans/command/commandBuilderFactory";
-import { commandContainerSchema, ConfigCommand, ConfigCommandBuild, configCommandBuildSchema, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from '../../conans/command/configCommand';
+import { ConfigCommand, ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from '../../conans/command/configCommand';
+import { ConfigWorkspace, configWorkspaceSchema } from "../../conans/workspace/configWorkspace";
 import * as constants from "../../utils/constants";
 import * as utils from '../../utils/utils';
 import { ConanProfileConfiguration } from "../settings/model";
 import { SettingsPropertyManager } from "../settings/settingsPropertyManager";
 import { ExtensionManager } from "./extensionManager";
 import { VSConanWorkspaceEnvironment } from "./workspaceEnvironment";
-import { ConfigWorkspace, configWorkspaceSchema } from "../../conans/workspace/configWorkspace";
 
 enum ConanCommand {
     create,
@@ -254,20 +254,19 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 let configJson = JSON.parse(configText);
 
                 // Validate the schema
-                configWorkspace = configWorkspaceSchema.parse(configJson);
+                const validationResult = configWorkspaceSchema.safeParse(configJson);
 
-                // if (!validationResult.success) {
-                //     vscode.window.showErrorMessage("Invalid configuration schema.");
-                //     return;
-                // }
+                if (!validationResult.success) {
+                    vscode.window.showErrorMessage("Invalid configuration schema.");
+                    return;
+                }
 
-                // configWorkspace = validationResult.data;
+                configWorkspace = validationResult.data;
             }
             catch (err) {
                 vscode.window.showErrorMessage(`Invalid configuration Schema\n\n${(err as Error).message}`);
                 return;
             }
-
 
             let conanCommand = "";
             let commandBuilder: CommandBuilder | undefined;
