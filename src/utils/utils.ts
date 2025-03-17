@@ -64,29 +64,39 @@ export namespace vsconan {
          * @param cmd Command in string format
          * @param channel VS Code output channel
          */
-        export async function executeCommand(cmd: string, args: Array<string>, channel: vscode.OutputChannel) {
-            // const exec = util.promisify(require('child_process').exec);
-            // const { stdout, stderr } = await spawn(cmd);
-            channel.show();
-            channel.appendLine(`Executing: "${cmd} ${args.join(' ')}`);
+        export async function executeCommand(cmd: string, args: Array<string>, channel: vscode.OutputChannel): Promise<void> {
+            return new Promise<void>((resolve, reject) => {
+                // const exec = util.promisify(require('child_process').exec);
+                // const { stdout, stderr } = await spawn(cmd);
+                channel.show();
+                channel.appendLine(`Executing: "${cmd} ${args.join(' ')}`);
 
-            const ls = spawn(cmd, args, { shell: true, 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined });
+                const ls = spawn(cmd, args, { shell: true, 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined });
 
-            ls.stdout.on("data", data => {
-                channel.append(`${data}`);
-            });
+                ls.stdout.on("data", data => {
+                    channel.append(`${data}`);
+                });
 
-            ls.stderr.on("data", data => {
-                channel.append(`${data}`);
-            });
+                ls.stderr.on("data", data => {
+                    channel.append(`${data}`);
+                });
 
-            ls.on('error', (error) => {
-                channel.append(`ERROR: ${error.message}`);
-            });
+                ls.on('error', (error) => {
+                    channel.append(`ERROR: ${error.message}`);
+                    reject(error);
+                });
 
-            ls.on("close", code => {
-                channel.append(`\nProcess exited with code ${code}\n`);
-            });
+                ls.on("close", code => {
+                    if (code !== 0) {
+                        const error = new Error(`Process exited with code ${code}`);
+                        channel.append(`\n${error.message}\n`);
+                        reject(error);
+                    } else {
+                        channel.append(`\nProcess exited with code ${code}\n`);
+                        resolve();
+                    }
+                });
+            })
         }
 
     }

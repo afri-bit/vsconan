@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { ConanAPIManager } from '../../conans/api/conanAPIManager';
 import { CommandBuilder } from "../../conans/command/commandBuilder";
 import { CommandBuilderFactory } from "../../conans/command/commandBuilderFactory";
+import { ConanCommand, ConanCommandExecutor } from "../../conans/command/commandExecutor";
 import { ConfigCommand, ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from '../../conans/command/configCommand';
 import { ConfigWorkspace, configWorkspaceSchema } from "../../conans/workspace/configWorkspace";
 import * as constants from "../../utils/constants";
@@ -12,18 +13,6 @@ import { ConanProfileConfiguration } from "../settings/model";
 import { SettingsPropertyManager } from "../settings/settingsPropertyManager";
 import { ExtensionManager } from "./extensionManager";
 import { VSConanWorkspaceEnvironment } from "./workspaceEnvironment";
-
-enum ConanCommand {
-    create,
-    install,
-    build,
-    source,
-    package,
-    packageExport,
-    activateBuildEnv,
-    activateRunEnv,
-    deactivateEnv
-}
 
 interface ConfigCommandQuickPickItem extends vscode.QuickPickItem {
     index: number;
@@ -248,7 +237,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
         if (fs.existsSync(configPath)) {
             let configWorkspace: ConfigWorkspace;
-            
+
             try {
                 let configText = fs.readFileSync(configPath, 'utf8');
                 let configJson = JSON.parse(configText);
@@ -257,14 +246,14 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 const validationResult = configWorkspaceSchema.safeParse(configJson);
 
                 if (!validationResult.success) {
-                    vscode.window.showErrorMessage("Invalid configuration schema.");
+                    vscode.window.showErrorMessage(`Invalid configuration schema.\n\n${validationResult.error.message}`);
                     return;
                 }
 
                 configWorkspace = validationResult.data;
             }
             catch (err) {
-                vscode.window.showErrorMessage(`Invalid configuration Schema\n\n${(err as Error).message}`);
+                vscode.window.showErrorMessage((err as Error).message);
                 return;
             }
 
@@ -298,7 +287,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 return;
             }
 
-            switch (+cmdType) {
+            switch (cmdType) {
                 case ConanCommand.create: {
                     this.executeCommandConanCreate(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.create!);
                     break;
@@ -465,22 +454,34 @@ export class VSConanWorkspaceManager extends ExtensionManager {
     private executeCommandConanInstall(wsPath: string, conanCommand: string, commandBuilder: CommandBuilder, configList: Array<ConfigCommandInstall>) {
         let promiseIndex = this.getCommandConfigIndex(configList);
 
+        // XXX: Clean this mess up
         promiseIndex.then(index => {
             if (index !== undefined) {
                 let selectedConfig = configList[index];
-                let cmdArgs = commandBuilder.buildCommandInstall(wsPath, selectedConfig);
+                // let cmdArgs = commandBuilder.buildCommandInstall(wsPath, selectedConfig);
 
-                if (cmdArgs !== undefined) {
-                    try {
-                        utils.vsconan.cmd.executeCommand(`${conanCommand} install`, cmdArgs, this.outputChannel);
-                    }
-                    catch (err) {
-                        vscode.window.showErrorMessage((err as Error).message);
-                    }
+                const conanCommandExecutor = new ConanCommandExecutor(wsPath, conanCommand, ConanCommand.install, selectedConfig, commandBuilder, this.outputChannel);
+
+                console.log("📂 Current working directory:", conanCommand);
+
+                try {
+                    conanCommandExecutor.run();
                 }
-                else {
-                    vscode.window.showErrorMessage("Unable to execute conan INSTALL command!");
+                catch (err) {
+                    vscode.window.showErrorMessage((err as Error).message);
                 }
+
+                // if (cmdArgs !== undefined) {
+                //     try {
+                //         utils.vsconan.cmd.executeCommand(`${conanCommand} install`, cmdArgs, this.outputChannel);
+                //     }
+                //     catch (err) {
+                //         vscode.window.showErrorMessage((err as Error).message);
+                //     }
+                // }
+                // else {
+                //     vscode.window.showErrorMessage("Unable to execute conan INSTALL command!");
+                // }
             }
         });
     }

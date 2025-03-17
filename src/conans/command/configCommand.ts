@@ -26,7 +26,7 @@ const taskBaseShape = {
     name: z.string(),
     description: z.string(),
     command: z.string(),
-    args: z.array(z.string()),
+    args: z.array(z.string()).optional(),
     continueOnError: z.boolean(),
     context: z.string().optional(),
     env: z.record(z.string()).optional()
@@ -243,3 +243,4 @@ export type ConfigCommandSource = z.infer<typeof configCommandSourceSchemaDefaul
 export type ConfigCommandPackage = z.infer<typeof configCommandPackageSchemaDefault>;
 export type ConfigCommandPackageExport = z.infer<typeof configCommandPackageExportSchemaDefault>;
 export type CommandContainer = z.infer<typeof commandContainerSchemaDefault>;
+export type Task = z.infer<typeof taskSchema>;
