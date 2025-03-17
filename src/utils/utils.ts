@@ -96,7 +96,7 @@ export namespace vsconan {
                         resolve();
                     }
                 });
-            })
+            });
         }
 
     }

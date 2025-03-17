@@ -43,7 +43,7 @@ class CommandTask {
         console.log(`\n [${this.name}] Running: ${fullCommand}`);
 
         try {
-            await utils.vsconan.cmd.executeCommand(this.command, this.args, this.channel)
+            await utils.vsconan.cmd.executeCommand(this.command, this.args, this.channel);
         } catch (err) {
             vscode.window.showErrorMessage(`Task '${this.name}' failed - \n\n${err}`);
             console.error(`Task '${this.name}' failed - \n\n${err}`);
@@ -64,7 +64,7 @@ export class ConanCommandExecutor<TConfig extends ConfigCommand> {
     private commandBuilder: CommandBuilder;
 
     // Configuration for the command
-    private config: TConfig
+    private config: TConfig;
     private preTasks: CommandTask[] = [];
     private postTasks: CommandTask[] = [];
 
@@ -128,7 +128,7 @@ export class ConanCommandExecutor<TConfig extends ConfigCommand> {
     private async runConanCommand() {
         const conanCmd = this.buildConanCommand();
 
-        await utils.vsconan.cmd.executeCommand(`${this.conanCommand} ${this.commandType.toString()}`, conanCmd!, this.channel)
+        await utils.vsconan.cmd.executeCommand(`${this.conanCommand} ${this.commandType.toString()}`, conanCmd!, this.channel);
     }
 
     public async run() {
