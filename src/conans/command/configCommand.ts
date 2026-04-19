@@ -41,8 +41,8 @@ const taskDefaults = {
 export const { strictSchema: taskSchema, defaultSchema: defaultTaskSchema } = createDualSchema(taskBaseShape, taskDefaults);
 
 export const withTaskSchema = z.object({
-    preTask: z.array(taskSchema).default([]),
-    postTask: z.array(taskSchema).default([])
+    preTask: z.array(defaultTaskSchema).default([]),
+    postTask: z.array(defaultTaskSchema).default([])
 }).strict();
 
 // --- Base Command Schema ---

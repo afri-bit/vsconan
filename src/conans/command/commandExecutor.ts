@@ -1,3 +1,4 @@
+import * as path from "path";
 import * as vscode from "vscode";
 import * as utils from "../../utils/utils";
 import { CommandBuilder } from "./commandBuilder";
@@ -21,18 +22,20 @@ class CommandTask {
     command: string;
     args: string[];
     continueOnError: boolean;
-    context: string;
+    private taskCwd: string;
     env: Record<string, string>;
     channel: vscode.OutputChannel;
 
-    constructor(task: Task, channel: vscode.OutputChannel) {
+    constructor(task: Task, wsPath: string, channel: vscode.OutputChannel) {
         this.name = task.name;
         this.description = task.description;
         this.command = task.command;
         this.args = task.args || [];
         this.continueOnError = task.continueOnError;
-        this.context = task.context || "";
         this.env = task.env || {};
+        this.taskCwd = task.context
+            ? (path.isAbsolute(task.context) ? task.context : path.join(wsPath, task.context))
+            : wsPath;
 
         this.channel = channel;
     }
@@ -40,10 +43,15 @@ class CommandTask {
     async execute() {
         const fullCommand = `${this.command} ${this.args.join(" ")}`;
 
-        console.log(`\n [${this.name}] Running: ${fullCommand}`);
+        console.log(`=== [${this.name}] Running: ${fullCommand}`);
+
+        const execOpts: utils.vsconan.cmd.ExecuteCommandOptions = { cwd: this.taskCwd };
+        if (Object.keys(this.env).length > 0) {
+            execOpts.env = this.env;
+        }
 
         try {
-            await utils.vsconan.cmd.executeCommand(this.command, this.args, this.channel);
+            await utils.vsconan.cmd.executeCommand(this.command, this.args, this.channel, execOpts);
         } catch (err) {
             vscode.window.showErrorMessage(`Task '${this.name}' failed - \n\n${err}`);
             console.error(`Task '${this.name}' failed - \n\n${err}`);
@@ -55,7 +63,10 @@ class CommandTask {
     }
 }
 
-export class ConanCommandExecutor<TConfig extends ConfigCommand> {
+/** Parsed command entry plus optional preTask/postTask hooks (GitHub #52). */
+type ConfigCommandWithTasks = ConfigCommand & { preTask?: Task[]; postTask?: Task[] };
+
+export class ConanCommandExecutor<TConfig extends ConfigCommandWithTasks> {
 
     // General information about conan and workspaces
     private conanCommand: string;
@@ -74,7 +85,7 @@ export class ConanCommandExecutor<TConfig extends ConfigCommand> {
     constructor(wsPath: string,
         conanCommand: string,
         commandType: ConanCommand,
-        config: TConfig & { preTask?: any[]; postTask?: any[] },
+        config: TConfig,
         builder: CommandBuilder,
         channel: vscode.OutputChannel) {
 
@@ -84,8 +95,8 @@ export class ConanCommandExecutor<TConfig extends ConfigCommand> {
         this.commandBuilder = builder;
 
         this.config = config;
-        this.preTasks = (config.preTask ?? []).map(t => new CommandTask(t, channel));
-        this.postTasks = (config.postTask ?? []).map(t => new CommandTask(t, channel));
+        this.preTasks = (config.preTask ?? []).map(t => new CommandTask(t, wsPath, channel));
+        this.postTasks = (config.postTask ?? []).map(t => new CommandTask(t, wsPath, channel));
 
         this.channel = channel;
     }
@@ -127,8 +138,16 @@ export class ConanCommandExecutor<TConfig extends ConfigCommand> {
 
     private async runConanCommand() {
         const conanCmd = this.buildConanCommand();
+        if (!conanCmd) {
+            throw new Error(`Unable to build Conan CLI arguments for '${this.commandType}'`);
+        }
 
-        await utils.vsconan.cmd.executeCommand(`${this.conanCommand} ${this.commandType.toString()}`, conanCmd!, this.channel);
+        await utils.vsconan.cmd.executeCommand(
+            `${this.conanCommand} ${this.commandType.toString()}`,
+            conanCmd,
+            this.channel,
+            { cwd: this.wsPath }
+        );
     }
 
     public async run() {

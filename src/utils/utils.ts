@@ -59,19 +59,32 @@ export namespace vsconan {
     }
 
     export namespace cmd {
+        export type ExecuteCommandOptions = {
+            cwd?: string;
+            env?: Record<string, string>;
+        };
+
         /**
          * Function to execute command and print the output to the output channel
          * @param cmd Command in string format
          * @param channel VS Code output channel
+         * @param options Optional working directory (defaults to first workspace folder) and extra env vars
          */
-        export async function executeCommand(cmd: string, args: Array<string>, channel: vscode.OutputChannel): Promise<void> {
+        export async function executeCommand(cmd: string, args: Array<string>, channel: vscode.OutputChannel, options?: ExecuteCommandOptions): Promise<void> {
             return new Promise<void>((resolve, reject) => {
-                // const exec = util.promisify(require('child_process').exec);
-                // const { stdout, stderr } = await spawn(cmd);
                 channel.show();
-                channel.appendLine(`Executing: "${cmd} ${args.join(' ')}`);
+                channel.appendLine(`Executing: "${cmd} ${args.join(' ')}"`);
 
-                const ls = spawn(cmd, args, { shell: true, 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined });
+                const cwd =
+                    options?.cwd ??
+                    (vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined);
+
+                const env: NodeJS.ProcessEnv =
+                    options?.env !== undefined
+                        ? { ...process.env, ...options.env }
+                        : process.env;
+
+                const ls = spawn(cmd, args, { shell: true, cwd, env });
 
                 ls.stdout.on("data", data => {
                     channel.append(`${data}`);
@@ -89,10 +102,10 @@ export namespace vsconan {
                 ls.on("close", code => {
                     if (code !== 0) {
                         const error = new Error(`Process exited with code ${code}`);
-                        channel.append(`\n${error.message}\n`);
+                        channel.append(`${error.message}\n`);
                         reject(error);
                     } else {
-                        channel.append(`\nProcess exited with code ${code}\n`);
+                        channel.append(`Process exited with code ${code}\n\n`);
                         resolve();
                     }
                 });
