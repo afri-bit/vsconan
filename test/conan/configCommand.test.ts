@@ -4,6 +4,7 @@
 
 import {
     commandContainerSchemaDefault,
+    configCommandBuildSchema,
     configCommandBuildSchemaDefault,
     configCommandCreateSchemaDefault,
     configCommandInstallSchemaDefault,
@@ -73,7 +74,44 @@ describe("Conan Build", () => {
         expect(cfg.packageFolder).toBe("package");
         expect(cfg.sourceFolder).toBe("source");
         expect(cfg.args.length).toBe(0);
+        expect(cfg.preTask).toEqual([]);
+        expect(cfg.postTask).toEqual([]);
+    });
 
+    it("should parse preTask and postTask with defaults", () => {
+        const cfg = configCommandBuildSchemaDefault.parse({
+            preTask: [{ name: "warm", command: "echo", args: ["hi"] }],
+            postTask: [{ name: "cool", command: "true" }]
+        });
+
+        expect(cfg.preTask).toHaveLength(1);
+        expect(cfg.preTask[0].name).toBe("warm");
+        expect(cfg.preTask[0].command).toBe("echo");
+        expect(cfg.preTask[0].args).toEqual(["hi"]);
+        expect(cfg.preTask[0].continueOnError).toBe(false);
+        expect(cfg.preTask[0].description).toBe("");
+
+        expect(cfg.postTask).toHaveLength(1);
+        expect(cfg.postTask[0].name).toBe("cool");
+        expect(cfg.postTask[0].command).toBe("true");
+        expect(cfg.postTask[0].args).toEqual([]);
+    });
+
+    it("should reject unknown keys on strict build schema", () => {
+        const base = configCommandBuildSchemaDefault.parse({});
+        expect(() =>
+            configCommandBuildSchema.parse(
+                Object.assign({}, base, { notARealField: "x" })
+            )
+        ).toThrow();
+    });
+
+    it("should reject task missing required name", () => {
+        expect(() =>
+            configCommandBuildSchemaDefault.parse({
+                preTask: [{ command: "echo" }]
+            })
+        ).toThrow();
     });
 
 });
@@ -135,18 +173,6 @@ describe("Conan Package Export", () => {
 describe("Conan Command Container", () => {
 
     it("should initialize with empty list", () => {
-        let ctn = commandContainerSchemaDefault.parse({});
-
-        expect(ctn.create?.length).toBe(0);
-        expect(ctn.install?.length).toBe(0);
-        expect(ctn.build?.length).toBe(0);
-        expect(ctn.source?.length).toBe(0);
-        expect(ctn.pkg?.length).toBe(0);
-        expect(ctn.pkgExport?.length).toBe(0);
-
-    });
-
-    it("should have certain type of array", () => {
         let ctn = commandContainerSchemaDefault.parse({});
 
         expect(ctn.create?.length).toBe(0);
