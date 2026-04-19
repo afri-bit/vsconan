@@ -1,0 +1,170 @@
+# Build, test, verify version/changelog, package .vsix, publish GitHub release, deploy to VS Code Marketplace.
+# Tag format: vMAJOR.MINOR.PATCH (e.g. v1.5.0). CHANGELOG must use: ## X.Y.Z - YYYY-MM-DD
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install Conan (for readEnv and related tests)
+        run: |
+          pip install conan
+          conan profile detect --force
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Compile
+        run: npm run compile
+
+      - name: Unit tests (Jest)
+        run: npm run test:unit
+
+  release:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Tag: $TAG  →  Version: $VERSION"
+
+      - name: Verify package.json version matches tag
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION="${{ steps.version.outputs.version }}"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "ERROR: package.json version ($PKG_VERSION) does not match tag ($TAG_VERSION)"
+            exit 1
+          fi
+          echo "Version check passed: $PKG_VERSION"
+
+      - name: Verify CHANGELOG version matches tag
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if ! grep -qE "^## ${VERSION} -" CHANGELOG.md; then
+            echo "ERROR: No CHANGELOG entry found for ## ${VERSION} - …"
+            exit 1
+          fi
+          echo "CHANGELOG version check passed: ${VERSION}"
+
+      - name: Verify CHANGELOG date matches today (UTC)
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          VERSION="${{ steps.version.outputs.version }}"
+          CHANGELOG_DATE=$(grep -E "^## ${VERSION} -" CHANGELOG.md | head -1 | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' || true)
+          if [ -z "$CHANGELOG_DATE" ]; then
+            echo "ERROR: No dated CHANGELOG line for ## ${VERSION} - … — replace TBD or add YYYY-MM-DD before tagging"
+            exit 1
+          fi
+          if [ "$CHANGELOG_DATE" != "$TODAY" ]; then
+            echo "ERROR: CHANGELOG date ($CHANGELOG_DATE) does not match today ($TODAY) UTC"
+            exit 1
+          fi
+          echo "Date check passed: $CHANGELOG_DATE"
+
+      - name: Extract release notes from CHANGELOG
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          node << 'EOF'
+          const fs = require('fs');
+          const version = process.env.VERSION;
+          const changelog = fs.readFileSync('CHANGELOG.md', 'utf-8');
+          const lines = changelog.split('\n');
+
+          let inSection = false;
+          const sectionLines = [];
+
+          for (const line of lines) {
+            if (line.startsWith(`## ${version} -`)) {
+              inSection = true;
+              continue;
+            }
+            if (inSection && line.startsWith('## ') && !line.startsWith(`## ${version} -`)) {
+              break;
+            }
+            if (inSection) {
+              sectionLines.push(line);
+            }
+          }
+
+          if (sectionLines.length === 0) {
+            console.error(`ERROR: No content found for version ${version} in CHANGELOG.md`);
+            process.exit(1);
+          }
+
+          const body = sectionLines.join('\n').trim();
+          const notes = `## What's Changed\n\n${body}\n`;
+          fs.writeFileSync('release-notes.md', notes);
+          console.log('release-notes.md written:\n');
+          console.log(notes);
+          EOF
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build .vsix
+        run: npm run vsix
+
+      - name: Create GitHub release and upload .vsix
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            --title "${{ steps.version.outputs.tag }}" \
+            --notes-file release-notes.md \
+            *.vsix
+
+      - name: Publish to VS Code Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx @vscode/vsce publish --packagePath *.vsix

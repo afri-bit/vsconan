@@ -1,6 +1,6 @@
 # VSConan - Conan Extension for Visual Studio Code
 [![Marketplace VSConan](https://img.shields.io/visual-studio-marketplace/v/afri-bit.vsconan)](https://marketplace.visualstudio.com/items?itemName=afri-bit.vsconan)
-[![Build and Test](https://github.com/afri-bit/vsconan/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/afri-bit/vsconan/actions/workflows/build-and-test.yml/badge.svg)
+[![Build and Test](https://github.com/afri-bit/vsconan/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/afri-bit/vsconan/actions/workflows/build_and_test.yml)
 [![Rating](https://img.shields.io/visual-studio-marketplace/r/afri-bit.vsconan)](https://marketplace.visualstudio.com/items?itemName=afri-bit.vsconan&ssr=false#review-details)
 [![Install](https://img.shields.io/visual-studio-marketplace/i/afri-bit.vsconan)](https://marketplace.visualstudio.com/items?itemName=afri-bit.vsconan)
 [![Download](https://img.shields.io/visual-studio-marketplace/d/afri-bit.vsconan)](https://marketplace.visualstudio.com/items?itemName=afri-bit.vsconan)
