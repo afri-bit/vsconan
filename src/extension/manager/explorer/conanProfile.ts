@@ -60,17 +60,13 @@ export class ConanProfileExplorerManager extends ExtensionManager {
     /**
      * Show the conan profile content in the editor
      */
-    private showProfile() {
-        // Get the list of the profile from the treeview in string format
-        let conanProfileList = this.nodeProviderConanProfile.getChildrenString();
+    private async showProfile() {
+        const conanProfileList = await this.nodeProviderConanProfile.getChildrenString();
+        const profileName: string = this.treeViewConanProfile.selection[0].label;
 
-        // Get the selected profile name
-        let profileName: string = this.treeViewConanProfile.selection[0].label;
-        
-        // This check is necessary since the refresh progress needs to be done manually.
-        // TODO: This can be improved using watcher of the conan profile (considering the performance)
         if (conanProfileList.includes(profileName)) {
-            utils.editor.openFileInEditor(this.conanApiManager.conanApi.getProfileFilePath(profileName)!);
+            const filePath = await this.conanApiManager.conanApi.getProfileFilePath(profileName);
+            utils.editor.openFileInEditor(filePath!);
         }
         else {
             vscode.window.showErrorMessage(`Unable to find the profile with name '${profileName}'.`);
@@ -81,20 +77,18 @@ export class ConanProfileExplorerManager extends ExtensionManager {
      * Remove conan profile
      * @param node Selected conan profile node item
      */
-    private removeProfile(node: ConanProfileItem) {
-        let conanProfileList = this.nodeProviderConanProfile.getChildrenString();
+    private async removeProfile(node: ConanProfileItem) {
+        const conanProfileList = await this.nodeProviderConanProfile.getChildrenString();
 
-        // Check if the profile still exists in the treeview, since the refresh progress needs to be done manually.
         if (conanProfileList.includes(node.label)) {
-            vscode.window
-                .showWarningMessage(`Are you sure you want to remove the profile '${node.label}'?`, ...["Yes", "No"])
-                .then((answer) => {
-                    if (answer === "Yes") {
-                        this.conanApiManager.conanApi.removeProfile(node.label);
-
-                        this.nodeProviderConanProfile.refresh();
-                    }
-                });
+            const answer = await vscode.window.showWarningMessage(
+                `Are you sure you want to remove the profile '${node.label}'?`,
+                ...["Yes", "No"]
+            );
+            if (answer === "Yes") {
+                await this.conanApiManager.conanApi.removeProfile(node.label);
+                this.nodeProviderConanProfile.refresh();
+            }
         }
         else {
             vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
@@ -105,11 +99,12 @@ export class ConanProfileExplorerManager extends ExtensionManager {
      * Open profile in the file explorer
      * @param node Selected conan profile node item
      */
-    private openProfileInExplorer(node: ConanProfileItem) {
-        let conanProfileList = this.nodeProviderConanProfile.getChildrenString();
+    private async openProfileInExplorer(node: ConanProfileItem) {
+        const conanProfileList = await this.nodeProviderConanProfile.getChildrenString();
 
         if (conanProfileList.includes(node.label)) {
-            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.conanApiManager.conanApi.getProfileFilePath(node.label)!));
+            const filePath = await this.conanApiManager.conanApi.getProfileFilePath(node.label);
+            vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(filePath!));
         }
         else {
             vscode.window.showErrorMessage(`Unable to find the profile with name '${node.label}'.`);
@@ -121,7 +116,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
      * @param node Selected conan profile node item
      */
     private async renameProfile(node: ConanProfileItem) {
-        let conanProfileList = this.nodeProviderConanProfile.getChildrenString();
+        const conanProfileList = await this.nodeProviderConanProfile.getChildrenString();
 
         if (conanProfileList.includes(node.label)) {
 
@@ -143,7 +138,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
 
             if (newProfileName) {
                 try {
-                    this.conanApiManager.conanApi.renameProfile(node.label, newProfileName);
+                    await this.conanApiManager.conanApi.renameProfile(node.label, newProfileName);
                     this.nodeProviderConanProfile.refresh();
                 }
                 catch (err) {
@@ -161,7 +156,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
      * @param node Selected conan profile node item
      */
     private async duplicateProfile(node: ConanProfileItem) {
-        let conanProfileList = this.nodeProviderConanProfile.getChildrenString();
+        const conanProfileList = await this.nodeProviderConanProfile.getChildrenString();
 
         if (conanProfileList.includes(node.label)) {
 
@@ -183,9 +178,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
 
             if (newProfileName) {
                 try {
-                    this.conanApiManager.conanApi.duplicateProfile(node.label, newProfileName);
-
-                    // Refresh the treeview once again
+                    await this.conanApiManager.conanApi.duplicateProfile(node.label, newProfileName);
                     this.nodeProviderConanProfile.refresh();
                 }
                 catch (err) {
@@ -203,7 +196,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
      */
     private async addProfile() {
         this.refreshProfileTreeview();
-        let conanProfileList = this.nodeProviderConanProfile.getChildrenString();
+        const conanProfileList = await this.nodeProviderConanProfile.getChildrenString();
 
         const profileName = await vscode.window.showInputBox({
             title: "Create a new Profile. Enter the name of the profile...",
@@ -222,9 +215,7 @@ export class ConanProfileExplorerManager extends ExtensionManager {
 
         if (profileName) {
             try {
-                this.conanApiManager.conanApi.createNewProfile(profileName);
-
-                // Refresh the treeview once again
+                await this.conanApiManager.conanApi.createNewProfile(profileName);
                 this.nodeProviderConanProfile.refresh();
             }
             catch (err) {

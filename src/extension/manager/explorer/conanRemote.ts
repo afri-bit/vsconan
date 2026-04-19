@@ -62,8 +62,8 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
     /**
      * Edit the remotes.json file in the VS Code
      */
-    private editRemote() {
-        let remoteFile = this.conanApiManager.conanApi.getRemoteFilePath();
+    private async editRemote() {
+        const remoteFile = await this.conanApiManager.conanApi.getRemoteFilePath();
 
         if (remoteFile) {
             utils.editor.openFileInEditor(remoteFile);
@@ -77,19 +77,18 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
      * Remove selected remote
      * @param node Selected conan remote node item
      */
-    private removeRemote(node: ConanRemoteItem) {
-        let conanRemoteList = this.nodeProviderConanRemote.getChildrenString();
+    private async removeRemote(node: ConanRemoteItem) {
+        const conanRemoteList = await this.nodeProviderConanRemote.getChildrenString();
 
         if (conanRemoteList.includes(node.label)) {
-            vscode.window
-                .showWarningMessage(`Are you sure you want to remove the remote '${node.label}'?`, ...["Yes", "No"])
-                .then((answer) => {
-                    if (answer === "Yes") {
-                        this.conanApiManager.conanApi.removeRemote(node.label);
-
-                        this.nodeProviderConanRemote.refresh();
-                    }
-                });
+            const answer = await vscode.window.showWarningMessage(
+                `Are you sure you want to remove the remote '${node.label}'?`,
+                ...["Yes", "No"]
+            );
+            if (answer === "Yes") {
+                await this.conanApiManager.conanApi.removeRemote(node.label);
+                this.nodeProviderConanRemote.refresh();
+            }
         }
         else {
             vscode.window.showErrorMessage(`Unable to find the remote with name '${node.label}'.`);
@@ -101,7 +100,7 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
      */
     private async addRemote() {
         this.refreshRemoteTreeview();
-        let conanRemoteList = this.nodeProviderConanRemote.getChildrenString();
+        const conanRemoteList = await this.nodeProviderConanRemote.getChildrenString();
 
         const remoteName = await vscode.window.showInputBox({
             title: "Add a new remote. Enter the name of the remote...",
@@ -134,9 +133,7 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
 
             if (remoteURL) {
                 try {
-                    this.conanApiManager.conanApi.addRemote(remoteName, remoteURL);
-
-                    // Refresh the treeview once again
+                    await this.conanApiManager.conanApi.addRemote(remoteName, remoteURL);
                     this.nodeProviderConanRemote.refresh();
                 }
                 catch (err) {
@@ -150,10 +147,9 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
      * Enable selected remote
      * @param node Selected conan remote node item
      */
-    private enableRemote(node: ConanRemoteItem) {
+    private async enableRemote(node: ConanRemoteItem) {
         try {
-            this.conanApiManager.conanApi.enableRemote(node.label, true);
-
+            await this.conanApiManager.conanApi.enableRemote(node.label, true);
             this.nodeProviderConanRemote.refresh();
         }
         catch (err) {
@@ -165,10 +161,9 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
      * Disable selected remote
      * @param node Selected conan remote node item
      */
-    private disableRemote(node: ConanRemoteItem) {
+    private async disableRemote(node: ConanRemoteItem) {
         try {
-            this.conanApiManager.conanApi.enableRemote(node.label, false);
-
+            await this.conanApiManager.conanApi.enableRemote(node.label, false);
             this.nodeProviderConanRemote.refresh();
         }
         catch (err) {
@@ -181,7 +176,7 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
      * @param node Selected conan remote node item
      */
     private async renameRemote(node: ConanRemoteItem) {
-        let conanRemoteList = this.nodeProviderConanRemote.getChildrenString();
+        const conanRemoteList = await this.nodeProviderConanRemote.getChildrenString();
 
         if (conanRemoteList.includes(node.label)) {
 
@@ -203,7 +198,7 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
 
             if (newRemoteName) {
                 try {
-                    this.conanApiManager.conanApi.renameRemote(node.label, newRemoteName);
+                    await this.conanApiManager.conanApi.renameRemote(node.label, newRemoteName);
                     this.nodeProviderConanRemote.refresh();
                 }
                 catch (err) {
@@ -221,11 +216,9 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
      * @param node Selected conan remote node item
      */
     private async updateRemoteURL(node: ConanRemoteItem) {
-        let conanRemoteList = this.nodeProviderConanRemote.getChildrenString();
+        const conanRemoteList = await this.nodeProviderConanRemote.getChildrenString();
 
         if (conanRemoteList.includes(node.label)) {
-
-            // let remoteDetailInfo = JSON.parse(node.detailInfo);
 
             const newURL = await vscode.window.showInputBox({
                 title: `Update URL for remote ${node.label}. Enter a new URL for the remote...`,
@@ -245,7 +238,7 @@ export class ConanRemoteExplorerManager extends ExtensionManager {
 
             if (newURL) {
                 try {
-                    this.conanApiManager.conanApi.updateRemoteURL(node.label, newURL);
+                    await this.conanApiManager.conanApi.updateRemoteURL(node.label, newURL);
                     this.nodeProviderConanRemote.refresh();
                 }
                 catch (err) {

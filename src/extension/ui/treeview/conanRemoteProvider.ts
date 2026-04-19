@@ -22,28 +22,25 @@ export class ConanRemoteNodeProvider implements vscode.TreeDataProvider<ConanRem
         return element;
     }
 
-    public getChildren(element?: ConanRemoteItem): ConanRemoteItem[] {
-        let remoteList: Array<ConanRemote> = [];
-        let remoteItemList: Array<ConanRemoteItem> = [];
+    public async getChildren(element?: ConanRemoteItem): Promise<ConanRemoteItem[]> {
+        const remoteItemList: Array<ConanRemoteItem> = [];
 
         if (this.conanApiManager.conanApi) {
-            remoteList = this.conanApiManager.conanApi.getRemotes();
+            const remoteList = await this.conanApiManager.conanApi.getRemotes();
 
-            for (let remote of remoteList) {
+            for (const remote of remoteList) {
                 remoteItemList.push(new ConanRemoteItem(remote.name, vscode.TreeItemCollapsibleState.None, remote));
             }
         }
-        
+
         return remoteItemList;
     }
 
-    public getChildrenString(): string[] {
-        let childStringList = [];
-
-        for (let child of this.getChildren()) {
+    public async getChildrenString(): Promise<string[]> {
+        const childStringList: string[] = [];
+        for (const child of await this.getChildren()) {
             childStringList.push(child.label);
         }
-
         return childStringList;
     }
 }

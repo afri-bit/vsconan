@@ -28,37 +28,30 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
         return element;
     }
 
-    public getChildren(element?: ConanRecipeItem): ConanRecipeItem[] {
-        let recipeList: Array<ConanRecipe> = [];
-        let recipeEditableList: Array<ConanRecipe> = [];
-        let recipeItemList: Array<ConanRecipeItem> = [];
+    public async getChildren(element?: ConanRecipeItem): Promise<ConanRecipeItem[]> {
+        const recipeItemList: Array<ConanRecipeItem> = [];
 
         if (this.conanApiManager.conanApi) {
-            // Check the configuration, if the filter is set
-            // If the filter is set, get the filte name.
-            // Otherwise do as always
-            // If filter is on, the editable package will not appear
-            if (this.settingsPropertyManager.isRecipeFiltered()) {
-                let filterKey: string = this.settingsPropertyManager.getRecipeFilterKey()!;
+            let recipeList: Array<ConanRecipe> = [];
+            let recipeEditableList: Array<ConanRecipe> = [];
 
-                recipeList = this.conanApiManager.conanApi.getRecipesByRemote(filterKey);
+            if (this.settingsPropertyManager.isRecipeFiltered()) {
+                const filterKey: string = this.settingsPropertyManager.getRecipeFilterKey()!;
+                recipeList = await this.conanApiManager.conanApi.getRecipesByRemote(filterKey);
             }
             else {
-                recipeList = this.conanApiManager.conanApi.getRecipes();
-                recipeEditableList = this.conanApiManager.conanApi.getEditablePackageRecipes();
+                recipeList = await this.conanApiManager.conanApi.getRecipes();
+                recipeEditableList = await this.conanApiManager.conanApi.getEditablePackageRecipes();
             }
 
-            // Get the list of string from editable packages
-            let editableRecipeStringList: Array<string> = [];
+            const editableRecipeStringList: Array<string> = [];
 
-            for (let recipe of recipeEditableList) {
+            for (const recipe of recipeEditableList) {
                 editableRecipeStringList.push(recipe.name);
                 recipeItemList.push(new ConanRecipeItem(recipe.name, vscode.TreeItemCollapsibleState.None, recipe));
             }
 
-            for (let recipe of recipeList) {
-                // Basically even the package is editable, it will appear in the 'conan search' command
-                // We dont want to have double name in the item list in the treeview, so we need to check if the package is already included in the editable list 
+            for (const recipe of recipeList) {
                 if (!editableRecipeStringList.includes(recipe.name)) {
                     recipeItemList.push(new ConanRecipeItem(recipe.name, vscode.TreeItemCollapsibleState.None, recipe));
                 }
@@ -68,13 +61,11 @@ export class ConanRecipeNodeProvider implements vscode.TreeDataProvider<ConanRec
         return recipeItemList;
     }
 
-    public getChildrenString(): string[] {
-        let childStringList = [];
-
-        for (let child of this.getChildren()) {
+    public async getChildrenString(): Promise<string[]> {
+        const childStringList: string[] = [];
+        for (const child of await this.getChildren()) {
             childStringList.push(child.label);
         }
-
         return childStringList;
     }
 

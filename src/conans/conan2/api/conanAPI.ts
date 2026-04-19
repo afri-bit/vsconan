@@ -1,8 +1,8 @@
-import { execSync } from "child_process";
 import * as fs from "fs";
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 import { ConanAPI, ConanExecutionMode } from "../../api/base/conanAPI";
 import { RecipeFolderOption } from "../../conan/api/conanAPI";
+import { runConan } from "../../cli/runConan";
 import { ConanPackage } from "../../model/conanPackage";
 import { ConanPackageRevision } from "../../model/conanPackageRevision";
 import { ConanRecipe } from "../../model/conanRecipe";
@@ -14,6 +14,14 @@ export class Conan2API extends ConanAPI {
     public constructor(pythonInterpreter: string, conanExecutable: string, conanExecutionMode: ConanExecutionMode) {
         super(pythonInterpreter, conanExecutable, conanExecutionMode);
         this.switchExecutionMode(this.conanExecutionMode);
+    }
+
+    private getCwd(): string | undefined {
+        return vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+    }
+
+    private runOpts() {
+        return { cwd: this.getCwd() };
     }
 
     public override switchExecutionMode(mode: ConanExecutionMode): void {
@@ -47,67 +55,77 @@ export class Conan2API extends ConanAPI {
         this.switchExecutionMode(ConanExecutionMode.conan);
     }
 
-    public override getConanHomePath(): string | undefined {
-        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+    public override async getConanHomePath(): Promise<string | undefined> {
         try {
-            let homePath = execSync(`${this.conanExecutor} config home`, options).toString();
-            return homePath.trim(); // Remove whitespace and new lines
+            const { stdout } = await runConan(
+                ["config", "home"],
+                this.conanExecutionMode,
+                this.pythonInterpreter,
+                this.conanExecutable,
+                this.runOpts()
+            );
+            return stdout.trim();
         }
         catch (err) {
             console.log((err as Error).message);
             return undefined;
         }
     }
-    public override getConanProfilesPath(): string | undefined {
-        let returnValue: string | undefined = undefined;
 
-        let conanHomePath = this.getConanHomePath();
-
+    public override async getConanProfilesPath(): Promise<string | undefined> {
+        const conanHomePath = await this.getConanHomePath();
         if (conanHomePath !== undefined) {
-            returnValue = path.join(conanHomePath, "profiles");
+            return path.join(conanHomePath, "profiles");
         }
-
-        return returnValue;
+        return undefined;
     }
 
-    public override getProfileFilePath(profileName: string): string | undefined {
-        let returnValue: string | undefined = undefined;
-
-        let conanProfilesPath = this.getConanProfilesPath();
-
+    public override async getProfileFilePath(profileName: string): Promise<string | undefined> {
+        const conanProfilesPath = await this.getConanProfilesPath();
         if (conanProfilesPath !== undefined) {
-            returnValue = path.join(conanProfilesPath, profileName);
+            return path.join(conanProfilesPath, profileName);
         }
-
-        return returnValue;
+        return undefined;
     }
 
-    public override getRecipePath(recipe: string): string | undefined {
-        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-        let recipePath = execSync(`${this.conanExecutor} cache path ${recipe}`, options).toString().trim();
-
-        return recipePath;
+    public override async getRecipePath(recipe: string): Promise<string | undefined> {
+        const { stdout } = await runConan(
+            ["cache", "path", recipe],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable,
+            this.runOpts()
+        );
+        return stdout.trim();
     }
 
-    public override getPackagePath(recipe: string, packageId: string): string | undefined {
-        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-        let packagePath = execSync(`${this.conanExecutor} cache path ${recipe}:${packageId}`, options).toString().trim();
-
-        return packagePath;
+    public override async getPackagePath(recipe: string, packageId: string): Promise<string | undefined> {
+        const { stdout } = await runConan(
+            ["cache", "path", `${recipe}:${packageId}`],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable,
+            this.runOpts()
+        );
+        return stdout.trim();
     }
 
-    public override getRecipes(): Array<ConanRecipe> {
+    public override async getRecipes(): Promise<Array<ConanRecipe>> {
         let listOfRecipes: Array<ConanRecipe> = [];
 
         try {
-            const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-            let jsonStdout = execSync(`${this.conanExecutor} list *#* --format json`, options);
-            let jsonObject = JSON.parse(jsonStdout.toString());
+            const { stdout } = await runConan(
+                ["list", "*#*", "--format", "json"],
+                this.conanExecutionMode,
+                this.pythonInterpreter,
+                this.conanExecutable,
+                this.runOpts()
+            );
+            const jsonObject = JSON.parse(stdout);
+            const localCache = jsonObject["Local Cache"];
 
-            let localCache = jsonObject["Local Cache"];
-
-            for (let recipe in localCache) {
-                for (let rev in localCache[recipe].revisions) {
+            for (const recipe in localCache) {
+                for (const rev in localCache[recipe].revisions) {
                     listOfRecipes.push(new ConanRecipe(`${recipe}#${rev}`, false));
                 }
             }
@@ -120,13 +138,16 @@ export class Conan2API extends ConanAPI {
         return listOfRecipes;
     }
 
-    public override getProfiles(): string[] {
-
+    public override async getProfiles(): Promise<string[]> {
         try {
-            const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-            let stdout = execSync(`${this.conanExecutor} profile list --format json`, options);
-            let jsonObject = JSON.parse(stdout.toString());
-            return jsonObject;
+            const { stdout } = await runConan(
+                ["profile", "list", "--format", "json"],
+                this.conanExecutionMode,
+                this.pythonInterpreter,
+                this.conanExecutable,
+                this.runOpts()
+            );
+            return JSON.parse(stdout);
         }
         catch (err) {
             console.log((err as Error).message);
@@ -134,23 +155,24 @@ export class Conan2API extends ConanAPI {
         }
     }
 
-    public override getPackages(recipe: string): ConanPackage[] {
+    public override async getPackages(recipe: string): Promise<ConanPackage[]> {
         let listOfPackages: Array<ConanPackage> = [];
 
         try {
             if (recipe) {
-                const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-                let jsonStdout = execSync(`${this.conanExecutor} list ${recipe}:* --format json`, options);
-                let jsonObject = JSON.parse(jsonStdout.toString());
+                const { stdout } = await runConan(
+                    ["list", `${recipe}:*`, "--format", "json"],
+                    this.conanExecutionMode,
+                    this.pythonInterpreter,
+                    this.conanExecutable,
+                    this.runOpts()
+                );
+                const jsonObject = JSON.parse(stdout);
+                const recipeRevisionSplit = recipe.split("#");
+                const localCache = jsonObject["Local Cache"];
+                const packageObjects = localCache[recipeRevisionSplit[0]]["revisions"][recipeRevisionSplit[1]]["packages"];
 
-                let recipeRevisionSplit = recipe.split("#");
-
-                let localCache = jsonObject["Local Cache"];
-
-                let packageObjects = localCache[recipeRevisionSplit[0]]["revisions"][recipeRevisionSplit[1]]["packages"];
-
-                for (let packageId in packageObjects) {
-
+                for (const packageId in packageObjects) {
                     listOfPackages.push(new ConanPackage(
                         packageId,
                         false,
@@ -171,36 +193,30 @@ export class Conan2API extends ConanAPI {
         return listOfPackages;
     }
 
-    public override getRemoteFilePath(): string | undefined {
-        let conanHomePath = this.getConanHomePath();
-
-        let remotePath = undefined;
-
+    public override async getRemoteFilePath(): Promise<string | undefined> {
+        const conanHomePath = await this.getConanHomePath();
         if (conanHomePath) {
-            remotePath = path.join(conanHomePath!, "remotes.json");
+            return path.join(conanHomePath, "remotes.json");
         }
-
-        return remotePath;
+        return undefined;
     }
 
-    public override getRemotes(): ConanRemote[] {
-        let arrayRemoteList: Array<ConanRemote> = [];
-
-        let conanHomePath = this.getConanHomePath();
+    public override async getRemotes(): Promise<ConanRemote[]> {
+        const arrayRemoteList: Array<ConanRemote> = [];
+        const conanHomePath = await this.getConanHomePath();
 
         if (conanHomePath === undefined) {
             throw new Error("Unable to locate Conan home folder.");
         }
 
-        let jsonPath: string = path.join(conanHomePath!, "remotes.json");
+        const jsonPath: string = path.join(conanHomePath, "remotes.json");
 
         if (fs.existsSync(jsonPath)) {
-            let tempFile = fs.readFileSync(jsonPath, 'utf8');
-            let remoteJson = JSON.parse(tempFile);
+            const tempFile = await fs.promises.readFile(jsonPath, "utf8");
+            const remoteJson = JSON.parse(tempFile);
+            const remoteItemList = remoteJson.remotes;
 
-            let remoteItemList = remoteJson.remotes;
-
-            for (let remote of remoteItemList) {
+            for (const remote of remoteItemList) {
                 arrayRemoteList.push(new ConanRemote(remote.name, remote.url, remote.verify_ssl, remote.disabled ? false : true));
             }
         }
@@ -208,147 +224,185 @@ export class Conan2API extends ConanAPI {
         return arrayRemoteList;
     }
 
-    public override removePackage(recipe: string, packageId: string): void {
-        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-        execSync(`${this.conanExecutor} remove ${recipe}:${packageId} -c`, options);
+    public override async removePackage(recipe: string, packageId: string): Promise<void> {
+        await runConan(
+            ["remove", `${recipe}:${packageId}`, "-c"],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable,
+            this.runOpts()
+        );
     }
 
-    public override removeRecipe(recipe: string): void {
-        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-        execSync(`${this.conanExecutor} remove ${recipe} -c`, options);
+    public override async removeRecipe(recipe: string): Promise<void> {
+        await runConan(
+            ["remove", recipe, "-c"],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable,
+            this.runOpts()
+        );
     }
 
-    public override removeProfile(profile: string): void {
-        let conanProfilesPath = this.getConanProfilesPath();
-
+    public override async removeProfile(profile: string): Promise<void> {
+        const conanProfilesPath = await this.getConanProfilesPath();
         if (conanProfilesPath === undefined) {
             throw new Error("Unable to locate Conan profiles folder.");
         }
-
-        let profileFilePath = path.join(conanProfilesPath, profile);
-
-        fs.unlinkSync(profileFilePath);
+        const profileFilePath = path.join(conanProfilesPath, profile);
+        await fs.promises.unlink(profileFilePath);
     }
 
-    public override addRemote(remote: string, url: string): void {
-        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-        execSync(`${this.conanExecutor} remote add ${remote} ${url}`, options);
+    public override async addRemote(remote: string, url: string): Promise<void> {
+        await runConan(
+            ["remote", "add", remote, url],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable,
+            this.runOpts()
+        );
     }
 
-    public override removeRemote(remote: string): void {
-        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-        execSync(`${this.conanExecutor} remote remove ${remote}`, options);
+    public override async removeRemote(remote: string): Promise<void> {
+        await runConan(
+            ["remote", "remove", remote],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable,
+            this.runOpts()
+        );
     }
 
-    public override enableRemote(remote: string, enable: boolean): void {
-        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
+    public override async enableRemote(remote: string, enable: boolean): Promise<void> {
         if (enable) {
-            execSync(`${this.conanExecutor} remote enable ${remote}`, options);
+            await runConan(
+                ["remote", "enable", remote],
+                this.conanExecutionMode,
+                this.pythonInterpreter,
+                this.conanExecutable,
+                this.runOpts()
+            );
         }
         else {
-            execSync(`${this.conanExecutor} remote disable ${remote}`, options);
+            await runConan(
+                ["remote", "disable", remote],
+                this.conanExecutionMode,
+                this.pythonInterpreter,
+                this.conanExecutable,
+                this.runOpts()
+            );
         }
     }
 
-    public override renameRemote(remoteName: string, newName: string): void {
-        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-        execSync(`${this.conanExecutor} remote rename ${remoteName} ${newName}`, options);
+    public override async renameRemote(remoteName: string, newName: string): Promise<void> {
+        await runConan(
+            ["remote", "rename", remoteName, newName],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable,
+            this.runOpts()
+        );
     }
 
-    public override updateRemoteURL(remoteName: string, url: string): void {
-        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-        execSync(`${this.conanExecutor} remote update ${remoteName} --url ${url}`, options);
+    public override async updateRemoteURL(remoteName: string, url: string): Promise<void> {
+        await runConan(
+            ["remote", "update", remoteName, "--url", url],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable,
+            this.runOpts()
+        );
     }
 
-    public override renameProfile(oldProfileName: string, newProfileName: string): void {
-        // Get the absolute path to the selected profile
-        let oldProfilePath = this.getProfileFilePath(oldProfileName);
+    public override async renameProfile(oldProfileName: string, newProfileName: string): Promise<void> {
+        const oldProfilePath = await this.getProfileFilePath(oldProfileName);
+        const profilesPath = await this.getConanProfilesPath();
 
-        if (oldProfilePath) {
-            fs.renameSync(oldProfilePath, path.join(this.getConanProfilesPath()!, newProfileName));
+        if (oldProfilePath && profilesPath) {
+            await fs.promises.rename(oldProfilePath, path.join(profilesPath, newProfileName));
         }
         else {
             throw new Error(`Unable to locate profile ${oldProfileName}`);
         }
     }
 
-    public override duplicateProfile(oldProfileName: string, newProfileName: string): void {
-        let oldProfilePath = this.getProfileFilePath(oldProfileName);
+    public override async duplicateProfile(oldProfileName: string, newProfileName: string): Promise<void> {
+        const oldProfilePath = await this.getProfileFilePath(oldProfileName);
+        const profilesPath = await this.getConanProfilesPath();
 
-        if (oldProfileName) {
-            fs.copyFileSync(oldProfilePath!, path.join(this.getConanProfilesPath()!, newProfileName));
+        if (oldProfilePath && profilesPath) {
+            await fs.promises.copyFile(oldProfilePath, path.join(profilesPath, newProfileName));
         }
         else {
             throw new Error(`Unable to duplicate profile ${oldProfileName}`);
         }
     }
 
-    public override createNewProfile(profileName: string): void {
-        let conanProfilesPath = this.getConanProfilesPath();
+    public override async createNewProfile(profileName: string): Promise<void> {
+        const conanProfilesPath = await this.getConanProfilesPath();
 
         if (conanProfilesPath === undefined) {
             throw new Error("Unable to locate Conan profiles folder.");
         }
 
-        let emptyProfileContent = "[settings]\n[options]\n[build_requires]\n[env]\n";
-
-        fs.writeFileSync(path.join(conanProfilesPath, profileName), emptyProfileContent);
+        const emptyProfileContent = "[settings]\n[options]\n[build_requires]\n[env]\n";
+        await fs.promises.writeFile(path.join(conanProfilesPath, profileName), emptyProfileContent);
     }
 
-    public override getRecipeInformation(recipeName: string): string | undefined {
+    public override async getRecipeInformation(_recipeName: string): Promise<string | undefined> {
         throw new Error("Method not implemented.");
     }
 
-    public override getDirtyPackage(recipeName: string): ConanPackage[] {
+    public override async getDirtyPackage(_recipeName: string): Promise<ConanPackage[]> {
         throw new Error("Method not implemented.");
     }
 
-    public override getEditablePackageRecipes(): ConanRecipe[] {
-        // TODO: Implementation
+    public override async getEditablePackageRecipes(): Promise<ConanRecipe[]> {
         return [];
     }
 
-    public override removeEditablePackageRecipe(recipe: string): void {
+    public override async removeEditablePackageRecipe(_recipe: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
 
-    public override addEditablePackage(recipePath: string, name: string, user: string, channel: string, layout: string): void {
+    public override async addEditablePackage(_recipePath: string, _name: string, _user: string, _channel: string, _layout: string): Promise<void> {
         throw new Error("Method not implemented.");
     }
 
-    public override getRecipeAttribute(recipePath: string, attribute: string): string {
+    public override async getRecipeAttribute(_recipePath: string, _attribute: string): Promise<string> {
         throw new Error("Method not implemented.");
     }
 
-    public override getRecipesByRemote(remote: string): ConanRecipe[] {
-        // TODO: Implementation
+    public override async getRecipesByRemote(_remote: string): Promise<ConanRecipe[]> {
         return [];
     }
 
-    public override getFolderPathFromRecipe(recipe: string, folderOption: RecipeFolderOption): string {
+    public override async getFolderPathFromRecipe(_recipe: string, _folderOption: RecipeFolderOption): Promise<string> {
         throw new Error("Method not implemented.");
     }
 
-    public override getPackagesByRemote(recipe: string, remote: string): ConanPackage[] {
+    public override async getPackagesByRemote(_recipe: string, _remote: string): Promise<ConanPackage[]> {
         throw new Error("Method not implemented.");
     }
 
-    public override getPackageRevisions(recipe: string, packageId: string): Array<ConanPackageRevision> {
+    public override async getPackageRevisions(recipe: string, packageId: string): Promise<Array<ConanPackageRevision>> {
         let listOfPackageRevisions: Array<ConanPackageRevision> = [];
 
         try {
             if (recipe && packageId) {
-                const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-                let jsonStdout = execSync(`${this.conanExecutor} list ${recipe}:${packageId}#* --format json`, options);
-                let jsonObject = JSON.parse(jsonStdout.toString());
+                const { stdout } = await runConan(
+                    ["list", `${recipe}:${packageId}#*`, "--format", "json"],
+                    this.conanExecutionMode,
+                    this.pythonInterpreter,
+                    this.conanExecutable,
+                    this.runOpts()
+                );
+                const jsonObject = JSON.parse(stdout);
+                const recipeRevisionSplit = recipe.split("#");
+                const localCache = jsonObject["Local Cache"];
+                const packageRevisionObjects = localCache[recipeRevisionSplit[0]]["revisions"][recipeRevisionSplit[1]]["packages"][packageId]["revisions"];
 
-                let recipeRevisionSplit = recipe.split("#");
-
-                let localCache = jsonObject["Local Cache"];
-
-                let packageRevisionObjects = localCache[recipeRevisionSplit[0]]["revisions"][recipeRevisionSplit[1]]["packages"][packageId]["revisions"];
-
-                for (let revisionId in packageRevisionObjects) {
+                for (const revisionId in packageRevisionObjects) {
                     listOfPackageRevisions.push(
                         new ConanPackageRevision(
                             revisionId,
@@ -357,7 +411,6 @@ export class Conan2API extends ConanAPI {
                     );
                 }
             }
-
         }
         catch (err) {
             console.log((err as Error).message);
@@ -367,22 +420,30 @@ export class Conan2API extends ConanAPI {
         return listOfPackageRevisions;
     }
 
-    public override getPackageRevisionPath(recipe: string, packageId: string, revisionId: string): string | undefined {
-        let packageRevisionPath: string | undefined = undefined;
-
+    public override async getPackageRevisionPath(recipe: string, packageId: string, revisionId: string): Promise<string | undefined> {
         try {
-            const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-            packageRevisionPath = execSync(`${this.conanExecutor} cache path ${recipe}:${packageId}#${revisionId}`, options).toString().trim();
+            const { stdout } = await runConan(
+                ["cache", "path", `${recipe}:${packageId}#${revisionId}`],
+                this.conanExecutionMode,
+                this.pythonInterpreter,
+                this.conanExecutable,
+                this.runOpts()
+            );
+            return stdout.trim();
         }
         catch (err) {
             console.log((err as Error).message);
+            return undefined;
         }
-
-        return packageRevisionPath;
     }
 
-    public removePackageRevision(recipe: string, packageId: string, revisionId: string): void {
-        const options = { 'cwd': vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-        execSync(`${this.conanExecutor} remove ${recipe}:${packageId}#${revisionId} -c`, options);
+    public override async removePackageRevision(recipe: string, packageId: string, revisionId: string): Promise<void> {
+        await runConan(
+            ["remove", `${recipe}:${packageId}#${revisionId}`, "-c"],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable,
+            this.runOpts()
+        );
     }
 }

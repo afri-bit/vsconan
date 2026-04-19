@@ -32,42 +32,44 @@ export class ConanPackageNodeProvider implements vscode.TreeDataProvider<ConanPa
         return element;
     }
 
-    public getChildren(element?: ConanPackageItem): ConanPackageItem[] {
-        let packageList: Array<ConanPackage> = [];
-        let dirtyPackageList: Array<ConanPackage> = [];
-        let packageItemList: Array<ConanPackageItem> = [];
+    public async getChildren(element?: ConanPackageItem): Promise<ConanPackageItem[]> {
+        const packageItemList: Array<ConanPackageItem> = [];
 
         if (this.conanApiManager.conanApi) {
+            let packageList: Array<ConanPackage> = [];
+            let dirtyPackageList: Array<ConanPackage> = [];
+
             if (this.settingsPropertyManager.isPackageFiltered()) {
-                packageList = this.conanApiManager.conanApi.getPackagesByRemote(this.recipeName, this.settingsPropertyManager.getPackageFilterKey()!);
+                packageList = await this.conanApiManager.conanApi.getPackagesByRemote(
+                    this.recipeName,
+                    this.settingsPropertyManager.getPackageFilterKey()!
+                );
             }
             else {
-                packageList = this.conanApiManager.conanApi.getPackages(this.recipeName);
+                packageList = await this.conanApiManager.conanApi.getPackages(this.recipeName);
             }
 
             if (this.showDirtyPackage) {
-                dirtyPackageList = this.conanApiManager.conanApi.getDirtyPackage(this.recipeName);
+                dirtyPackageList = await this.conanApiManager.conanApi.getDirtyPackage(this.recipeName);
             }
 
-            for (let pkg of packageList) {
+            for (const pkg of packageList) {
                 packageItemList.push(new ConanPackageItem(pkg.id, vscode.TreeItemCollapsibleState.None, pkg));
             }
 
-            for (let pkg of dirtyPackageList) {
+            for (const pkg of dirtyPackageList) {
                 packageItemList.push(new ConanPackageItem(pkg.id, vscode.TreeItemCollapsibleState.None, pkg));
             }
         }
-        
+
         return packageItemList;
     }
 
-    public getChildrenString(): string[] {
-        let childStringList = [];
-
-        for (let child of this.getChildren()) {
+    public async getChildrenString(): Promise<string[]> {
+        const childStringList: string[] = [];
+        for (const child of await this.getChildren()) {
             childStringList.push(child.label);
         }
-
         return childStringList;
     }
 
