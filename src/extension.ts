@@ -21,7 +21,7 @@ import { ConanRemoteNodeProvider } from "./extension/ui/treeview/conanRemoteProv
 export function activate(context: vscode.ExtensionContext) {
     // Create VSConan extension channel
     // This channel is to show the command line outputs specifically for this extension
-    var channelVSConan = vscode.window.createOutputChannel("VSConan");
+    var channelVSConan = vscode.window.createOutputChannel("VSConan", "log");
 
     // ========== Global Area Initialization
     // Global Area - The global area is stored under home folder ($HOME/.vsconan)

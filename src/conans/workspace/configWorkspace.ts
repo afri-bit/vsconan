@@ -1,29 +1,18 @@
-import * as fs from "fs";
-import { CommandContainer } from "../command/configCommand";
+import { commandContainerSchema } from "../command/configCommand";
 
-export class ConfigWorkspace {
-    public commandContainer: CommandContainer;
+import { z } from 'zod';
 
-    constructor(commandContainer: CommandContainer = new CommandContainer()) {
-        this.commandContainer = commandContainer;
-    }
+/**
+ * Parent schema for workspace configuration
+ */
+const configWorkspaceSchema = z.object({
+    commandContainer: commandContainerSchema,
+}).strict();
 
-    public getJsonString(): string {
-        let jsonString = JSON.stringify(this, null, 4);
-        return jsonString;
-    }
+type ConfigWorkspace = z.infer<typeof configWorkspaceSchema>;
 
-    /**
-     * Save current configuration to JSON file with give file name
-     * 
-     * @param filename
-     */
-    public writeToFile(filename: string) {
-        let jsonString = JSON.stringify(this, null, 4);
-        fs.writeFile(filename, jsonString, "utf8", function (err) {
-            if (err) {
-                throw err;
-            }
-        });
-    }
-}
+export { 
+    configWorkspaceSchema,
+    ConfigWorkspace
+};
+

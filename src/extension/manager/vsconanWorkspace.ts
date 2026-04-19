@@ -4,26 +4,15 @@ import * as vscode from 'vscode';
 import { ConanAPIManager } from '../../conans/api/conanAPIManager';
 import { CommandBuilder } from "../../conans/command/commandBuilder";
 import { CommandBuilderFactory } from "../../conans/command/commandBuilderFactory";
+import { ConanCommand, ConanCommandExecutor } from "../../conans/command/commandExecutor";
 import { ConfigCommand, ConfigCommandBuild, ConfigCommandCreate, ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport, ConfigCommandSource } from '../../conans/command/configCommand';
-import { ConfigWorkspace } from '../../conans/workspace/configWorkspace';
+import { ConfigWorkspace, configWorkspaceSchema } from "../../conans/workspace/configWorkspace";
 import * as constants from "../../utils/constants";
 import * as utils from '../../utils/utils';
 import { ConanProfileConfiguration } from "../settings/model";
 import { SettingsPropertyManager } from "../settings/settingsPropertyManager";
 import { ExtensionManager } from "./extensionManager";
 import { VSConanWorkspaceEnvironment } from "./workspaceEnvironment";
-
-enum ConanCommand {
-    create,
-    install,
-    build,
-    source,
-    package,
-    packageExport,
-    activateBuildEnv,
-    activateRunEnv,
-    deactivateEnv
-}
 
 interface ConfigCommandQuickPickItem extends vscode.QuickPickItem {
     index: number;
@@ -199,7 +188,14 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 vscode.window.showInformationMessage("Config file already exists in the workspace.");
             }
             else {
-                utils.vsconan.config.createInitialWorkspaceConfig(vsconanPath);
+                try {
+                    utils.vsconan.config.createInitialWorkspaceConfig(vsconanPath);
+
+                }
+                catch (err) {
+                    console.log(err);
+                }
+
 
                 // Open configuration file after being created
                 utils.editor.openFileInEditor(configFilePath);
@@ -240,9 +236,26 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         let configPath = path.join(wsPath!, constants.VSCONAN_FOLDER, constants.CONFIG_FILE);
 
         if (fs.existsSync(configPath)) {
-            let configWorkspace = new ConfigWorkspace();
-            let configText = fs.readFileSync(configPath, 'utf8');
-            configWorkspace = JSON.parse(configText);
+            let configWorkspace: ConfigWorkspace;
+
+            try {
+                let configText = fs.readFileSync(configPath, 'utf8');
+                let configJson = JSON.parse(configText);
+
+                // Validate the schema
+                const validationResult = configWorkspaceSchema.safeParse(configJson);
+
+                if (!validationResult.success) {
+                    vscode.window.showErrorMessage(`Invalid configuration schema.\n\n${validationResult.error.message}`);
+                    return;
+                }
+
+                configWorkspace = validationResult.data;
+            }
+            catch (err) {
+                vscode.window.showErrorMessage((err as Error).message);
+                return;
+            }
 
             let conanCommand = "";
             let commandBuilder: CommandBuilder | undefined;
@@ -270,25 +283,25 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 }
             }
             else {
-                vscode.window.showErrorMessage("");
+                vscode.window.showErrorMessage("Invalid Conan Profile");
                 return;
             }
 
-            switch (+cmdType) {
+            switch (cmdType) {
                 case ConanCommand.create: {
-                    this.executeCommandConanCreate(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.create);
+                    this.executeCommandConanCreate(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.create!);
                     break;
                 }
                 case ConanCommand.install: {
-                    this.executeCommandConanInstall(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.install);
+                    this.executeCommandConanInstall(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.install!);
                     break;
                 }
                 case ConanCommand.build: {
-                    this.executeCommandConanBuild(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.build);
+                    this.executeCommandConanBuild(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.build!);
                     break;
                 }
                 case ConanCommand.source: {
-                    this.executeCommandConanSource(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.source);
+                    this.executeCommandConanSource(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.source!);
                     break;
                 }
                 case ConanCommand.package: {
@@ -297,11 +310,11 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                         break;
                     }
 
-                    this.executeCommandConanPackage(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkg);
+                    this.executeCommandConanPackage(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkg!);
                     break;
                 }
                 case ConanCommand.packageExport: {
-                    this.executeCommandConanPackageExport(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkgExport);
+                    this.executeCommandConanPackageExport(wsPath!, conanCommand, commandBuilder!, configWorkspace.commandContainer.pkgExport!);
                     break;
                 }
                 case ConanCommand.activateBuildEnv: {
@@ -309,7 +322,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                         vscode.window.showErrorMessage("This command is not yet supported for Conan 1");
                         break;
                     }
-                    this.executeCommandActivateEnv(wsPath!, conanProfileObject.conanPythonInterpreter, utils.conan.ConanEnv.buildEnv, commandBuilder!, configWorkspace.commandContainer.install);
+                    this.executeCommandActivateEnv(wsPath!, conanProfileObject.conanPythonInterpreter, utils.conan.ConanEnv.buildEnv, commandBuilder!, configWorkspace.commandContainer.install!);
                     break;
                 }
                 case ConanCommand.activateRunEnv: {
@@ -317,7 +330,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                         vscode.window.showErrorMessage("This command is not yet supported for Conan 1");
                         break;
                     }
-                    this.executeCommandActivateEnv(wsPath!, conanProfileObject.conanPythonInterpreter, utils.conan.ConanEnv.runEnv, commandBuilder!, configWorkspace.commandContainer.install);
+                    this.executeCommandActivateEnv(wsPath!, conanProfileObject.conanPythonInterpreter, utils.conan.ConanEnv.runEnv, commandBuilder!, configWorkspace.commandContainer.install!);
                     break;
                 }
                 case ConanCommand.deactivateEnv: {
@@ -342,7 +355,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @returns Index of selected configuration | undefined on error or no selection
      */
     private getCommandConfigIndex(configList: Array<ConfigCommand>): Promise<number | undefined> {
-        return new Promise<number | undefined>(async (resolve, reject) => {
+        return new Promise<number | undefined>(async (resolve) => {
             if (configList !== undefined) {
                 const quickPick = vscode.window.createQuickPick<ConfigCommandQuickPickItem>();
                 let quickPickItems = [];
@@ -364,11 +377,11 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                     return resolve(choice.index);
                 }
                 else {
-                    return reject(undefined);
+                    return resolve(undefined);
                 }
             }
             else {
-                return reject(undefined);
+                return resolve(undefined);
             }
         });
     }
@@ -380,25 +393,17 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param configList List of possible configurations
      */
     private executeCommandConanCreate(wsPath: string, conanCommand: string, commandBuilder: CommandBuilder, configList: Array<ConfigCommandCreate>) {
-        let promiseIndex = this.getCommandConfigIndex(configList);
-
-        promiseIndex.then(index => {
-            if (index !== undefined) {
-                let selectedConfig = configList[index];
-
-                let cmd = commandBuilder.buildCommandCreate(wsPath, selectedConfig);
-
-                if (cmd) {
-                    try {
-                        utils.vsconan.cmd.executeCommand(`${conanCommand} create`, cmd, this.outputChannel);
-                    }
-                    catch (err) {
-                        vscode.window.showErrorMessage((err as Error).message);
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to execute conan CREATE command!");
-                }
+        void this.getCommandConfigIndex(configList).then(async (index) => {
+            if (index === undefined) {
+                return;
+            }
+            const selectedConfig = configList[index];
+            const executor = new ConanCommandExecutor(wsPath, conanCommand, ConanCommand.create, selectedConfig, commandBuilder, this.outputChannel);
+            try {
+                await executor.run();
+            }
+            catch (err) {
+                vscode.window.showErrorMessage((err as Error).message);
             }
         });
     }
@@ -439,24 +444,17 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param configList List of possible configurations
      */
     private executeCommandConanInstall(wsPath: string, conanCommand: string, commandBuilder: CommandBuilder, configList: Array<ConfigCommandInstall>) {
-        let promiseIndex = this.getCommandConfigIndex(configList);
-
-        promiseIndex.then(index => {
-            if (index !== undefined) {
-                let selectedConfig = configList[index];
-                let cmdArgs = commandBuilder.buildCommandInstall(wsPath, selectedConfig);
-
-                if (cmdArgs !== undefined) {
-                    try {
-                        utils.vsconan.cmd.executeCommand(`${conanCommand} install`, cmdArgs, this.outputChannel);
-                    }
-                    catch (err) {
-                        vscode.window.showErrorMessage((err as Error).message);
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to execute conan INSTALL command!");
-                }
+        void this.getCommandConfigIndex(configList).then(async (index) => {
+            if (index === undefined) {
+                return;
+            }
+            const selectedConfig = configList[index];
+            const executor = new ConanCommandExecutor(wsPath, conanCommand, ConanCommand.install, selectedConfig, commandBuilder, this.outputChannel);
+            try {
+                await executor.run();
+            }
+            catch (err) {
+                vscode.window.showErrorMessage((err as Error).message);
             }
         });
     }
@@ -468,24 +466,17 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param configList List of possible configurations
      */
     private executeCommandConanBuild(wsPath: string, conanCommand: string, commandBuilder: CommandBuilder, configList: Array<ConfigCommandBuild>) {
-        let promiseIndex = this.getCommandConfigIndex(configList);
-
-        promiseIndex.then(index => {
-            if (index !== undefined) {
-                let selectedConfig = configList[index];
-                let cmd = commandBuilder.buildCommandBuild(wsPath, selectedConfig);
-
-                if (cmd !== undefined) {
-                    try {
-                        utils.vsconan.cmd.executeCommand(`${conanCommand} build`, cmd, this.outputChannel);
-                    }
-                    catch (err) {
-                        vscode.window.showErrorMessage((err as Error).message);
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to execute conan BUILD command!");
-                }
+        void this.getCommandConfigIndex(configList).then(async (index) => {
+            if (index === undefined) {
+                return;
+            }
+            const selectedConfig = configList[index];
+            const executor = new ConanCommandExecutor(wsPath, conanCommand, ConanCommand.build, selectedConfig, commandBuilder, this.outputChannel);
+            try {
+                await executor.run();
+            }
+            catch (err) {
+                vscode.window.showErrorMessage((err as Error).message);
             }
         });
     }
@@ -497,24 +488,17 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param configList List of possible configurations
      */
     private executeCommandConanSource(wsPath: string, conanCommand: string, commandBuilder: CommandBuilder, configList: Array<ConfigCommandSource>) {
-        let promiseIndex = this.getCommandConfigIndex(configList);
-
-        promiseIndex.then(index => {
-            if (index !== undefined) {
-                let selectedConfig = configList[index];
-                let cmd = commandBuilder.buildCommandSource(wsPath, selectedConfig);
-
-                if (cmd !== undefined) {
-                    try {
-                        utils.vsconan.cmd.executeCommand(`${conanCommand} source`, cmd, this.outputChannel);
-                    }
-                    catch (err) {
-                        vscode.window.showErrorMessage((err as Error).message);
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to execute conan SOURCE command!");
-                }
+        void this.getCommandConfigIndex(configList).then(async (index) => {
+            if (index === undefined) {
+                return;
+            }
+            const selectedConfig = configList[index];
+            const executor = new ConanCommandExecutor(wsPath, conanCommand, ConanCommand.source, selectedConfig, commandBuilder, this.outputChannel);
+            try {
+                await executor.run();
+            }
+            catch (err) {
+                vscode.window.showErrorMessage((err as Error).message);
             }
         });
     }
@@ -526,24 +510,17 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param configList List of possible configurations
      */
     private executeCommandConanPackage(wsPath: string, conanCommand: string, commandBuilder: CommandBuilder, configList: Array<ConfigCommandPackage>) {
-        let promiseIndex = this.getCommandConfigIndex(configList);
-
-        promiseIndex.then(index => {
-            if (index !== undefined) {
-                let selectedConfig = configList[index];
-                let cmd = commandBuilder.buildCommandPackage(wsPath, selectedConfig);
-
-                if (cmd !== undefined) {
-                    try {
-                        utils.vsconan.cmd.executeCommand(`${conanCommand} package`, cmd, this.outputChannel);
-                    }
-                    catch (err) {
-                        vscode.window.showErrorMessage((err as Error).message);
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to execute conan PACKAGE command!");
-                }
+        void this.getCommandConfigIndex(configList).then(async (index) => {
+            if (index === undefined) {
+                return;
+            }
+            const selectedConfig = configList[index];
+            const executor = new ConanCommandExecutor(wsPath, conanCommand, ConanCommand.package, selectedConfig, commandBuilder, this.outputChannel);
+            try {
+                await executor.run();
+            }
+            catch (err) {
+                vscode.window.showErrorMessage((err as Error).message);
             }
         });
     }
@@ -555,24 +532,17 @@ export class VSConanWorkspaceManager extends ExtensionManager {
      * @param configList List of possible configurations
      */
     private executeCommandConanPackageExport(wsPath: string, conanCommand: string, commandBuilder: CommandBuilder, configList: Array<ConfigCommandPackageExport>) {
-        let promiseIndex = this.getCommandConfigIndex(configList);
-
-        promiseIndex.then(index => {
-            if (index !== undefined) {
-                let selectedConfig = configList[index];
-                let cmd = commandBuilder.buildCommandPackageExport(wsPath, selectedConfig);
-
-                if (cmd !== undefined) {
-                    try {
-                        utils.vsconan.cmd.executeCommand(`${conanCommand} export-pkg`, cmd, this.outputChannel);
-                    }
-                    catch (err) {
-                        vscode.window.showErrorMessage((err as Error).message);
-                    }
-                }
-                else {
-                    vscode.window.showErrorMessage("Unable to execute conan PACKAGE EXPORT command!");
-                }
+        void this.getCommandConfigIndex(configList).then(async (index) => {
+            if (index === undefined) {
+                return;
+            }
+            const selectedConfig = configList[index];
+            const executor = new ConanCommandExecutor(wsPath, conanCommand, ConanCommand.packageExport, selectedConfig, commandBuilder, this.outputChannel);
+            try {
+                await executor.run();
+            }
+            catch (err) {
+                vscode.window.showErrorMessage((err as Error).message);
             }
         });
     }

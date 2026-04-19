@@ -1,186 +1,246 @@
+// zod-schemas.ts
+import { z, ZodRawShape } from 'zod';
 
-export class ConfigCommand {
-    public name: string;
-    public description: string;
-    public detail: string;
-    public conanRecipe: string;
+// --- Reusable Helper ---
+export function createDualSchema<T extends ZodRawShape>(rawShape: T, defaults: Partial<Record<keyof T, any>> = {}) {
+    const strictSchema = z.object(rawShape).strict();
 
-    constructor(name: string = "", description: string = "", detail: string = "", conanRecipe = "conanfile.py") {
-        this.name = name;
-        this.description = description;
-        this.detail = detail;
-        this.conanRecipe = conanRecipe;
+    const shapeWithDefaults: ZodRawShape = { ...rawShape };
+
+    for (const key in defaults) {
+        if (shapeWithDefaults[key]) {
+            shapeWithDefaults[key] = shapeWithDefaults[key].default(defaults[key]);
+        }
     }
+
+    const defaultSchema = z.object(shapeWithDefaults).strict();
+
+    return {
+        strictSchema,
+        defaultSchema
+    };
 }
 
-export class ConfigCommandCreate extends ConfigCommand {
-    public profile: string;
-    public user: string;
-    public channel: string;
-    public args: Array<string>;
+// --- Base Task Schema ---
+const taskBaseShape = {
+    name: z.string(),
+    description: z.string(),
+    command: z.string(),
+    args: z.array(z.string()).optional(),
+    continueOnError: z.boolean(),
+    context: z.string().optional(),
+    env: z.record(z.string()).optional()
+};
 
-    constructor(name: string = "create",
-        description: string = "Create command",
-        detail: string = "Create command detail",
-        profile: string = "default",
-        user: string = "",
-        channel: string = "",
-        args: Array<string> = []) {
+const taskDefaults = {
+    description: "",
+    args: [],
+    continueOnError: false
+};
 
-        super(name, description, detail);
-        this.profile = profile;
-        this.user = user;
-        this.channel = channel;
-        this.args = args;
-    }
+export const { strictSchema: taskSchema, defaultSchema: defaultTaskSchema } = createDualSchema(taskBaseShape, taskDefaults);
+
+export const withTaskSchema = z.object({
+    preTask: z.array(defaultTaskSchema).default([]),
+    postTask: z.array(defaultTaskSchema).default([])
+}).strict();
+
+// --- Base Command Schema ---
+const commandBaseShape = {
+    name: z.string(),
+    description: z.string().optional(),
+    detail: z.string().optional(),
+    conanRecipe: z.string()
+};
+
+const commandDefaults = {
+    name: "",
+    description: "",
+    detail: "",
+    conanRecipe: "conanfile.py"
+};
+
+export const { strictSchema: configCommandSchema, defaultSchema: configCommandSchemaDefault } = createDualSchema(commandBaseShape, commandDefaults);
+
+// --- Command Variants ---
+function createCommandVariant(base: typeof configCommandSchema, extraShape: ZodRawShape, defaults: Record<string, any>) {
+    return createDualSchema(
+        base.extend({ ...extraShape, ...withTaskSchema.shape }).shape,
+        defaults
+    );
 }
 
-export class ConfigCommandInstall extends ConfigCommand {
-    public installFolder: string;
-    public profile: string;
-    public user: string;
-    public channel: string;
-    public args: Array<string>;
-
-    constructor(name: string = "install",
-        description: string = "Install command",
-        detail: string = "Install command detail",
-        installFolder: string = "install",
-        profile: string = "default",
-        user: string = "",
-        channel: string = "",
-        args: Array<string> = []) {
-        super(name, description, detail);
-        this.installFolder = installFolder;
-        this.profile = profile;
-        this.user = user;
-        this.channel = channel;
-        this.args = args;
+export const { strictSchema: configCommandCreateSchema, defaultSchema: configCommandCreateSchemaDefault } = createCommandVariant(
+    configCommandSchema,
+    {
+        profile: z.string(),
+        user: z.string(),
+        channel: z.string(),
+        args: z.array(z.string())
+    },
+    {
+        name: "create",
+        description: "Create command",
+        detail: "Create command detail",
+        conanRecipe: "conanfile.py",
+        profile: "default",
+        user: "",
+        channel: "",
+        args: [],
+        preTask: [],
+        postTask: []
     }
-}
+);
 
-export class ConfigCommandBuild extends ConfigCommand {
-    public installFolder: string;
-    public buildFolder: string;
-    public packageFolder: string;
-    public sourceFolder: string;
-    public args: Array<string>;
-
-    constructor(name: string = "build",
-        description: string = "Build command",
-        detail: string = "Build command detail",
-        installFolder: string = "install",
-        buildFolder: string = "build",
-        packageFolder: string = "package",
-        sourceFolder: string = "source",
-        args: Array<string> = []) {
-        super(name, description, detail);
-        this.installFolder = installFolder;
-        this.buildFolder = buildFolder;
-        this.packageFolder = packageFolder;
-        this.sourceFolder = sourceFolder;
-        this.args = args;
+export const { strictSchema: configCommandInstallSchema, defaultSchema: configCommandInstallSchemaDefault } = createCommandVariant(
+    configCommandSchema,
+    {
+        installFolder: z.string(),
+        profile: z.string(),
+        user: z.string(),
+        channel: z.string(),
+        args: z.array(z.string())
+    },
+    {
+        name: "install",
+        description: "Install command",
+        detail: "Install command detail",
+        conanRecipe: "conanfile.py",
+        installFolder: "install",
+        profile: "default",
+        user: "",
+        channel: "",
+        args: [],
+        preTask: [],
+        postTask: []
     }
-}
+);
 
-export class ConfigCommandSource extends ConfigCommand {
-    public installFolder: string;
-    public sourceFolder: string;
-    public version: string;
-    public user: string;
-    public channel: string;
-    public args: Array<string>;
-
-    constructor(name: string = "source",
-        description: string = "Source command",
-        detail: string = "Source command detail",
-        installFolder: string = "install",
-        sourceFolder: string = "source",
-        version: string = "",
-        user: string = "",
-        channel: string = "",
-        args: Array<string> = []) {
-        super(name, description, detail);
-        this.installFolder = installFolder;
-        this.sourceFolder = sourceFolder;
-        this.version = version;
-        this.user = user;
-        this.channel = channel;
-        this.args = args;
+export const { strictSchema: configCommandBuildSchema, defaultSchema: configCommandBuildSchemaDefault } = createCommandVariant(
+    configCommandSchema,
+    {
+        installFolder: z.string(),
+        buildFolder: z.string(),
+        packageFolder: z.string(),
+        sourceFolder: z.string(),
+        args: z.array(z.string())
+    },
+    {
+        name: "build",
+        description: "Build command",
+        detail: "Build command detail",
+        conanRecipe: "conanfile.py",
+        installFolder: "install",
+        buildFolder: "build",
+        packageFolder: "package",
+        sourceFolder: "source",
+        args: [],
+        preTask: [],
+        postTask: []
     }
-}
+);
 
-export class ConfigCommandPackage extends ConfigCommand {
-    public installFolder: string;
-    public buildFolder: string;
-    public packageFolder: string;
-    public sourceFolder: string;
-
-    constructor(name: string = "pkg",
-        description: string = "Package command",
-        detail: string = "Package command detail",
-        installFolder: string = "install",
-        buildFolder: string = "build",
-        packageFolder: string = "package",
-        sourceFolder: string = "source") {
-        super(name, description, detail);
-        this.installFolder = installFolder;
-        this.buildFolder = buildFolder;
-        this.packageFolder = packageFolder;
-        this.sourceFolder = sourceFolder;
+export const { strictSchema: configCommandSourceSchema, defaultSchema: configCommandSourceSchemaDefault } = createCommandVariant(
+    configCommandSchema,
+    {
+        installFolder: z.string(),
+        sourceFolder: z.string(),
+        version: z.string(),
+        user: z.string(),
+        channel: z.string(),
+        args: z.array(z.string())
+    },
+    {
+        name: "source",
+        description: "Source command",
+        detail: "Source command detail",
+        conanRecipe: "conanfile.py",
+        installFolder: "install",
+        sourceFolder: "source",
+        version: "",
+        user: "",
+        channel: "",
+        args: [],
+        preTask: [],
+        postTask: []
     }
-}
+);
 
-export class ConfigCommandPackageExport extends ConfigCommand {
-    public installFolder: string;
-    public buildFolder: string;
-    public packageFolder: string;
-    public sourceFolder: string;
-    public user: string;
-    public channel: string;
-    public args: Array<string>;
-
-    constructor(name: string = "pkg_export",
-        description: string = "Package export command",
-        detail: string = "Package export command detail",
-        installFolder: string = "install",
-        buildFolder: string = "build",
-        packageFolder: string = "package",
-        sourceFolder: string = "source",
-        user: string = "",
-        channel: string = "",
-        args: Array<string> = []) {
-        super(name, description, detail);
-        this.installFolder = installFolder;
-        this.buildFolder = buildFolder;
-        this.packageFolder = packageFolder;
-        this.sourceFolder = sourceFolder;
-        this.user = user;
-        this.channel = channel;
-        this.args = args;
+export const { strictSchema: configCommandPackageSchema, defaultSchema: configCommandPackageSchemaDefault } = createCommandVariant(
+    configCommandSchema,
+    {
+        installFolder: z.string(),
+        buildFolder: z.string(),
+        packageFolder: z.string(),
+        sourceFolder: z.string()
+    },
+    {
+        name: "pkg",
+        description: "Package command",
+        detail: "Package command detail",
+        conanRecipe: "conanfile.py",
+        installFolder: "install",
+        buildFolder: "build",
+        packageFolder: "package",
+        sourceFolder: "source",
+        preTask: [],
+        postTask: []
     }
-}
+);
 
-export class CommandContainer {
-    public create: Array<ConfigCommandCreate>;
-    public install: Array<ConfigCommandInstall>;
-    public build: Array<ConfigCommandBuild>;
-    public source: Array<ConfigCommandSource>;
-    public pkg: Array<ConfigCommandPackage>;
-    public pkgExport: Array<ConfigCommandPackageExport>;
-
-    constructor(create: Array<ConfigCommandCreate> = [],
-        install: Array<ConfigCommandInstall> = [],
-        build: Array<ConfigCommandBuild> = [],
-        source: Array<ConfigCommandSource> = [],
-        pkg: Array<ConfigCommandPackage> = [],
-        pkgExport: Array<ConfigCommandPackageExport> = []) {
-
-        this.create = create;
-        this.install = install;
-        this.build = build;
-        this.source = source;
-        this.pkg = pkg;
-        this.pkgExport = pkgExport;
+export const { strictSchema: configCommandPackageExportSchema, defaultSchema: configCommandPackageExportSchemaDefault } = createCommandVariant(
+    configCommandSchema,
+    {
+        installFolder: z.string(),
+        buildFolder: z.string(),
+        packageFolder: z.string(),
+        sourceFolder: z.string(),
+        user: z.string(),
+        channel: z.string(),
+        args: z.array(z.string())
+    },
+    {
+        name: "pkg_export",
+        description: "Package export command",
+        detail: "Package export command detail",
+        conanRecipe: "conanfile.py",
+        installFolder: "install",
+        buildFolder: "build",
+        packageFolder: "package",
+        sourceFolder: "source",
+        user: "",
+        channel: "",
+        args: [],
+        preTask: [],
+        postTask: []
     }
-}
+);
+
+export const commandContainerSchema = z.object({
+    create: z.array(configCommandCreateSchema).optional(),
+    install: z.array(configCommandInstallSchema).optional(),
+    build: z.array(configCommandBuildSchema).optional(),
+    source: z.array(configCommandSourceSchema).optional(),
+    pkg: z.array(configCommandPackageSchema).optional(),
+    pkgExport: z.array(configCommandPackageExportSchema).optional()
+}).strict();
+
+export const commandContainerSchemaDefault = z.object({
+    create: z.array(configCommandCreateSchemaDefault).default([]),
+    install: z.array(configCommandInstallSchemaDefault).default([]),
+    build: z.array(configCommandBuildSchemaDefault).default([]),
+    source: z.array(configCommandSourceSchemaDefault).default([]),
+    pkg: z.array(configCommandPackageSchemaDefault).default([]),
+    pkgExport: z.array(configCommandPackageExportSchemaDefault).default([])
+}).strict();
+
+// --- Types ---
+export type ConfigCommand = z.infer<typeof configCommandSchemaDefault>;
+export type ConfigCommandCreate = z.infer<typeof configCommandCreateSchemaDefault>;
+export type ConfigCommandInstall = z.infer<typeof configCommandInstallSchemaDefault>;
+export type ConfigCommandBuild = z.infer<typeof configCommandBuildSchemaDefault>;
+export type ConfigCommandSource = z.infer<typeof configCommandSourceSchemaDefault>;
+export type ConfigCommandPackage = z.infer<typeof configCommandPackageSchemaDefault>;
+export type ConfigCommandPackageExport = z.infer<typeof configCommandPackageExportSchemaDefault>;
+export type CommandContainer = z.infer<typeof commandContainerSchemaDefault>;
+export type Task = z.infer<typeof taskSchema>;

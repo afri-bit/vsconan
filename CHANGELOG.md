@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.5.0 - TBD
+
+### Added
+
+* [#52](https://github.com/afri-bit/vsconan/issues/52) Optional `preTask` and `postTask` hooks on each command in the workspace configuration, to run custom steps before and after Conan CLI commands (with optional working directory, environment variables, and `continueOnError`).
+
 ## 1.4.0 - 2025-03-04
 
 ### Added
