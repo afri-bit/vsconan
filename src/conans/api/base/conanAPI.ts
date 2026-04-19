@@ -69,7 +69,7 @@ export abstract class ConanAPI {
      * @param python
      * @returns Path to conan home folder | undefined on error
      */
-    public abstract getConanHomePath(): string | undefined;
+    public abstract getConanHomePath(): Promise<string | undefined>;
 
     /**
      * Method to get the path where all the profiles are located
@@ -77,14 +77,14 @@ export abstract class ConanAPI {
      * @param python
      * @returns Full path to the conan profiles directory | undefined on error
      */
-    public abstract getConanProfilesPath(): string | undefined;
+    public abstract getConanProfilesPath(): Promise<string | undefined>;
 
     /**
      * Method to get absolute path to selected conan profile.
      * @param profileName Conan profile name
      * @returns Absolute path to the selected conan profile | undefined on error
      */
-    public abstract getProfileFilePath(profileName: string): string | undefined;
+    public abstract getProfileFilePath(profileName: string): Promise<string | undefined>;
 
     /**
      * Method to get the conan recipe path in the local cache
@@ -93,7 +93,7 @@ export abstract class ConanAPI {
      * @param recipe Conan recipe name
      * @returns Absolute path to the local cache of the recipe | undefined on error
      */
-    public abstract getRecipePath(recipe: string): string | undefined;
+    public abstract getRecipePath(recipe: string): Promise<string | undefined>;
 
     /**
      * Method to get the specified binary package path.
@@ -104,7 +104,7 @@ export abstract class ConanAPI {
      * @param packageId Binary package Id that belongs to the recipe
      * @returns Absolute path to the binary package folder | undefined on error
      */
-    public abstract getPackagePath(recipe: string, packageId: string): string | undefined;
+    public abstract getPackagePath(recipe: string, packageId: string): Promise<string | undefined>;
 
     /**
      * Method to get list of existing recipe in the local cache.
@@ -112,47 +112,47 @@ export abstract class ConanAPI {
      * We will execute one of the conan commands and write the result into a JSON file.
      * @returns List of all recipes in the local cache
      */
-    public abstract getRecipes(): Array<ConanRecipe>;
+    public abstract getRecipes(): Promise<Array<ConanRecipe>>;
 
     /**
      * Method to get list of existing profiles.
      * This method executes the Conan CLI and stores the result in a JSON file
      * @returns List of all exisiting profiles
      */
-    public abstract getProfiles(): Array<string>;
+    public abstract getProfiles(): Promise<Array<string>>;
 
     /**
      * Get list of packages from a specific recipe
      * @param recipe Recipe ID to get the packages from
      * @returns Return will be an array of dictionary / map from JSON file
      */
-    public abstract getPackages(recipe: string): Array<ConanPackage>;
+    public abstract getPackages(recipe: string): Promise<Array<ConanPackage>>;
 
     /**
      * Method to get absolute path to the Conan remote json file.
      * This json file stores all the information about all the remotes information users configure
      * @returns Absolute path to the Conan remote json file | undefined on error
      */
-    public abstract getRemoteFilePath(): string | undefined;
+    public abstract getRemoteFilePath(): Promise<string | undefined>;
 
     /**
      * Get the list of available remotes
      * @returns List of availabel remotes
      */
-    public abstract getRemotes(): Array<ConanRemote>;
+    public abstract getRemotes(): Promise<Array<ConanRemote>>;
 
     /**
      * Method to remove a selected binary package from its recipe
      * @param recipe Conan recipe name
      * @param packageId Selected package Id to be removed
      */
-    public abstract removePackage(recipe: string, packageId: string): void;
+    public abstract removePackage(recipe: string, packageId: string): Promise<void>;
 
     /**
      * Remove a selected recipe from the local cache
      * @param recipe Conan recipe name to be removed
      */
-    public abstract removeRecipe(recipe: string): void;
+    public abstract removeRecipe(recipe: string): Promise<void>;
 
     /**
      * Remove a selected conan profile
@@ -160,41 +160,41 @@ export abstract class ConanAPI {
      * In this case, we don't use the Conan CLI
      * @param profile Conan profile name to be removed
      */
-    public abstract removeProfile(profile: string): void;
+    public abstract removeProfile(profile: string): Promise<void>;
 
     /**
      * Add a new remote
      * @param remote Remote name
      * @param url URL that belongs to the remote
      */
-    public abstract addRemote(remote: string, url: string): void;
+    public abstract addRemote(remote: string, url: string): Promise<void>;
 
     /**
      * Remove a selected remote from Conan
      * @param remote Remote name to be removed
      */
-    public abstract removeRemote(remote: string): void;
+    public abstract removeRemote(remote: string): Promise<void>;
 
     /**
      * Enable/disable selected remote
      * @param remote Remote name
      * @param enable State to enable or disable
      */
-    public abstract enableRemote(remote: string, enable: boolean): void;
+    public abstract enableRemote(remote: string, enable: boolean): Promise<void>;
 
     /**
      * Rename selected remote
      * @param remoteName Remote name to be renamed
      * @param newName New name for the remote
      */
-    public abstract renameRemote(remoteName: string, newName: string): void;
+    public abstract renameRemote(remoteName: string, newName: string): Promise<void>;
 
     /**
      * Edit URL of the selected remote
      * @param remoteName Remote name to be modified
      * @param url New URL for the selected remote
      */
-    public abstract updateRemoteURL(remoteName: string, url: string): void;
+    public abstract updateRemoteURL(remoteName: string, url: string): Promise<void>;
 
     /**
      * Rename a selected profile
@@ -202,7 +202,7 @@ export abstract class ConanAPI {
      * @param oldProfileName Profile name to be renamed
      * @param newProfileName New profile name
      */
-    public abstract renameProfile(oldProfileName: string, newProfileName: string): void;
+    public abstract renameProfile(oldProfileName: string, newProfileName: string): Promise<void>;
 
     /**
      * Method to duplicate selected profile.
@@ -212,13 +212,13 @@ export abstract class ConanAPI {
      * @param newProfileName New profile name
      * 
      */
-    public abstract duplicateProfile(oldProfileName: string, newProfileName: string): void;
+    public abstract duplicateProfile(oldProfileName: string, newProfileName: string): Promise<void>;
 
     /**
      * Create a new profile
      * @param profileName Name for the new profile
      */
-    public abstract createNewProfile(profileName: string): void;
+    public abstract createNewProfile(profileName: string): Promise<void>;
 
     /**
      * Method to retrieve recipe general information such as name, version, license and many more.
@@ -226,7 +226,7 @@ export abstract class ConanAPI {
      * @param recipeName Recipe name to get the information from
      * @returns Recipe general information in JSON string format | undefined on error
      */
-    public abstract getRecipeInformation(recipeName: string): string | undefined;
+    public abstract getRecipeInformation(recipeName: string): Promise<string | undefined>;
 
     /**
      * Function to obtain dirty packages from a recipe
@@ -234,7 +234,7 @@ export abstract class ConanAPI {
      * we need to go through the file system to find files with '.dirty' extension
      * @param recipeName Recipe name to get the dirty packages from
      */
-    public abstract getDirtyPackage(recipeName: string): Array<ConanPackage>;
+    public abstract getDirtyPackage(recipeName: string): Promise<Array<ConanPackage>>;
 
     /**
      * Function to obtain list of recipe of editable packages
@@ -244,13 +244,13 @@ export abstract class ConanAPI {
      * Fingers crossed!!!
      * @returns List of editable list
      */
-    public abstract getEditablePackageRecipes(): Array<ConanRecipe>;
+    public abstract getEditablePackageRecipes(): Promise<Array<ConanRecipe>>;
 
     /**
      * Method to remove a package from editable mode
      * @param recipe Package recipe name
      */
-    public abstract removeEditablePackageRecipe(recipe: string): void;
+    public abstract removeEditablePackageRecipe(recipe: string): Promise<void>;
 
     /**
      * Method to add an editable package
@@ -261,7 +261,7 @@ export abstract class ConanAPI {
      * @param layout Predefined layout file for editable package (Can be a full path to the layout file) 
      *               For further information please refer to official documentation from conan.
      */
-    public abstract addEditablePackage(recipePath: string, name: string, user: string, channel: string, layout: string): void;
+    public abstract addEditablePackage(recipePath: string, name: string, user: string, channel: string, layout: string): Promise<void>;
 
     /**
      * Method to extract recipe attribute from a recipe file
@@ -269,13 +269,13 @@ export abstract class ConanAPI {
      * @param attribute Attribute to be extracted from the recipe
      * @returns Attribute information in string format
      */
-    public abstract getRecipeAttribute(recipePath: string, attribute: string): string;
+    public abstract getRecipeAttribute(recipePath: string, attribute: string): Promise<string>;
 
     /**
      * Method to get all the recipes based on selected remote
      * @param remote Remote name to filter the source of the recipes
      */
-    public abstract getRecipesByRemote(remote: string): Array<ConanRecipe>;
+    public abstract getRecipesByRemote(remote: string): Promise<Array<ConanRecipe>>;
 
     /**
      * Open a specific path from the recipe folder
@@ -284,14 +284,14 @@ export abstract class ConanAPI {
      * @param recipe Recipe name
      * @param folderOption Option of the folder to be opened.
      */
-    public abstract getFolderPathFromRecipe(recipe: string, folderOption: RecipeFolderOption): string;
+    public abstract getFolderPathFromRecipe(recipe: string, folderOption: RecipeFolderOption): Promise<string>;
     
     /*
      * Method to get all the binary packages from a recipe based on selected remote
      * @param recipe Recipe name to get the binary packages from
      * @param remote Remote name to filter the source of the binary packages
      */
-    public abstract getPackagesByRemote(recipe: string, remote: string): Array<ConanPackage>;
+    public abstract getPackagesByRemote(recipe: string, remote: string): Promise<Array<ConanPackage>>;
 
     /**
      * Method to get all the package revisions from a package ID
@@ -299,7 +299,7 @@ export abstract class ConanAPI {
      * @param recipe Recipe name to get the binary package from
      * @param packageId Selected package Id to search package revision from
      */
-    public abstract getPackageRevisions(recipe: string, packageId: string): Array<ConanPackageRevision>;
+    public abstract getPackageRevisions(recipe: string, packageId: string): Promise<Array<ConanPackageRevision>>;
 
     /**
      * Method to get the path to the package revision in the local cache
@@ -308,7 +308,7 @@ export abstract class ConanAPI {
      * @param packageId Selected package id to search for the package revision
      * @param revisionId Selected package revision id to get the path from
      */
-    public abstract getPackageRevisionPath(recipe: string, packageId: string, revisionId: string): string | undefined;
+    public abstract getPackageRevisionPath(recipe: string, packageId: string, revisionId: string): Promise<string | undefined>;
 
     /**
      * Method to remove package revision
@@ -317,5 +317,5 @@ export abstract class ConanAPI {
      * @param packageId 
      * @param revisionId 
      */
-    public abstract removePackageRevision(recipe: string, packageId: string, revisionId: string): void;
+    public abstract removePackageRevision(recipe: string, packageId: string, revisionId: string): Promise<void>;
 }

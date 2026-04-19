@@ -1,9 +1,8 @@
-import { execSync } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-import * as utils from "../../../utils/utils";
 import { ConanAPI, ConanExecutionMode } from "../../api/base/conanAPI";
+import { newConanTempPath, runConan } from "../../cli/runConan";
 import { ConanPackage } from "../../model/conanPackage";
 import { ConanPackageRevision } from "../../model/conanPackageRevision";
 import { ConanRecipe } from "../../model/conanRecipe";
@@ -22,12 +21,12 @@ export enum RecipeFolderOption {
 
 /**
  * Class to interact with the conan package manager
- * 
+ *
  * Currently the Conan API relies on the conan CLI. There is no direct API from conan, except with python.
  * The whole API mechanism will use diffrent approaches, such as filesystem and CLI.
  * Most of the public method of this class requires path to the python interpreter, before calling the API methods
- * the extension will read the configuration file, where user stores the python interpreter.
- * 
+ * the extension will read the configuration file, where the user stores the python interpreter.
+ *
  * This will be adapted in the future using file watcher instead.
  */
 export class Conan1API extends ConanAPI {
@@ -39,13 +38,13 @@ export class Conan1API extends ConanAPI {
 
     /**
      * Helper function to get the path inside .conan_link file
-     * This .conan_link exists if conan is configured using short path (Windows), 
+     * This .conan_link exists if conan is configured using short path (Windows),
      * so it will contain a reference to another path
      * @param conanLinkFile Path to .conan_link file
      * @returns Path inside the .conan_link file
      */
     private getPathFromConanLink(conanLinkFile: string): string {
-        let pathInConanLink = fs.readFileSync(conanLinkFile).toString('utf8');
+        const pathInConanLink = fs.readFileSync(conanLinkFile).toString("utf8");
         return pathInConanLink.trim();
     }
 
@@ -80,10 +79,15 @@ export class Conan1API extends ConanAPI {
         this.switchExecutionMode(ConanExecutionMode.conan);
     }
 
-    public override getConanHomePath(): string | undefined {
+    public override async getConanHomePath(): Promise<string | undefined> {
         try {
-            let homePath = execSync(`${this.conanExecutor} config home`).toString();
-            return homePath.trim(); // Remove whitespace and new lines
+            const { stdout } = await runConan(
+                ["config", "home"],
+                this.conanExecutionMode,
+                this.pythonInterpreter,
+                this.conanExecutable
+            );
+            return stdout.trim();
         }
         catch (err) {
             console.log((err as Error).message);
@@ -91,59 +95,46 @@ export class Conan1API extends ConanAPI {
         }
     }
 
-    public override getConanProfilesPath(): string | undefined {
-        let returnValue: string | undefined = undefined;
-
-        let conanHomePath = this.getConanHomePath();
-
+    public override async getConanProfilesPath(): Promise<string | undefined> {
+        const conanHomePath = await this.getConanHomePath();
         if (conanHomePath !== undefined) {
-            returnValue = path.join(conanHomePath, "profiles");
+            return path.join(conanHomePath, "profiles");
         }
-
-        return returnValue;
+        return undefined;
     }
 
-    public override getProfileFilePath(profileName: string): string | undefined {
-        let returnValue: string | undefined = undefined;
-
-        let conanProfilesPath = this.getConanProfilesPath();
-
+    public override async getProfileFilePath(profileName: string): Promise<string | undefined> {
+        const conanProfilesPath = await this.getConanProfilesPath();
         if (conanProfilesPath !== undefined) {
-            returnValue = path.join(conanProfilesPath, profileName);
+            return path.join(conanProfilesPath, profileName);
         }
-
-        return returnValue;
+        return undefined;
     }
 
-    public override getRecipePath(recipe: string): string | undefined {
-        let conanHome = this.getConanHomePath();
-
+    public override async getRecipePath(recipe: string): Promise<string | undefined> {
+        const conanHome = await this.getConanHomePath();
         let returnValue: string | undefined = undefined;
 
-        if (conanHome !== undefined) { // Start processing the data if the conan home folder exists
-            // All the recipe and packages are stored under folder data in the conan home folder
-            let conanDataPath = path.join(conanHome, "data");
+        if (conanHome !== undefined) {
+            const conanDataPath = path.join(conanHome, "data");
             let recipeName: string = "";
             let recipeVersion: string = "";
-            let recipeUser: string = "_"; // This is a default name of the folder if the recipe does not have a user on it
-            let recipeChannel: string = "_"; // This is a default name of the folder if the recipe does not have a channel on it
+            let recipeUser: string = "_";
+            let recipeChannel: string = "_";
 
-            // Break down all the information from the recipe name input
-            // Name pattern of the recipe: "foo/1.0.0@user/channel"
-            if (recipe.includes("@")) { // Recipe has user and channel
+            if (recipe.includes("@")) {
                 recipeName = recipe.split("@")[0].split("/")[0];
                 recipeVersion = recipe.split("@")[0].split("/")[1];
                 recipeUser = recipe.split("@")[1].split("/")[0];
                 recipeChannel = recipe.split("@")[1].split("/")[1];
             }
-            else { // Recipe has NO user and channel
+            else {
                 recipeName = recipe.split("/")[0];
                 recipeVersion = recipe.split("/")[1];
             }
 
-            let recipePath = path.join(conanDataPath, recipeName, recipeVersion, recipeUser, recipeChannel);
+            const recipePath = path.join(conanDataPath, recipeName, recipeVersion, recipeUser, recipeChannel);
 
-            // Make sure once again that the path exists
             if (fs.existsSync(recipePath)) {
                 returnValue = recipePath;
             }
@@ -152,19 +143,16 @@ export class Conan1API extends ConanAPI {
         return returnValue;
     }
 
-    public override getPackagePath(recipe: string, packageId: string): string | undefined {
+    public override async getPackagePath(recipe: string, packageId: string): Promise<string | undefined> {
         let returnValue: string | undefined = undefined;
-
-        let recipePath = this.getRecipePath(recipe);
+        const recipePath = await this.getRecipePath(recipe);
 
         if (recipePath !== undefined) {
-            let packageFolder = path.join(recipePath, "package", packageId);
+            const packageFolder = path.join(recipePath, "package", packageId);
+            const conanLinkFile = path.join(packageFolder, ".conan_link");
 
-            let conanLinkFile = path.join(packageFolder, ".conan_link");
-
-            // If .conan_link exists, it means conan only give reference to the real path using content of this file
             if (fs.existsSync(conanLinkFile)) {
-                let realPackagePath = fs.readFileSync(conanLinkFile).toString('utf8');
+                const realPackagePath = fs.readFileSync(conanLinkFile).toString("utf8");
                 returnValue = realPackagePath.trim();
             }
             else {
@@ -175,134 +163,109 @@ export class Conan1API extends ConanAPI {
         return returnValue;
     }
 
-    public override getRecipes(): Array<ConanRecipe> {
-        // Initialize an empty array of string as default return value
-        let arrayRecipeList: Array<ConanRecipe> = [];
+    public override async getRecipes(): Promise<Array<ConanRecipe>> {
+        const arrayRecipeList: Array<ConanRecipe> = [];
+        const jsonPath = newConanTempPath("recipe", ".json");
 
-        // Initialize the temporary json file name
-        let jsonName: string = "recipe.json";
+        try {
+            await runConan(
+                ["search", "--raw", "--json", jsonPath],
+                this.conanExecutionMode,
+                this.pythonInterpreter,
+                this.conanExecutable
+            );
 
-        // Create the path where the temporary file will be stored
-        // We will use the VSConan home folder under user home folder
-        let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
+            if (fs.existsSync(jsonPath)) {
+                const tempFile = await fs.promises.readFile(jsonPath, "utf8");
+                const recipeJson = JSON.parse(tempFile);
 
-        execSync(`${this.conanExecutor} search --raw --json ${jsonPath}`);
-
-        // Check if the file exists
-        // With this check it validates if the conan command executed correctly without error
-        // No JSON file will be written if the command is not executed correctly
-        if (fs.existsSync(jsonPath)) {
-            let tempFile = fs.readFileSync(jsonPath, 'utf8');
-            let recipeJson = JSON.parse(tempFile);
-
-            // The result in the JSON file from contains an error flag
-            // If this contains error, the file will not be processed
-            if (!recipeJson.error) {
-                // Double check if there is data inside by checking the length of the array
-                if (recipeJson.results.length > 0) {
-                    // Example of the JSON format looks as following
-                    // {
-                    //   "error": false,
-                    //   "results": [
-                    //     {
-                    //       "remote": null,
-                    //       "items": [
-                    //         {
-                    //           "recipe": {
-                    //             "id": "ade/0.1.1f"
-                    //           }
-                    //         },
-                    //         {
-                    //           "recipe": {
-                    //             "id": "boost/1.77.0"
-                    //           }
-                    //         }
-                    //       ]
-                    //     }
-                    //   ]
-                    // }
-                    let recipeItems = recipeJson.results[0].items;
-
-                    for (let recipe of recipeItems) {
-                        arrayRecipeList.push(new ConanRecipe(recipe.recipe.id, false, ""));
+                if (!recipeJson.error) {
+                    if (recipeJson.results.length > 0) {
+                        const recipeItems = recipeJson.results[0].items;
+                        for (const recipe of recipeItems) {
+                            arrayRecipeList.push(new ConanRecipe(recipe.recipe.id, false, ""));
+                        }
                     }
                 }
+                else {
+                    throw new Error("Unable to process JSON File of Conan recipe list.");
+                }
             }
-            else {
-                throw new Error("Unable to process JSON File of Conan recipe list.");
+        }
+        finally {
+            try {
+                if (fs.existsSync(jsonPath)) {
+                    await fs.promises.unlink(jsonPath);
+                }
             }
-
-            // Delete the temporary file after processing
-            fs.unlinkSync(jsonPath);
+            catch {
+                /* ignore */
+            }
         }
 
         return arrayRecipeList;
     }
 
-    public override getProfiles(): Array<string> {
+    public override async getProfiles(): Promise<Array<string>> {
+        const arrayProfileList: Array<string> = [];
+        const jsonPath = newConanTempPath("profile", ".json");
 
-        let arrayProfileList: Array<string> = [];
+        try {
+            await runConan(
+                ["profile", "list", "--json", jsonPath],
+                this.conanExecutionMode,
+                this.pythonInterpreter,
+                this.conanExecutable
+            );
 
-        let jsonName: string = "profile.json";
-
-        let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
-
-        execSync(`${this.conanExecutor} profile list --json ${jsonPath}`);
-
-        if (fs.existsSync(jsonPath)) {
-            let tempFile = fs.readFileSync(jsonPath, 'utf8');
-            let jsonData = JSON.parse(tempFile);
-
-            for (let profile of jsonData) {
-                arrayProfileList.push(profile);
+            if (fs.existsSync(jsonPath)) {
+                const tempFile = await fs.promises.readFile(jsonPath, "utf8");
+                const jsonData = JSON.parse(tempFile);
+                for (const profile of jsonData) {
+                    arrayProfileList.push(profile);
+                }
             }
-
-            // Delete the temporary file after processing
-            fs.unlinkSync(jsonPath);
+        }
+        finally {
+            try {
+                if (fs.existsSync(jsonPath)) {
+                    await fs.promises.unlink(jsonPath);
+                }
+            }
+            catch {
+                /* ignore */
+            }
         }
 
         return arrayProfileList;
     }
 
-    public override getPackages(recipe: string): Array<ConanPackage> {
-        let arrayPackageList: Array<ConanPackage> = [];
+    public override async getPackages(recipe: string): Promise<Array<ConanPackage>> {
+        const arrayPackageList: Array<ConanPackage> = [];
 
-        // This if condition is meant to empty the list
-        // User can put empty string of the recipe name to get empty list
         if (recipe === "") {
             return arrayPackageList;
         }
-        else {
-            let jsonName: string = "package.json";
 
-            let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
+        const jsonPath = newConanTempPath("package", ".json");
+        const recipeName = !recipe.includes("@") ? recipe + "@" : recipe;
 
-            let recipeName: string = "";
+        try {
+            await runConan(
+                ["search", recipeName, "--json", jsonPath],
+                this.conanExecutionMode,
+                this.pythonInterpreter,
+                this.conanExecutable
+            );
 
-            if (!recipe.includes("@")) {
-                recipeName = recipe + "@";
-            }
-            else {
-                recipeName = recipe;
-            }
-
-            execSync(`${this.conanExecutor} search ${recipeName} --json ${jsonPath}`);
-
-            // Check if the file exists
-            // With this check it validates if the conan command executed correctly without error
-            // No JSON file will be written if the command is not executed correctly
             if (fs.existsSync(jsonPath)) {
-                let tempFile = fs.readFileSync(jsonPath, 'utf8');
-                let recipeJson = JSON.parse(tempFile);
+                const tempFile = await fs.promises.readFile(jsonPath, "utf8");
+                const recipeJson = JSON.parse(tempFile);
 
-                // The result in the JSON file from contains an error flag
-                // If this contains error, the file will not be processed
                 if (!recipeJson.error) {
-                    // Double check if there is data inside by checking the length of the array
                     if (recipeJson.results.length > 0) {
-                        let packageItems = recipeJson.results[0].items[0].packages;
-
-                        for (let pkg of packageItems) {
+                        const packageItems = recipeJson.results[0].items[0].packages;
+                        for (const pkg of packageItems) {
                             arrayPackageList.push(new ConanPackage(pkg.id, false, pkg.options, pkg.outdated, pkg.requires, pkg.settings));
                         }
                     }
@@ -310,46 +273,46 @@ export class Conan1API extends ConanAPI {
                 else {
                     throw new Error("Unable to process JSON File of Conan binary package list.");
                 }
-
-                // Delete the temporary file after processing
-                fs.unlinkSync(jsonPath);
             }
-
-            // Return an empty list
-            return arrayPackageList;
         }
+        finally {
+            try {
+                if (fs.existsSync(jsonPath)) {
+                    await fs.promises.unlink(jsonPath);
+                }
+            }
+            catch {
+                /* ignore */
+            }
+        }
+
+        return arrayPackageList;
     }
 
-    public override getRemoteFilePath(): string | undefined {
-        let conanHomePath = this.getConanHomePath();
-
-        let remotePath = undefined;
-
+    public override async getRemoteFilePath(): Promise<string | undefined> {
+        const conanHomePath = await this.getConanHomePath();
         if (conanHomePath) {
-            remotePath = path.join(conanHomePath!, "remotes.json");
+            return path.join(conanHomePath, "remotes.json");
         }
-
-        return remotePath;
+        return undefined;
     }
 
-    public override getRemotes(): Array<ConanRemote> {
-        let arrayRemoteList: Array<ConanRemote> = [];
-
-        let conanHomePath = this.getConanHomePath();
+    public override async getRemotes(): Promise<Array<ConanRemote>> {
+        const arrayRemoteList: Array<ConanRemote> = [];
+        const conanHomePath = await this.getConanHomePath();
 
         if (conanHomePath === undefined) {
             throw new Error("Unable to locate Conan home folder.");
         }
 
-        let jsonPath: string = path.join(conanHomePath!, "remotes.json");
+        const jsonPath: string = path.join(conanHomePath, "remotes.json");
 
         if (fs.existsSync(jsonPath)) {
-            let tempFile = fs.readFileSync(jsonPath, 'utf8');
-            let remoteJson = JSON.parse(tempFile);
+            const tempFile = await fs.promises.readFile(jsonPath, "utf8");
+            const remoteJson = JSON.parse(tempFile);
+            const remoteItemList = remoteJson.remotes;
 
-            let remoteItemList = remoteJson.remotes;
-
-            for (let remote of remoteItemList) {
+            for (const remote of remoteItemList) {
                 arrayRemoteList.push(new ConanRemote(remote.name, remote.url, remote.verify_ssl, remote.disabled ? false : true));
             }
         }
@@ -357,166 +320,200 @@ export class Conan1API extends ConanAPI {
         return arrayRemoteList;
     }
 
-    public override removePackage(recipe: string, packageId: string) {
-        execSync(`${this.conanExecutor} remove ${recipe} -p ${packageId} -f`);
+    public override async removePackage(recipe: string, packageId: string): Promise<void> {
+        await runConan(
+            ["remove", recipe, "-p", packageId, "-f"],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable
+        );
     }
 
-    public override removeRecipe(recipe: string) {
-        execSync(`${this.conanExecutor} remove ${recipe} -f`);
+    public override async removeRecipe(recipe: string): Promise<void> {
+        await runConan(
+            ["remove", recipe, "-f"],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable
+        );
     }
 
-    public override removeProfile(profile: string) {
-        let conanProfilesPath = this.getConanProfilesPath();
-
+    public override async removeProfile(profile: string): Promise<void> {
+        const conanProfilesPath = await this.getConanProfilesPath();
         if (conanProfilesPath === undefined) {
             throw new Error("Unable to locate Conan profiles folder.");
         }
-
-        let profileFilePath = path.join(conanProfilesPath, profile);
-
-        fs.unlinkSync(profileFilePath);
+        const profileFilePath = path.join(conanProfilesPath, profile);
+        await fs.promises.unlink(profileFilePath);
     }
 
-    public override addRemote(remote: string, url: string) {
-        execSync(`${this.conanExecutor} remote add ${remote} ${url}`);
+    public override async addRemote(remote: string, url: string): Promise<void> {
+        await runConan(
+            ["remote", "add", remote, url],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable
+        );
     }
 
-    public override removeRemote(remote: string) {
-        execSync(`${this.conanExecutor} remote remove ${remote}`);
+    public override async removeRemote(remote: string): Promise<void> {
+        await runConan(
+            ["remote", "remove", remote],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable
+        );
     }
 
-    public override enableRemote(remote: string, enable: boolean) {
+    public override async enableRemote(remote: string, enable: boolean): Promise<void> {
         if (enable) {
-            execSync(`${this.conanExecutor} remote enable ${remote}`);
+            await runConan(
+                ["remote", "enable", remote],
+                this.conanExecutionMode,
+                this.pythonInterpreter,
+                this.conanExecutable
+            );
         }
         else {
-            execSync(`${this.conanExecutor} remote disable ${remote}`);
+            await runConan(
+                ["remote", "disable", remote],
+                this.conanExecutionMode,
+                this.pythonInterpreter,
+                this.conanExecutable
+            );
         }
     }
 
-    public override renameRemote(remoteName: string, newName: string) {
-        execSync(`${this.conanExecutor} remote rename ${remoteName} ${newName}`);
+    public override async renameRemote(remoteName: string, newName: string): Promise<void> {
+        await runConan(
+            ["remote", "rename", remoteName, newName],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable
+        );
     }
 
-    public override updateRemoteURL(remoteName: string, url: string) {
-        execSync(`${this.conanExecutor} remote update ${remoteName} ${url}`);
+    public override async updateRemoteURL(remoteName: string, url: string): Promise<void> {
+        await runConan(
+            ["remote", "update", remoteName, url],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable
+        );
     }
 
-    public override renameProfile(oldProfileName: string, newProfileName: string) {
-        // Get the absolute path to the selected profile
-        let oldProfilePath = this.getProfileFilePath(oldProfileName);
+    public override async renameProfile(oldProfileName: string, newProfileName: string): Promise<void> {
+        const oldProfilePath = await this.getProfileFilePath(oldProfileName);
+        const profilesPath = await this.getConanProfilesPath();
 
-        if (oldProfilePath) {
-            fs.renameSync(oldProfilePath, path.join(this.getConanProfilesPath()!, newProfileName));
+        if (oldProfilePath && profilesPath) {
+            await fs.promises.rename(oldProfilePath, path.join(profilesPath, newProfileName));
         }
         else {
             throw new Error(`Unable to locate profile ${oldProfileName}`);
         }
     }
 
-    public override duplicateProfile(oldProfileName: string, newProfileName: string) {
-        let oldProfilePath = this.getProfileFilePath(oldProfileName);
+    public override async duplicateProfile(oldProfileName: string, newProfileName: string): Promise<void> {
+        const oldProfilePath = await this.getProfileFilePath(oldProfileName);
+        const profilesPath = await this.getConanProfilesPath();
 
-        if (oldProfileName) {
-            fs.copyFileSync(oldProfilePath!, path.join(this.getConanProfilesPath()!, newProfileName));
+        if (oldProfilePath && profilesPath) {
+            await fs.promises.copyFile(oldProfilePath, path.join(profilesPath, newProfileName));
         }
         else {
             throw new Error(`Unable to duplicate profile ${oldProfileName}`);
         }
     }
 
-    public override createNewProfile(profileName: string) {
-        execSync(`${this.conanExecutor} profile new  ${profileName}`);
+    public override async createNewProfile(profileName: string): Promise<void> {
+        await runConan(
+            ["profile", "new", profileName],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable
+        );
     }
 
-    public override getRecipeInformation(recipeName: string): string | undefined {
+    public override async getRecipeInformation(recipeName: string): Promise<string | undefined> {
         let recipeInfo: string | undefined = undefined;
+        const jsonPath = newConanTempPath("recipeInfo", ".json");
 
-        // Temporary file name to store the result of command execution
-        let jsonName: string = "recipeInfo.json";
+        try {
+            await runConan(
+                ["inspect", recipeName, "--json", jsonPath],
+                this.conanExecutionMode,
+                this.pythonInterpreter,
+                this.conanExecutable
+            );
 
-        let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
-
-        execSync(`${this.conanExecutor} inspect ${recipeName} --json ${jsonPath}`);
-
-        // Check if the file exists
-        // With this check it validates if the conan command executed correctly without error
-        // No JSON file will be written if the command is not executed correctly
-        if (fs.existsSync(jsonPath)) {
-            let tempFile = fs.readFileSync(jsonPath, 'utf8');
-
-            // Convert string to json object first then to string again.
-            // This convert to JSON object is meant to beautify the json identation
-            let recipeInfoJson = JSON.parse(tempFile);
-            recipeInfo = JSON.stringify(recipeInfoJson, null, 4);
-
-            // Delete the temporary file after processing
-            fs.unlinkSync(jsonPath);
+            if (fs.existsSync(jsonPath)) {
+                const tempFile = await fs.promises.readFile(jsonPath, "utf8");
+                const recipeInfoJson = JSON.parse(tempFile);
+                recipeInfo = JSON.stringify(recipeInfoJson, null, 4);
+            }
+        }
+        finally {
+            try {
+                if (fs.existsSync(jsonPath)) {
+                    await fs.promises.unlink(jsonPath);
+                }
+            }
+            catch {
+                /* ignore */
+            }
         }
 
         return recipeInfo;
     }
 
-    public override getDirtyPackage(recipeName: string): Array<ConanPackage> {
-        let dirtyPackageList: Array<ConanPackage> = [];
-
-        // Get the recipePath
-        let recipePath = this.getRecipePath(recipeName);
+    public override async getDirtyPackage(recipeName: string): Promise<Array<ConanPackage>> {
+        const dirtyPackageList: Array<ConanPackage> = [];
+        const recipePath = await this.getRecipePath(recipeName);
 
         if (recipePath) {
-            let recipePackagePath = path.join(recipePath!, "package");
-
-            let listOfFiles = fs.readdirSync(recipePackagePath, { withFileTypes: true })
+            const recipePackagePath = path.join(recipePath, "package");
+            const listOfFiles = fs.readdirSync(recipePackagePath, { withFileTypes: true })
                 .filter(item => !item.isDirectory())
                 .map(item => item.name);
+            const dirtyFiles = listOfFiles.filter(el => path.extname(el) === ".dirty");
 
-            let dirtyFiles = listOfFiles.filter(el => path.extname(el) === ".dirty");
-
-            for (let f of dirtyFiles) {
+            for (const f of dirtyFiles) {
                 dirtyPackageList.push(new ConanPackage(f, true, {}, false, {}, {}));
             }
 
             return dirtyPackageList;
         }
-        else {
-            throw new Error(`Unable to find data path for recipe '${recipeName}'`);
-        }
+
+        throw new Error(`Unable to find data path for recipe '${recipeName}'`);
     }
 
-    public override getEditablePackageRecipes(): Array<ConanRecipe> {
-        let conanEditableRecipeList: Array<ConanRecipe> = [];
+    public override async getEditablePackageRecipes(): Promise<Array<ConanRecipe>> {
+        const conanEditableRecipeList: Array<ConanRecipe> = [];
 
-        let jsonName: string = "editable_package.txt";
+        const { stdout } = await runConan(
+            ["editable", "list"],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable
+        );
 
-        let jsonPath: string = path.join(utils.vsconan.getVSConanHomeDirTemp(), jsonName);
-
-        execSync(`${this.conanExecutor} editable list > ${jsonPath}`);
-        // let foo = execSync(`${this.conanExecutor} editable list`).toString();
-
-        let tempFile = fs.readFileSync(jsonPath, 'utf8').toString();
-
-        let stringList = [];
+        const tempFile = stdout;
+        let stringList: string[] = [];
 
         if (tempFile.length > 0) {
             stringList = tempFile.split("\n");
 
-            // Removing unnecessary text from the conan command line output
-            // This output is written to the output if the settngs.yaml is updated
-            // We need to remove this to start parse the information we need
             if (stringList[0].includes("cacert.pem")) {
                 stringList = stringList.splice(-1, 1);
             }
 
-            // Remove empty line in the last element
             stringList.pop();
 
-            // Start parsing the information
             for (let i = 0; i < stringList.length; i++) {
-                // Every third item is the header of the data (name of the recipe)
-                // Thats why we check it with modulo
                 if (i % 3 === 0) {
-                    let recipeName = stringList[i].trim();
-                    let recipePath = stringList[i + 1].trim().replace("Path: ", "");
+                    const recipeName = stringList[i].trim();
+                    const recipePath = stringList[i + 1].trim().replace("Path: ", "");
                     conanEditableRecipeList.push(new ConanRecipe(recipeName, true, recipePath));
                 }
             }
@@ -525,26 +522,38 @@ export class Conan1API extends ConanAPI {
         return conanEditableRecipeList;
     }
 
-    public override removeEditablePackageRecipe(recipe: string) {
-        execSync(`${this.conanExecutor} editable remove ${recipe}`);
+    public override async removeEditablePackageRecipe(recipe: string): Promise<void> {
+        await runConan(
+            ["editable", "remove", recipe],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable
+        );
     }
 
-    public override addEditablePackage(recipePath: string, name: string, user: string, channel: string, layout: string) {
+    public override async addEditablePackage(recipePath: string, name: string, user: string, channel: string, layout: string): Promise<void> {
         let recipeName: string = name;
-
         if (user !== "" && channel !== "") {
             recipeName = recipeName + `@${user}/${channel}`;
         }
 
-        execSync(`${this.conanExecutor} editable add ${recipePath} ${recipeName} --layout "${layout}"`);
+        await runConan(
+            ["editable", "add", recipePath, recipeName, "--layout", layout],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable
+        );
     }
 
-    public override getRecipeAttribute(recipePath: string, attribute: string) {
-        let res = execSync(`${this.conanExecutor} inspect ${recipePath} --raw ${attribute}`).toString();
+    public override async getRecipeAttribute(recipePath: string, attribute: string): Promise<string> {
+        const { stdout } = await runConan(
+            ["inspect", recipePath, "--raw", attribute],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable
+        );
 
-        let stringList = [];
-
-        stringList = res.split("\n");
+        let stringList = stdout.split("\n");
 
         if (stringList[0].includes("cacert.pem")) {
             stringList = stringList.splice(-1, 1);
@@ -553,29 +562,25 @@ export class Conan1API extends ConanAPI {
         return stringList[0];
     }
 
-    public override getRecipesByRemote(remote: string): Array<ConanRecipe> {
-        let listOfRecipes: Array<ConanRecipe> = [];
+    public override async getRecipesByRemote(remote: string): Promise<Array<ConanRecipe>> {
+        const listOfRecipes: Array<ConanRecipe> = [];
+        const { stdout } = await runConan(
+            ["remote", "list_ref"],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable
+        );
 
-        // Execute the conan remote `list_ref` to get list of recipe with associated remote
-        let res = execSync(`${this.conanExecutor} remote list_ref`).toString();
-
-        let stringList = [];
-
-        stringList = res.split(os.EOL);
+        let stringList = stdout.split(os.EOL);
 
         if (stringList[0].includes("cacert.pem")) {
             stringList.splice(0, 1);
         }
 
-        // Remove empty line in the last element
         stringList.pop();
 
-        for (let item of stringList) {
-            // The output from CLI is string with such format 'boost/1.77.0: conan.io'
-            // To get the recipe name we need to split the string using following string
-            let remoteRef = item.split(": ");
-
-            // Check if the remote is matched to given one
+        for (const item of stringList) {
+            const remoteRef = item.split(": ");
             if (remoteRef[1] === remote) {
                 listOfRecipes.push(new ConanRecipe(remoteRef[0], false, ""));
             }
@@ -584,18 +589,15 @@ export class Conan1API extends ConanAPI {
         return listOfRecipes;
     }
 
-    public override getFolderPathFromRecipe(recipe: string, folderOption: RecipeFolderOption): string {
-        let recipePath = this.getRecipePath(recipe);
-
+    public override async getFolderPathFromRecipe(recipe: string, folderOption: RecipeFolderOption): Promise<string> {
+        const recipePath = await this.getRecipePath(recipe);
         let returnValue = "";
 
         if (recipePath) {
-            let buildFolder = path.join(recipePath, folderOption);
-
-            let conanLinkFile = path.join(buildFolder, ".conan_link");
+            const buildFolder = path.join(recipePath, folderOption);
+            const conanLinkFile = path.join(buildFolder, ".conan_link");
 
             if (fs.existsSync(buildFolder)) {
-                // If .conan_link exists, it means conan only give reference to the real path using content of this file
                 if (fs.existsSync(conanLinkFile)) {
                     returnValue = this.getPathFromConanLink(conanLinkFile);
                 }
@@ -607,57 +609,48 @@ export class Conan1API extends ConanAPI {
 
         return returnValue;
     }
-    
-    public override getPackagesByRemote(recipe: string, remote: string): Array<ConanPackage> {
-        let listOfPackages: Array<ConanPackage> = [];
+
+    public override async getPackagesByRemote(recipe: string, remote: string): Promise<Array<ConanPackage>> {
+        const listOfPackages: Array<ConanPackage> = [];
 
         if (recipe === "") {
             return listOfPackages;
         }
-        else {
-            // Execute the conan remote `list_ref` to get list of recipe with associated remote
-            let res = execSync(`${this.conanExecutor} remote list_pref ${recipe}`).toString();
 
-            let stringList = [];
+        const { stdout } = await runConan(
+            ["remote", "list_pref", recipe],
+            this.conanExecutionMode,
+            this.pythonInterpreter,
+            this.conanExecutable
+        );
 
-            stringList = res.split(os.EOL);
+        let stringList = stdout.split(os.EOL);
 
-            if (stringList[0].includes("cacert.pem")) {
-                stringList.splice(0, 1);
-            }
-
-            // Remove empty line in the last element
-            stringList.pop();
-
-            for (let item of stringList) {
-                // The output from CLI is string with such format 'boost/1.77.0: conan.io'
-                // To get the recipe name we need to split the string using following string
-                let binaryPackageRef = item.replace(`${recipe}:`, "").split(": ");
-
-                // Check if the remote is matched to given one
-                if (binaryPackageRef[1] === remote) {
-                    listOfPackages.push(new ConanPackage(binaryPackageRef[0], false, {}, false, {}, {}, ""));
-                }
-
-            }
-
-            return listOfPackages;
+        if (stringList[0].includes("cacert.pem")) {
+            stringList.splice(0, 1);
         }
+
+        stringList.pop();
+
+        for (const item of stringList) {
+            const binaryPackageRef = item.replace(`${recipe}:`, "").split(": ");
+            if (binaryPackageRef[1] === remote) {
+                listOfPackages.push(new ConanPackage(binaryPackageRef[0], false, {}, false, {}, {}, ""));
+            }
+        }
+
+        return listOfPackages;
     }
 
-    public override getPackageRevisions(recipe: string, packageId: string): Array<ConanPackageRevision> {
-        // DO NOTHING
-
+    public override async getPackageRevisions(_recipe: string, _packageId: string): Promise<Array<ConanPackageRevision>> {
         return [];
     }
 
-    public getPackageRevisionPath(recipe: string, packageId: string, revisionId: string): string | undefined {
-        // DO NOTHING
+    public override async getPackageRevisionPath(_recipe: string, _packageId: string, _revisionId: string): Promise<string | undefined> {
         return undefined;
     }
 
-    public removePackageRevision(recipe: string, packageId: string, revisionId: string): void {
-        // DO NOTHING
+    public override async removePackageRevision(_recipe: string, _packageId: string, _revisionId: string): Promise<void> {
+        /* Conan 1: no-op */
     }
-    
 }

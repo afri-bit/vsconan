@@ -1,5 +1,6 @@
 import { PythonExtension } from '@vscode/python-extension';
-import { execSync, spawn } from "child_process";
+import { execFile as execFileCb, spawn } from "child_process";
+import { promisify } from "util";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
@@ -15,6 +16,8 @@ import {
 } from "../conans/command/configCommand";
 import { configWorkspaceSchema } from "../conans/workspace/configWorkspace";
 import * as constants from "./constants";
+
+const execFileAsync = promisify(execFileCb);
 
 export namespace vsconan {
     /**
@@ -183,12 +186,15 @@ export namespace conan {
         if (!fs.existsSync(envScript)) {
             throw new Error('Unable to locate print_env.py');
         }
-        const options = { timeout: 20000, cwd: vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined };
-
-        const cmd = `${pythonInterpreter} ${envScript} ${conanEnv} ${args.join(' ')}`;
+        const cwd = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
         try {
-            const output = execSync(cmd, options);
-            const parsed = JSON.parse(`${output}`);
+            const { stdout } = (await execFileAsync(pythonInterpreter, [envScript, conanEnv, ...args], {
+                cwd,
+                timeout: 20000,
+                encoding: "utf8",
+                maxBuffer: 50 * 1024 * 1024,
+            })) as { stdout: string; stderr: string };
+            const parsed = JSON.parse(stdout);
             return Object.entries(parsed);
         } catch (err) {
             vscode.window.showErrorMessage((err as Error).message);

@@ -21,14 +21,13 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
         return element;
     }
 
-    public getChildren(element?: ConanProfileItem): ConanProfileItem[] {
-        let profileList: string[] = [];
-        let profileItemList: Array<ConanProfileItem> = [];
+    public async getChildren(element?: ConanProfileItem): Promise<ConanProfileItem[]> {
+        const profileItemList: Array<ConanProfileItem> = [];
 
         if (this.conanApiManager.conanApi) {
-            profileList = this.conanApiManager.conanApi.getProfiles();
+            const profileList = await this.conanApiManager.conanApi.getProfiles();
 
-            for (let profile of profileList) {
+            for (const profile of profileList) {
                 profileItemList.push(new ConanProfileItem(profile, vscode.TreeItemCollapsibleState.None));
             }
         }
@@ -36,13 +35,11 @@ export class ConanProfileNodeProvider implements vscode.TreeDataProvider<ConanPr
         return profileItemList;
     }
 
-    public getChildrenString(): string[] {
-        let childStringList = [];
-
-        for (let child of this.getChildren()) {
+    public async getChildrenString(): Promise<string[]> {
+        const childStringList: string[] = [];
+        for (const child of await this.getChildren()) {
             childStringList.push(child.label);
         }
-
         return childStringList;
     }
 }

@@ -41,21 +41,20 @@ export class ConanPackageRevisionNodeProvider implements vscode.TreeDataProvider
         return element;
     }
 
-    public getChildren(element?: ConanPackageRevisionItem): ConanPackageRevisionItem[] {
+    public async getChildren(element?: ConanPackageRevisionItem): Promise<ConanPackageRevisionItem[]> {
 
         if (!element) {
-
-            let packageRevisionList: Array<ConanPackageRevision> = [];
-            // TODO: Implement dirty package list
-            let dirtyPackageList: Array<ConanPackageRevision> = [];
-            let packageRevisionItemList: Array<ConanPackageRevisionItem> = [];
+            const packageRevisionItemList: Array<ConanPackageRevisionItem> = [];
 
             if (this.conanApiManager.conanApi) {
-                packageRevisionList = this.conanApiManager.conanApi.getPackageRevisions(this.recipeName, this.packageId);
+                const packageRevisionList = await this.conanApiManager.conanApi.getPackageRevisions(this.recipeName, this.packageId);
 
-                for (let pkgRevision of packageRevisionList) {
-                    let packageRevisionPath = this.conanApiManager.conanApi.getPackageRevisionPath(this.recipeName, this.packageId, pkgRevision.id);
-
+                for (const pkgRevision of packageRevisionList) {
+                    const packageRevisionPath = await this.conanApiManager.conanApi.getPackageRevisionPath(
+                        this.recipeName,
+                        this.packageId,
+                        pkgRevision.id
+                    );
 
                     packageRevisionItemList.push(new ConanPackageRevisionItem(pkgRevision.id,
                         vscode.Uri.file(packageRevisionPath!),
@@ -67,7 +66,6 @@ export class ConanPackageRevisionNodeProvider implements vscode.TreeDataProvider
             return packageRevisionItemList;
         }
 
-        // Load subfolders/files only if the folder is expanded
         if (!this.expandedNodes.has(element.resourceUri.fsPath)) {
             return [];
         }
@@ -112,13 +110,11 @@ export class ConanPackageRevisionNodeProvider implements vscode.TreeDataProvider
         return files;
     }
 
-    public getChildrenString(): string[] {
-        let childStringList = [];
-
-        for (let child of this.getChildren()) {
+    public async getChildrenString(): Promise<string[]> {
+        const childStringList: string[] = [];
+        for (const child of await this.getChildren()) {
             childStringList.push(child.label);
         }
-
         return childStringList;
     }
 

@@ -18,6 +18,17 @@ interface ConfigCommandQuickPickItem extends vscode.QuickPickItem {
     index: number;
 }
 
+/** Quote executable paths for spawn(..., { shell: true }) when they contain spaces or quotes. */
+function quotePathForShell(p: string): string {
+    if (!p) {
+        return p;
+    }
+    if (/[\s'"]/u.test(p)) {
+        return `"${p.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+    }
+    return p;
+}
+
 /**
  * Class to manage conan workspace extension
  */
@@ -272,10 +283,10 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                 conanProfileObject = await this.settingsPropertyManager.getConanProfileObject(currentConanProfile!);
 
                 if (conanProfileObject?.conanExecutionMode === "pythonInterpreter" && conanProfileObject.conanPythonInterpreter) {
-                    conanCommand = `${conanProfileObject.conanPythonInterpreter} -m conans.conan`;
+                    conanCommand = `${quotePathForShell(conanProfileObject.conanPythonInterpreter)} -m conans.conan`;
                 }
                 else if (conanProfileObject?.conanExecutionMode === "conanExecutable" && conanProfileObject.conanExecutable) {
-                    conanCommand = `${conanProfileObject.conanExecutable}`;
+                    conanCommand = `${quotePathForShell(conanProfileObject.conanExecutable)}`;
                 }
                 else {
                     vscode.window.showErrorMessage("Empty Conan Command");
@@ -581,8 +592,8 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
                 if (wsChoice) {
                     // Get the name and version in the recipe
-                    let name = this.conanApiManager.conanApi.getRecipeAttribute(wsChoice!.label, "name");
-                    let version = this.conanApiManager.conanApi.getRecipeAttribute(wsChoice!.label, "version");
+                    let name = await this.conanApiManager.conanApi.getRecipeAttribute(wsChoice!.label, "name");
+                    let version = await this.conanApiManager.conanApi.getRecipeAttribute(wsChoice!.label, "version");
                     let packageInformation = `${name}/${version}`;
 
                     // Input for 'user' and 'channel'
@@ -639,7 +650,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
                         });
 
                         if (layout !== undefined) {
-                            this.conanApiManager.conanApi.addEditablePackage(wsChoice.label, packageInformation, user, channel, layout);
+                            await this.conanApiManager.conanApi.addEditablePackage(wsChoice.label, packageInformation, user, channel, layout);
                             vscode.window.showInformationMessage(`Editable package '${packageInformation}' with user '${user}' and channel '${channel}' has been added.`);
                         }
 
@@ -654,7 +665,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
     private async removeEditablePackage() {
         try {
-            let editablePackageRecipes = this.conanApiManager.conanApi.getEditablePackageRecipes();
+            let editablePackageRecipes = await this.conanApiManager.conanApi.getEditablePackageRecipes();
 
             const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
             let quickPickItems = [];
@@ -672,7 +683,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
             const choice = await vscode.window.showQuickPick(quickPickItems);
 
             if (choice) {
-                this.conanApiManager.conanApi.removeEditablePackageRecipe(choice.label);
+                await this.conanApiManager.conanApi.removeEditablePackageRecipe(choice.label);
                 vscode.window.showInformationMessage(`Editable package ${choice?.label} has been removed.`);
             }
         }

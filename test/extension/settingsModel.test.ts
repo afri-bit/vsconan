@@ -35,7 +35,7 @@ describe("ConanProfileConfiguration", () => {
         expect(p.isValid()).toBe(false);
     });
 
-    it("should JSON-encode path fields in escapeWhitespace", () => {
+    it("should keep raw paths after escapeWhitespace (execFile argv)", () => {
         const p = new ConanProfileConfiguration();
         p.conanPythonInterpreter = "/opt/my python/bin/python3";
         p.conanExecutable = "/usr/local/bin/conan";
@@ -43,8 +43,19 @@ describe("ConanProfileConfiguration", () => {
 
         p.escapeWhitespace();
 
-        expect(p.conanPythonInterpreter).toBe(JSON.stringify("/opt/my python/bin/python3"));
-        expect(p.conanExecutable).toBe(JSON.stringify("/usr/local/bin/conan"));
-        expect(p.conanUserHome).toBe(JSON.stringify("/home/user/.conan2"));
+        expect(p.conanPythonInterpreter).toBe("/opt/my python/bin/python3");
+        expect(p.conanExecutable).toBe("/usr/local/bin/conan");
+        expect(p.conanUserHome).toBe("/home/user/.conan2");
+    });
+
+    it("should unwrap legacy JSON-stringified paths from escapeWhitespace", () => {
+        const p = new ConanProfileConfiguration();
+        p.conanPythonInterpreter = JSON.stringify("/venv/bin/python");
+        p.conanExecutable = JSON.stringify("/usr/bin/conan");
+
+        p.escapeWhitespace();
+
+        expect(p.conanPythonInterpreter).toBe("/venv/bin/python");
+        expect(p.conanExecutable).toBe("/usr/bin/conan");
     });
 });
