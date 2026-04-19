@@ -1,0 +1,62 @@
+---
+description: TypeScript coding standards, best practices, and Google-style JSDoc
+globs: "**/*.ts"
+alwaysApply: false
+---
+
+# TypeScript standards (VSConan)
+
+## General
+
+- Prefer **explicit types** on public APIs and exported symbols; let inference narrow locals when it stays readable.
+- Avoid `any`; use `unknown` and narrow, or model the real shape. Do not disable strict checks to silence errors.
+- Prefer **narrow types** (`readonly`, `const` assertions, discriminated unions) over broad unions or stringly-typed flags.
+- **Imports:** use path style already used in the file; keep dependency direction (e.g. `src/conans/` must not import `vscode`).
+- **Control flow:** prefer early returns; avoid deep nesting. Handle errors deliberately—no empty `catch` blocks.
+- **Async:** use `async`/`await` consistently; propagate or wrap errors with context where it helps callers.
+
+## Naming and structure
+
+- Use `camelCase` for variables/functions, `PascalCase` for types/classes, `UPPER_SNAKE` only for true constants shared at module scope.
+- One main concern per module; colocate small helpers with the feature that owns them unless reuse is clear.
+
+## Google-style JSDoc (TSDoc-compatible)
+
+Document **exported** functions, classes, and non-obvious public fields with `/** ... */`. Use **complete sentences** with a period. First line is a **summary**; optional extra paragraphs after a blank line.
+
+```typescript
+/**
+ * Builds the Conan install argv for the given profile and reference.
+ *
+ * @param workspaceRoot Absolute path to the workspace folder.
+ * @param reference Package reference as passed to Conan.
+ * @returns Argument list suitable for `spawn` without a shell.
+ */
+```
+
+- `@param name` — sentence describing the parameter (Google: `/** @param foo The thing. */`).
+- `@returns` — what is returned; omit if obvious from name and `@deprecated` if applicable.
+- `@throws` — document thrown errors when callers must handle or expect them.
+- `@example` — only when usage is non-obvious.
+
+Do not wrap obvious private one-liners in verbose JSDoc; match the documentation density of nearby code.
+
+## Quick anti-patterns
+
+```typescript
+// ❌ BAD: silent catch, loose type
+try { await run(); } catch (e) {}
+function parse(s: any) { return JSON.parse(s); }
+
+// ✅ GOOD: narrow, log or rethrow with context
+try {
+  await run();
+} catch (e) {
+  throw new Error("Conan install failed", { cause: e });
+}
+function parse(s: unknown): unknown {
+  return JSON.parse(String(s));
+}
+```
+
+After substantive edits, run `npm run lint` and tests as in `AGENTS.md`.
