@@ -189,17 +189,17 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         let ws = utils.workspace.selectWorkspace();
 
         ws.then(result => {
-            let vsconanPath = path.join(String(result), constants.VSCONAN_FOLDER);
-            if (!fs.existsSync(vsconanPath)) {
-                fs.mkdirSync(vsconanPath);
+            let configFilePath = utils.vsconan.getWorkspaceConfigPath(String(result));
+            let configDirPath = path.dirname(configFilePath);
+            if (!fs.existsSync(configDirPath)) {
+                fs.mkdirSync(configDirPath, { recursive: true });
             }
 
-            let configFilePath = path.join(vsconanPath, constants.CONFIG_FILE);
             if (fs.existsSync(configFilePath)) {
                 vscode.window.showInformationMessage("Config file already exists in the workspace.");
             }
             else {
-                utils.vsconan.config.createInitialWorkspaceConfig(vsconanPath);
+                utils.vsconan.config.createInitialWorkspaceConfig(configFilePath);
 
                 // Open configuration file after being created
                 utils.editor.openFileInEditor(configFilePath);
@@ -217,7 +217,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
 
         ws.then(async result => {
             if ((result !== undefined) && (result !== "")) {
-                utils.editor.openFileInEditor(path.join(result!, constants.VSCONAN_FOLDER, constants.CONFIG_FILE));
+                utils.editor.openFileInEditor(utils.vsconan.getWorkspaceConfigPath(result));
             }
             else {
                 vscode.window.showErrorMessage("Unable to find the config file.");
@@ -237,7 +237,7 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         // Check the configuration and executed pre selected command based on this function argument
         let wsPath = await utils.workspace.selectWorkspace();
 
-        let configPath = path.join(wsPath!, constants.VSCONAN_FOLDER, constants.CONFIG_FILE);
+        let configPath = utils.vsconan.getWorkspaceConfigPath(wsPath!);
 
         if (fs.existsSync(configPath)) {
             let configWorkspace = new ConfigWorkspace();

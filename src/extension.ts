@@ -72,7 +72,7 @@ export function activate(context: vscode.ExtensionContext) {
         for (let i = 0; i < wsList.length; i++) {
 
             let wsPath = wsList[i].uri.fsPath;
-            let configPath = path.join(wsPath, constants.VSCONAN_FOLDER, constants.CONFIG_FILE);
+            let configPath = utils.vsconan.getWorkspaceConfigPath(wsPath);
 
             if (utils.conan.isFolderConanProject(wsPath) && !fs.existsSync(configPath!)) {
 
@@ -81,14 +81,13 @@ export function activate(context: vscode.ExtensionContext) {
                     .then((answer) => {
                         if (answer === "Yes") {
 
-                            // .vsconan path in the workspace
-                            let vsconanPath = path.join(wsPath, constants.VSCONAN_FOLDER);
-                            if (!fs.existsSync(vsconanPath)) {
-                                fs.mkdirSync(vsconanPath!);
+                            let configDirPath = path.dirname(configPath);
+                            if (!fs.existsSync(configDirPath)) {
+                                fs.mkdirSync(configDirPath, { recursive: true });
                             }
 
                             // Create a default config file
-                            utils.vsconan.config.createInitialWorkspaceConfig(vsconanPath);
+                            utils.vsconan.config.createInitialWorkspaceConfig(configPath);
                         }
                     });
             }

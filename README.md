@@ -150,6 +150,8 @@ As other treeview, each item is equipped with several options, that you can use 
 The Conan Workspace feature provides you configuration file, that can be used to execute predefined conan flow command and its arguments. The configuration will be stored under `.vsconan` folder in your workspace.  
 If you work a lot with conan and use VS Code as your IDE, this feature can be really beneficial for you. It can spare you some seconds by avoiding to type same command, maybe with different arguments in your terminal over and over again. Instead you can save the command that you want to execute in the configuration and reuse in the next execution. In addition to that, the configuration file is reusable, and can be distributed to other people, if you work in a team.
 
+Set `vsconan.workspace.configPath` to store the configuration elsewhere. Relative paths are resolved from the workspace root; absolute paths are used unchanged. The default is `.vsconan/config.json`.
+
 ![Recording of VSConan Workspace](https://raw.githubusercontent.com/afri-bit/vsconan/main/resources/img/demo_workspace.gif)
 
 **VSConan** Extension will detect your workspace as conan workspace, if it contains a `conanfile.py` or `conanfile.txt`, and will a show dialog box as following

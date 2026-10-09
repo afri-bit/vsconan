@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.5.0 - 2026-09-24
+
+### Added
+
+* Custom workspace configuration file location
+  Added the `vsconan.workspace.configPath` setting to control where the VSConan workspace configuration file is stored. Relative paths are resolved from the workspace folder; absolute paths are used unchanged. Defaults to `.vsconan/config.json`.
+
 ## 1.4.0 - 2025-03-04
 
 ### Added

@@ -39,6 +39,18 @@ export namespace vsconan {
     }
 
     /**
+     * Get the workspace configuration path. Relative paths are resolved from
+     * the workspace folder; absolute paths are used unchanged.
+     */
+    export function getWorkspaceConfigPath(workspacePath: string): string {
+        const defaultConfigPath = path.join(constants.VSCONAN_FOLDER, constants.CONFIG_FILE);
+        const configuredPath = vscode.workspace.getConfiguration("vsconan", vscode.Uri.file(workspacePath))
+            .get<string>("workspace.configPath", defaultConfigPath);
+
+        return path.isAbsolute(configuredPath) ? configuredPath : path.join(workspacePath, configuredPath);
+    }
+
+    /**
      * Function to initialize the global area such as creating .vsconan folder
      * in the HOME folder, creating a temporary folder and creating a default global
      * config file
@@ -92,10 +104,10 @@ export namespace vsconan {
          * Function to create initial workspace configuration file with all conan commands
          * registered in the config files
          *
-         * @param configPath Path where the config file is to be stored
+         * @param configFilePath Path where the config file is to be stored
          *
          */
-        export function createInitialWorkspaceConfig(configPath: string) {
+        export function createInitialWorkspaceConfig(configFilePath: string) {
             let configWorkspace = new ConfigWorkspace(new CommandContainer(
                 [new ConfigCommandCreate()],
                 [new ConfigCommandInstall()],
@@ -105,7 +117,7 @@ export namespace vsconan {
                 [new ConfigCommandPackageExport()]
             ));
 
-            configWorkspace.writeToFile(path.join(configPath, constants.CONFIG_FILE));
+            configWorkspace.writeToFile(configFilePath);
         }
     }
 }

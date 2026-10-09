@@ -78,6 +78,47 @@ describe("VSConan Utils", () => {
     });
 });
 
+describe("getWorkspaceConfigPath", () => {
+    const workspacePath = path.normalize("/path/to/workspace");
+    let getConfigurationMock: jest.Mock;
+
+    beforeEach(() => {
+        getConfigurationMock = jest.fn();
+        (vscode as any).workspace = { getConfiguration: getConfigurationMock };
+        (vscode as any).Uri = { file: (fsPath: string) => ({ fsPath }) };
+    });
+
+    it("should resolve the default relative config path against the workspace folder", () => {
+        const get = jest.fn().mockImplementation((key: string, defaultValue: string) => defaultValue);
+        getConfigurationMock.mockReturnValue({ get });
+
+        const configPath = utils.vsconan.getWorkspaceConfigPath(workspacePath);
+
+        expect(getConfigurationMock).toHaveBeenCalledWith("vsconan", { fsPath: workspacePath });
+        expect(get).toHaveBeenCalledWith("workspace.configPath", path.join(".vsconan", "config.json"));
+        expect(configPath).toEqual(path.join(workspacePath, ".vsconan", "config.json"));
+    });
+
+    it("should resolve a custom relative config path against the workspace folder", () => {
+        const get = jest.fn().mockReturnValue("custom/myConfig.json");
+        getConfigurationMock.mockReturnValue({ get });
+
+        const configPath = utils.vsconan.getWorkspaceConfigPath(workspacePath);
+
+        expect(configPath).toEqual(path.join(workspacePath, "custom/myConfig.json"));
+    });
+
+    it("should use an absolute config path unchanged", () => {
+        const absolutePath = path.normalize("/absolute/myConfig.json");
+        const get = jest.fn().mockReturnValue(absolutePath);
+        getConfigurationMock.mockReturnValue({ get });
+
+        const configPath = utils.vsconan.getWorkspaceConfigPath(workspacePath);
+
+        expect(configPath).toEqual(absolutePath);
+    });
+});
+
 describe("Workspace", ()=>{
 
     it("should get the absolute path", () => {
@@ -88,7 +129,7 @@ describe("Workspace", ()=>{
         let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
 
         expect(realPath).toEqual(JSON.stringify(pathName));
-        
+
     });
 
     it("should get the absolute path from the workspace", () => {
@@ -99,7 +140,7 @@ describe("Workspace", ()=>{
         let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
 
         expect(realPath).toEqual(JSON.stringify("/path/to/workspace/relative/path/to/some/file"));
-        
+
     });
 
     it("should get the absolute path from the workspace (extra slash at the end)", () => {
@@ -110,7 +151,7 @@ describe("Workspace", ()=>{
         let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
 
         expect(realPath).toEqual(JSON.stringify("/path/to/workspace/relative/path/to/some/file"));
-        
+
     });
 
     it("should escape the white space with relative path", () => {
@@ -121,7 +162,7 @@ describe("Workspace", ()=>{
         let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
 
         expect(realPath).toEqual(JSON.stringify("/path/to/workspace/relative/path/to/some file"));
-        
+
     });
 
     it("should get the absolute path with escaped whitespace", () => {
@@ -132,6 +173,6 @@ describe("Workspace", ()=>{
         let realPath = workspace.getAbsolutePathFromWorkspace(workspacePath, pathName);
 
         expect(realPath).toEqual(JSON.stringify("/absolute/path/to/some file"));
-        
+
     });
 });
