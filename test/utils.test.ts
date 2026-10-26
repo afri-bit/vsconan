@@ -7,6 +7,7 @@ import * as path from "path";
 
 import { ConanProfileConfiguration } from "../src/extension/settings/model";
 import { general, workspace } from "../src/utils/utils";
+import { ConfigWorkspace } from "../src/conans/workspace/configWorkspace";
 
 
 describe("General", () => {
@@ -116,6 +117,23 @@ describe("getWorkspaceConfigPath", () => {
         const configPath = utils.vsconan.getWorkspaceConfigPath(workspacePath);
 
         expect(configPath).toEqual(absolutePath);
+    });
+});
+
+describe("Config", () => {
+    it("should create the initial workspace config with a default preset workflow", () => {
+        const writeToFileMock = jest.spyOn(ConfigWorkspace.prototype, "writeToFile").mockImplementation(() => { });
+
+        const configFilePath = path.normalize("/path/to/workspace/.vsconan/config.json");
+        utils.vsconan.config.createInitialWorkspaceConfig(configFilePath);
+
+        expect(writeToFileMock).toHaveBeenCalledWith(configFilePath);
+
+        const configWorkspace = writeToFileMock.mock.instances[0] as unknown as ConfigWorkspace;
+        expect(configWorkspace.commandContainer.create).toHaveLength(0);
+        expect(configWorkspace.presetContainer).toHaveProperty("default");
+
+        writeToFileMock.mockRestore();
     });
 });
 

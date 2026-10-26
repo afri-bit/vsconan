@@ -1,5 +1,17 @@
 # Change Log
 
+## 1.6.0 - 2026-09-24
+
+### Added
+
+* Preset-based workspace command configuration
+  Added a `presetContainer` format to the workspace configuration file. Presets let you define a named Conan command workflow once and reuse shared values (recipe, profile, folders, args) across all commands, instead of repeating them for each entry in `commandContainer`. The original `commandContainer` format is still supported and can be combined with `presetContainer`.
+
+### Fixed
+
+* Workspace configuration files now accept JSON with comments and trailing commas.
+* Asynchronous command errors are propagated to VS Code instead of being silently discarded.
+
 ## 1.5.0 - 2026-09-24
 
 ### Added

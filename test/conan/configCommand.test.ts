@@ -7,7 +7,7 @@ import {
     ConfigCommand, ConfigCommandBuild,
     ConfigCommandCreate, ConfigCommandInstall,
     ConfigCommandPackage, ConfigCommandPackageExport,
-    ConfigCommandSource
+    ConfigCommandSource, ConfigCommandWorkflow
 } from "../../src/conans/command/configCommand";
 
 describe("Conan Config Command basic class ", () => {
@@ -105,6 +105,7 @@ describe("Conan Package", () => {
         expect(cfg.buildFolder).toBe("build");
         expect(cfg.packageFolder).toBe("package");
         expect(cfg.sourceFolder).toBe("source");
+        expect(cfg.args.length).toBe(0);
     });
 
 });
@@ -124,6 +125,33 @@ describe("Conan Package Export", () => {
         expect(cfg.user).toBe("");
         expect(cfg.channel).toBe("");
         expect(cfg.args.length).toBe(0);
+    });
+
+});
+
+describe("Conan Command Workflow", () => {
+
+    it("should return default preset values", () => {
+        let workflow = new ConfigCommandWorkflow();
+
+        expect(workflow.description).toBe("");
+        expect(workflow.detail).toBe("");
+        expect(workflow.conanRecipe).toBe("conanfile.py");
+        expect(workflow.profile).toBe("default");
+        expect(workflow.user).toBe("");
+        expect(workflow.channel).toBe("");
+        expect(workflow.installFolder).toBe("install");
+        expect(workflow.buildFolder).toBe("build");
+        expect(workflow.packageFolder).toBe("package");
+        expect(workflow.sourceFolder).toBe("source");
+        expect(workflow.version).toBe("");
+        expect(workflow.args).toEqual([]);
+        expect(workflow.createArgs).toBeUndefined();
+        expect(workflow.installArgs).toBeUndefined();
+        expect(workflow.buildArgs).toBeUndefined();
+        expect(workflow.sourceArgs).toBeUndefined();
+        expect(workflow.packageArgs).toBeUndefined();
+        expect(workflow.packageExportArgs).toBeUndefined();
     });
 
 });

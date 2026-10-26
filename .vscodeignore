@@ -27,3 +27,7 @@ doc-requirements.txt
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
 .vscode-test.mjs
+coverage/**
+**/__pycache__/**
+*.vsix
+.github/**

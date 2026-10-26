@@ -5,9 +5,7 @@ import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 import {
-    CommandContainer, ConfigCommandBuild, ConfigCommandCreate,
-    ConfigCommandInstall, ConfigCommandPackage, ConfigCommandPackageExport,
-    ConfigCommandSource
+    CommandContainer, ConfigCommandWorkflow
 } from "../conans/command/configCommand";
 import { ConfigWorkspace } from "../conans/workspace/configWorkspace";
 import * as constants from "./constants";
@@ -108,14 +106,9 @@ export namespace vsconan {
          *
          */
         export function createInitialWorkspaceConfig(configFilePath: string) {
-            let configWorkspace = new ConfigWorkspace(new CommandContainer(
-                [new ConfigCommandCreate()],
-                [new ConfigCommandInstall()],
-                [new ConfigCommandBuild()],
-                [new ConfigCommandSource()],
-                [new ConfigCommandPackage()],
-                [new ConfigCommandPackageExport()]
-            ));
+            let configWorkspace = new ConfigWorkspace(new CommandContainer(), {
+                "default": new ConfigCommandWorkflow()
+            });
 
             configWorkspace.writeToFile(configFilePath);
         }

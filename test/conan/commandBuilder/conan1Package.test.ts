@@ -98,4 +98,22 @@ describe("Conan 1 Package method", () => {
 
         expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")}`);
     });
+
+    it("should return conan package command with additional args", () => {
+
+        let conanPackage = new ConfigCommandPackage();
+        conanPackage.installFolder = "";
+        conanPackage.buildFolder = "";
+        conanPackage.packageFolder = "";
+        conanPackage.sourceFolder = "";
+        conanPackage.args = ["--some", "arg", "--another", "arg"];
+
+        let cmd = commandBuilder.buildCommandPackage("/home/user/ws", conanPackage);
+
+        expect(cmd?.length).toBe(5);
+
+        let cmdString = cmd?.join(" ");
+
+        expect(cmdString).toBe(`${JSON.stringify("/home/user/ws/conanfile.py")} --some arg --another arg`);
+    });
 }); 

@@ -171,7 +171,7 @@ Currently supported conan command for configuration file:
 
 > The execution of the conan command will be done by the interpreter / conan executable from the profile that you selected. This configuration can be used for Conan version 1 and 2.
 
-The default configuration file can be seen as following. You can extend the list of each command to have different name, description, user, channel and many other details. 
+The original `commandContainer` format remains supported. It contains a separate list for each command, so each command can have independent values.
 
 ```json
 {
@@ -237,7 +237,8 @@ The default configuration file can be seen as following. You can extend the list
         "installFolder": "install",
         "buildFolder": "build",
         "packageFolder": "package",
-        "sourceFolder": "source"
+        "sourceFolder": "source",
+        "args": []
       }
     ],
     "pkgExport": [
@@ -258,6 +259,32 @@ The default configuration file can be seen as following. You can extend the list
   }
 }
 ```
+
+#### Command Container
+
+`commandContainer` can be used alone, or alongside `presetContainer`.
+
+#### Preset Container
+
+Use `presetContainer` to avoid repeating shared values. A preset name becomes the label shown when selecting a command configuration. `args` is the default argument list for every command. When present, `createArgs`, `installArgs`, `buildArgs`, `sourceArgs`, `packageArgs`, or `packageExportArgs` replaces `args` for its corresponding command. All argument fields are arrays of individual CLI arguments.
+
+The shared fields are `description`, `detail`, `conanRecipe`, `profile`, `user`, `channel`, `installFolder`, `buildFolder`, `packageFolder`, `sourceFolder`, and `version`. Omit any field that should use its existing default value.
+
+```json
+{
+  "presetContainer": {
+    "linux-release": {
+      "description": "Build the Linux release package",
+      "conanRecipe": "conanfile.py",
+      "profile": "default",
+      "args": ["-s", "build_type=Release"],
+      "installArgs": ["--build=missing"]
+    }
+  }
+}
+```
+
+When both containers are present, entries from `presetContainer` are added to the corresponding `commandContainer` lists.
 
 #### Application of Conan's buildEnv/runEnv (currently Conan 2 only)
 

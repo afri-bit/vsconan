@@ -240,9 +240,8 @@ export class VSConanWorkspaceManager extends ExtensionManager {
         let configPath = utils.vsconan.getWorkspaceConfigPath(wsPath!);
 
         if (fs.existsSync(configPath)) {
-            let configWorkspace = new ConfigWorkspace();
             let configText = fs.readFileSync(configPath, 'utf8');
-            configWorkspace = JSON.parse(configText);
+            let configWorkspace = ConfigWorkspace.fromJson(configText);
 
             let conanCommand = "";
             let commandBuilder: CommandBuilder | undefined;

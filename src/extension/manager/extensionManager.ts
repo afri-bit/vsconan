@@ -9,9 +9,7 @@ export abstract class ExtensionManager extends Disposable {
 	 */
 	protected registerCommand(command: string, callback: (...args: any[]) => any) {
 		this.registerDisposable(
-			vscode.commands.registerCommand(command, (...args: any[]) => {
-				callback(...args);
-			})
+			vscode.commands.registerCommand(command, (...args: any[]) => callback(...args))
 		);
-	} 
+	}
 }

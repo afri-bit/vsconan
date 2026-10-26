@@ -10,7 +10,7 @@ import {
 } from "../command/configCommand";
 
 /**
- * Static class to build command for some conan workflow based on the configuration. 
+ * Static class to build command for some conan workflow based on the configuration.
  */
 export class CommandBuilderConan1 extends CommandBuilder {
 
@@ -155,6 +155,8 @@ export class CommandBuilderConan1 extends CommandBuilder {
         if (cfg.sourceFolder !== "" && cfg.sourceFolder !== undefined) {
             cmd.push.apply(cmd, ["-sf", utils.workspace.getAbsolutePathFromWorkspace(wsPath, cfg.sourceFolder)]);
         }
+
+        cmd.push.apply(cmd, cfg.args);
 
         return cmd;
 

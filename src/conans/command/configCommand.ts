@@ -115,6 +115,7 @@ export class ConfigCommandPackage extends ConfigCommand {
     public buildFolder: string;
     public packageFolder: string;
     public sourceFolder: string;
+    public args: Array<string>;
 
     constructor(name: string = "pkg",
         description: string = "Package command",
@@ -122,12 +123,14 @@ export class ConfigCommandPackage extends ConfigCommand {
         installFolder: string = "install",
         buildFolder: string = "build",
         packageFolder: string = "package",
-        sourceFolder: string = "source") {
+        sourceFolder: string = "source",
+        args: Array<string> = []) {
         super(name, description, detail);
         this.installFolder = installFolder;
         this.buildFolder = buildFolder;
         this.packageFolder = packageFolder;
         this.sourceFolder = sourceFolder;
+        this.args = args;
     }
 }
 
@@ -159,6 +162,30 @@ export class ConfigCommandPackageExport extends ConfigCommand {
         this.channel = channel;
         this.args = args;
     }
+}
+
+/**
+ * Shared configuration for all Conan commands in a named workspace workflow.
+ */
+export class ConfigCommandWorkflow {
+    public description: string = "";
+    public detail: string = "";
+    public conanRecipe: string = "conanfile.py";
+    public profile: string = "default";
+    public user: string = "";
+    public channel: string = "";
+    public installFolder: string = "install";
+    public buildFolder: string = "build";
+    public packageFolder: string = "package";
+    public sourceFolder: string = "source";
+    public version: string = "";
+    public args: Array<string> = [];
+    public createArgs: Array<string> | undefined;
+    public installArgs: Array<string> | undefined;
+    public buildArgs: Array<string> | undefined;
+    public sourceArgs: Array<string> | undefined;
+    public packageArgs: Array<string> | undefined;
+    public packageExportArgs: Array<string> | undefined;
 }
 
 export class CommandContainer {
